@@ -94,6 +94,9 @@
     r.mainProtein = prot ? prot.tag : null;
     r.mins = r.active || r.time || 10;
     r.italian = r.tags.includes('italian') || CT.ITALIAN.has(r.id);
+    const tr = (CT.IT || {})[r.id] || {};
+    r.itSteps = Array.isArray(tr.steps) && tr.steps.length ? tr.steps : (Array.isArray(r.stepsIt) ? r.stepsIt : null);
+    r.itNote = tr.note || r.noteIt || '';
     r.animalG = r.ings.reduce((a, i) => a + (ANIMAL_TAGS.has(i.tag) ? i.g : 0), 0);
     CT.computeBenefits(r);
     r._prepped = true;

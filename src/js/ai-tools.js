@@ -26,14 +26,14 @@
       saturated_fat_g: +n.sf.toFixed(1), sugars_g: Math.round(n.sug), sodium_mg: Math.round(n.na),
       omega3_g: +n.o3.toFixed(1), cost_eur: +n.cost.toFixed(2) };
   };
-  const brief = (r) => ({ id: r.id, name: r.name, meals: r.slots.map((s) => CT.SLOTS[s].en), hands_on_min: r.active,
+  const brief = (r) => ({ id: r.id, name: CT.rName(r), meals: r.slots.map((s) => CT.SLOTS[s].en), hands_on_min: r.active,
     total_min: r.time, kcal: Math.round(r.nutri.kcal), fibre_g: Math.round(r.nutri.fib),
     saturated_fat_g: +r.nutri.sf.toFixed(1), cost_eur: +r.cost.toFixed(2), tags: r.tags });
 
   CT.ui.planEdits = CT.ui.planEdits || [];
   const noteEdit = (date, slot, prevId, r) => {
-    CT.ui.planEdits.push({ date, slot, prevId, newId: r.id, newName: r.name });
-    CT.toast(CT.SLOTS[slot].en + ' ' + CT.relDay(date).toLowerCase() + ': ' + r.name, 'good');
+    CT.ui.planEdits.push({ date, slot, prevId, newId: r.id, newName: CT.rName(r) });
+    CT.toast(CT.SLOTS[slot].en + ' ' + CT.relDay(date).toLowerCase() + ': ' + CT.rName(r), 'good');
   };
   const guardCooked = (date, slot) => {
     const s = (CT.state.plans[date] || {})[slot];
@@ -52,7 +52,7 @@
           const d = CT.addDays(CT.today(), i), plan = CT.ensurePlan(d);
           for (const s of CT.enabledSlots()) {
             const p = plan[s], r = p && CT.recipe(p.id); if (!r) continue;
-            meals.push({ date: d, when: CT.relDay(d), slot: CT.SLOTS[s].en, recipeId: r.id, name: r.name,
+            meals.push({ date: d, when: CT.relDay(d), slot: CT.SLOTS[s].en, recipeId: r.id, name: CT.rName(r),
               hands_on_min: r.active, portion: p.mult || 1, kcal: Math.round(r.nutri.kcal * (p.mult || 1)),
               cooked: !!p.done, locked: !!p.locked });
           }
@@ -68,9 +68,9 @@
         const r = CT.recipe(String(recipeId || ''));
         if (!r) throw new Error('No recipe with id "' + recipeId + '".');
         return {
-          id: r.id, name: r.name, it: r.it, slots: r.slots, time: r.time, active: r.active, needs: r.needs, tags: r.tags,
-          ingredients: r.ings.map((i) => ({ id: i.id, name: i.en, g: i.g, disp: i.disp, optional: i.opt })),
-          steps: r.steps, note: r.note || '',
+          id: r.id, name: CT.rName(r), en: r.name, it: r.it, slots: r.slots, time: r.time, active: r.active, needs: r.needs, tags: r.tags,
+          ingredients: r.ings.map((i) => ({ id: i.id, name: CT.ingNames(i).primary, en: i.en, g: i.g, disp: i.disp, optional: i.opt })),
+          steps: CT.rSteps(r), note: CT.rNote(r),
           nutrition: { kcal: Math.round(r.nutri.kcal), protein_g: Math.round(r.nutri.p), fibre_g: +r.nutri.fib.toFixed(1),
             saturated_fat_g: +r.nutri.sf.toFixed(1), sugars_g: Math.round(r.nutri.sug), sodium_mg: Math.round(r.nutri.na),
             omega3_g: +r.nutri.o3.toFixed(2) },
@@ -116,11 +116,11 @@
         if (!r) throw new Error('No recipe with id "' + recipeId + '". Call find_recipes first and use an id it returned.');
         guardCooked(d, sl);
         const prev = (CT.state.plans[d] || {})[sl];
-        const prevName = prev ? (CT.recipe(prev.id) || {}).name : null;
+        const prevName = prev ? (CT.recipe(prev.id) ? CT.rName(CT.recipe(prev.id)) : null) : null;
         CT.setSlot(d, sl, r.id);
         if (Number(portion) > 0) CT.setPortion(d, sl, Number(portion));
         noteEdit(d, sl, prev ? prev.id : null, r);
-        return { ok: true, date: d, slot: CT.SLOTS[sl].en, planned: r.name, replaced: prevName,
+        return { ok: true, date: d, slot: CT.SLOTS[sl].en, planned: CT.rName(r), replaced: prevName,
           portion: (CT.state.plans[d][sl] || {}).mult || 1, day_totals: dayTotals(d), shopping_list_updated: true };
       },
     },

@@ -4,14 +4,20 @@ CT.$$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 CT.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 CT.fmt = (n, d = 0) => (n == null || isNaN(n)) ? '–' : Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
 CT.eur = (n) => '€' + CT.fmt(n, 2);
+/* Recipe language. Italian is the default: the cooking vocabulary is more precise in Italian and
+   the list is read in an Italian shop. Everything falls back to English where a translation is
+   missing, which is what happens with recipes Claude has just invented. */
+CT.recipeLang = () => (((CT.state && CT.state.settings) || {}).recipeLang) || 'it';
+CT.rName = (r) => (CT.recipeLang() === 'it' && r.it) ? r.it : r.name;
+CT.rSteps = (r) => (CT.recipeLang() === 'it' && r.itSteps) ? r.itSteps : r.steps;
+CT.rNote = (r) => (CT.recipeLang() === 'it' && r.itNote) ? r.itNote : (r.note || '');
+
 /* Ingredient naming. Italian leads by default, because the list is read in an Italian supermarket;
    English follows in small type as the check. Either way, a missing translation falls back rather
    than leaving a blank, which matters for ingredients Claude invents on the fly. */
 CT.ingNames = (i) => {
   const it = (i.it || '').trim(), en = (i.en || '').trim();
-  const italianFirst = ((CT.state && CT.state.settings) || {}).ingredientLang !== 'en';
-  if (italianFirst) return { primary: it || en, secondary: it && en && it !== en ? en : '' };
-  return { primary: en || it, secondary: en && it && it !== en ? it : '' };
+  return CT.recipeLang() === 'it' ? { primary: it || en, secondary: '' } : { primary: en || it, secondary: '' };
 };
 // Inline: "pane integrale <em>Wholegrain bread</em>"
 CT.ingLabel = (i) => { const n = CT.ingNames(i); return CT.esc(n.primary) + (n.secondary ? ` <em class="it">${CT.esc(n.secondary)}</em>` : ''); };

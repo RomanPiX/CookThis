@@ -16,7 +16,7 @@
         <header class="row-between"><h3>${CT.relDay(d)} <small class="muted">${CT.fmtDate(d, 'short')}</small></h3><span class="muted small">${CT.fmt(kcal)} kcal · ${mins} min · ${CT.eur(cost)}</span></header>
         ${slots.map((s) => { const p = plan[s]; const r = p && CT.recipe(p.id); if (!r) return ''; return `<div class="plan-row ${p.done ? 'done' : ''}">
           <span class="eyebrow">${CT.SLOTS[s].it}</span>
-          <a href="#/recipe/${r.id}?portion=${p.mult || 1}" class="plan-name">${CT.esc(r.name)}${(p.mult || 1) !== 1 ? ` <span class="chip tiny">×${p.mult}</span>` : ''}</a>
+          <a href="#/recipe/${r.id}?portion=${p.mult || 1}" class="plan-name">${CT.esc(CT.rName(r))}${(p.mult || 1) !== 1 ? ` <span class="chip tiny">×${p.mult}</span>` : ''}</a>
           <span class="muted small nowrap">${r.active} min</span>
           <button class="btn ghost xs icon-only ${p.locked ? 'on' : ''}" data-action="lock-slot" data-date="${d}" data-slot="${s}" title="${p.locked ? 'Unlock' : 'Lock so re-planning keeps it'}" aria-pressed="${!!p.locked}">${CT.icon(p.locked ? 'lock' : 'unlock')}</button>
           <button class="btn ghost xs icon-only" data-action="swap-slot" data-date="${d}" data-slot="${s}" title="Swap" ${p.locked ? 'disabled' : ''}>${CT.icon('shuffle')}</button>
@@ -75,7 +75,7 @@
       <div class="page-head"><div><p class="eyebrow">Shopping list</p><h1>What to buy.</h1><p class="lede">${meals.length} meals still to cook · ${items.length - pantry.length} items · roughly <strong>${CT.eur(cost)}</strong></p></div>
         <div class="head-actions"><button class="btn ghost sm" data-action="shop-copy">${CT.icon('copy')} Copy</button>${navigator.share ? `<button class="btn ghost sm" data-action="shop-share">${CT.icon('share')} Share</button>` : ''}<button class="btn ghost sm" data-action="shop-clear">Clear ticks</button></div></div>
       <div class="chips">${SCOPES.map(([v, l]) => `<a class="chip ${sc === v ? 'on' : ''}" href="#/shop/${v}">${l}</a>`).join('')}</div>
-      <p class="hint">Meals already marked as cooked are left out. ${((CT.state.settings || {}).ingredientLang === 'en') ? 'Italian names in grey for the supermarket.' : 'English in grey underneath, in case a name is unfamiliar.'} ${nChecked ? `${nChecked} ticked.` : ''}</p>
+      <p class="hint">Meals already marked as cooked are left out. ${nChecked ? `${nChecked} ticked.` : ''}</p>
       <div class="shop-groups">${groups.map(([a, list]) => `<div class="shop-group"><h3>${a}</h3><ul class="shop-list">${list.map((it) => { const on = !!checked[sc + '|' + it.key]; return `<li class="${on ? 'on' : ''}"><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${on ? 'checked' : ''}><span class="shop-name">${CT.ingLabel(it)}</span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`; }).join('')}</ul></div>`).join('')}
       ${pantry.length ? `<details class="shop-group pantry"><summary>Pantry check (${pantry.length}) — you probably have these</summary><ul class="shop-list">${pantry.map((it) => `<li><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${checked[sc + '|' + it.key] ? 'checked' : ''}><span class="shop-name">${CT.ingLabel(it)}</span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`).join('')}</ul></details>` : ''}
       </div>

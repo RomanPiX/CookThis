@@ -6,7 +6,7 @@
     return `<section class="swaps">
       <div class="page-head"><div><p class="eyebrow">Swap guide</p><h1>Same two minutes, better numbers.</h1><p class="lede">Your old staples on the left, what does the same job on the right. Nothing here takes longer than making the original.</p></div></div>
       <div class="swap-list">${CT.SWAPS.map((s) => `<article class="swap card"><div class="swap-from"><span class="eyebrow bad-t">Instead of</span><strong>${s.from}</strong></div><div class="swap-arrow">${CT.icon('swaps')}</div><div class="swap-to"><span class="eyebrow good-t">Try</span><strong>${s.to}</strong><p class="muted small">${s.why}</p></div></article>`).join('')}</div>
-      <div class="card"><h3>Emergency meals: five minutes, no stove</h3><p class="hint">For the evenings when the old sandwich is calling.</p><ul class="compact-list">${quick.map((r) => `<li><a href="#/recipe/${r.id}">${CT.esc(r.name)}</a><span class="muted small">${r.active} min · ${CT.fmt(r.nutri.kcal)} kcal</span></li>`).join('')}</ul></div>
+      <div class="card"><h3>Emergency meals: five minutes, no stove</h3><p class="hint">For the evenings when the old sandwich is calling.</p><ul class="compact-list">${quick.map((r) => `<li><a href="#/recipe/${r.id}">${CT.esc(CT.rName(r))}</a><span class="muted small">${r.active} min · ${CT.fmt(r.nutri.kcal)} kcal</span></li>`).join('')}</ul></div>
       <div class="card"><h3>Eating out</h3><ul class="plain-list">${CT.EATING_OUT.map((t) => `<li>${t}</li>`).join('')}</ul></div>
     </section>`;
   };
@@ -70,7 +70,7 @@
   const recipePreview = (r) => {
     const p = CT.prepRecipe(JSON.parse(JSON.stringify(r)));
     return `<div class="preview">
-      <p class="eyebrow">Draft recipe</p><h3>${CT.esc(p.name)}</h3>${p.it ? `<p class="it muted">${CT.esc(p.it)}</p>` : ''}
+      <p class="eyebrow">Draft recipe</p><h3>${CT.esc(CT.rName(p))}</h3>
       <div class="rmeta-row">${CT.metaLine(p)}<span class="meta">${p.slots.map((s) => CT.SLOTS[s].en).join(', ')}</span></div>
       ${CT.benefitBadges(p)}
       <div class="two-col"><div><h4>Ingredients</h4><ul class="ing-list small">${p.ings.map((i) => `<li><span class="ing-qty">${CT.esc(i.disp)}</span><span class="ing-name">${CT.ingLabel(i)}</span></li>`).join('')}</ul></div><div><h4>Method</h4><ol class="steps small">${p.steps.map((s) => `<li>${CT.esc(s)}</li>`).join('')}</ol></div></div>
@@ -180,7 +180,7 @@
       <div class="card"><h3>Kitchen & time</h3>${CT.forms.kitchen()}</div>
       <div class="card"><h3>Appearance</h3>
         <div class="field"><span>Theme</span>${CT.seg('settings.theme', [['auto', 'Follow system'], ['light', 'Light'], ['dark', 'Dark']], s.settings.theme)}</div>
-        <div class="field"><span>Ingredient names</span>${CT.seg('settings.ingredientLang', [['it', 'Italiano'], ['en', 'English']], s.settings.ingredientLang || 'it')}<small class="muted">Which language leads on the shopping list and in recipes. The other follows in small type.</small></div>
+        <div class="field"><span>Recipe language</span>${CT.seg('settings.recipeLang', [['it', 'Italiano'], ['en', 'English']], CT.recipeLang())}<small class="muted">Recipe names, ingredients and method. The rest of the app stays in English.</small></div>
         <div class="field"><span>Palette</span><div class="palettes">${Object.entries(CT.PALETTES).map(([id, p]) => {
           const t = CT.isDark() ? p.dark : p.light;
           const on = (s.settings.palette || CT.DEFAULT_PALETTE) === id;

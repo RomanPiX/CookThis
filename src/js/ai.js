@@ -25,7 +25,7 @@ CT.ai = {
   },
 
   // ---- Context the model needs: who the user is, what the blood test said, what is planned.
-  RULES: `You are the built-in dietician assistant of CookThis, a meal-planning app used by ONE specific person whose profile follows. Be concise, practical, warm and a little witty. Use metric units and euros, and Italian supermarket products (pane integrale, fesa di tacchino, ricotta light, ceci in scatola...). Favour meals that are fast (under 15 minutes hands-on), cheap and lazy-cook friendly. Never suggest cured meats (salame, prosciutto, mortadella), processed cheese, sugary drinks or alcohol as options. You are not a doctor: for medication, diagnosis or thyroid treatment questions, give general information and point them to their doctor. Answer in English unless asked otherwise. Keep answers under 200 words unless the user asks for detail.
+  RULES: `You are the built-in dietician assistant of CookThis, a meal-planning app used by ONE specific person whose profile follows. Be concise, practical, warm and a little witty. Use metric units and euros, and Italian supermarket products (pane integrale, fesa di tacchino, ricotta light, ceci in scatola...). Favour meals that are fast (under 15 minutes hands-on), cheap and lazy-cook friendly. Never suggest cured meats (salame, prosciutto, mortadella), processed cheese, sugary drinks or alcohol as options. You are not a doctor: for medication, diagnosis or thyroid treatment questions, give general information and point them to their doctor. Answer in English unless asked otherwise, but keep dish names, ingredients and any method you write in Italian, which is how the app shows them. Keep answers under 200 words unless the user asks for detail.
 
 YOU CAN EDIT THE PLAN. The tools let you read the planned week and change what is planned. The shopping list is generated from the plan, so every change you make updates it automatically. Use them whenever the person asks for a different meal, a variation of one, or a fix to the week:
 - To put an existing recipe in a slot: find_recipes, then set_meal.
@@ -48,11 +48,11 @@ Change only what was asked, one slot at a time, and never touch a meal already m
     const dislikes = Object.entries(s.prefs.likes).filter(([, v]) => v === -1).map(([k]) => k).join(', ') || 'none';
     const allergens = s.prefs.allergens.map((a) => (CT.ALLERGENS.find((x) => x[0] === a) || [])[1]).filter(Boolean).join(', ') || 'none';
     const plan = s.plans[today] || {};
-    const planLines = CT.SLOT_ORDER.filter((k) => plan[k]).map((k) => { const r = CT.recipe(plan[k].id); return r ? `${CT.SLOTS[k].en}: ${r.name}${plan[k].done ? ' (eaten)' : ''}` : null; }).filter(Boolean).join('; ') || 'nothing planned yet';
+    const planLines = CT.SLOT_ORDER.filter((k) => plan[k]).map((k) => { const r = CT.recipe(plan[k].id); return r ? `${CT.SLOTS[k].en}: ${CT.rName(r)}${plan[k].done ? ' (eaten)' : ''}` : null; }).filter(Boolean).join('; ') || 'nothing planned yet';
     const recent = [];
     for (let i = 1; i <= 7; i++) {
       const d = CT.addDays(today, -i), l = s.log[d]; if (!l) continue;
-      const ids = Object.values(l.cooked || {}).map((id) => (CT.recipe(id) || {}).name).filter(Boolean);
+      const ids = Object.values(l.cooked || {}).map((id) => { const r = CT.recipe(id); return r ? CT.rName(r) : null; }).filter(Boolean);
       const extras = (l.extra || []).map((x) => x.name);
       const slips = (l.slips || []).map((x) => x.what);
       if (ids.length || extras.length || slips.length) recent.push(`${d}: cooked ${ids.join(', ') || '-'}${extras.length ? '; also ate ' + extras.join(', ') : ''}${slips.length ? '; slipped: ' + slips.join(', ') : ''}`);
@@ -75,8 +75,8 @@ STREAKS: cooking streak ${st.cookStreak} days, ${st.slipFreeDays} days without c
   RECIPE_SHAPE: `Reply with ONLY one JSON object, no prose, in exactly this shape:
 {"name": "Recipe name", "it": "Nome italiano", "slots": ["L"], "time": 15, "active": 10, "needs": ["stove"], "tags": ["one-pan"],
  "ingredients": [ {"id": "chicken", "g": 130, "disp": "1 small breast"}, {"name": "Fennel", "it": "finocchio", "g": 150, "disp": "1 bulb", "aisle": "Produce", "per100": {"kcal": 31, "p": 1.2, "c": 7, "fib": 3.1, "fat": 0.2, "sf": 0, "sug": 4, "na": 52}, "price": 3, "flags": "", "pur": 0, "o3": 0} ],
- "steps": ["Step one.", "Step two (5 min)."], "note": "One sentence on why it suits this person's blood work."}
-Rules: one serving; grams for every ingredient; use an "id" from the catalogue whenever the ingredient exists there (then omit per100); for anything else give realistic per-100 g values AND an "it" field with the Italian name of that ingredient, since ingredients are shown in Italian. slots use B/L/D/S. needs may include stove, oven, microwave, blender. flags letters: F fish, S shellfish, E egg, D dairy, G gluten, N nuts, Y soy, Z sesame, M meat, R red meat. Keep hands-on time at or under the person's limit, ingredients cheap and available in an Italian supermarket, saturated fat low, fibre high.`,
+ "steps": ["Primo passo.", "Secondo passo (5 min)."], "note": "Una frase sul perché va bene per i suoi valori del sangue."}
+Rules: one serving; grams for every ingredient; use an "id" from the catalogue whenever the ingredient exists there (then omit per100); for anything else give realistic per-100 g values AND an "it" field with the Italian name of that ingredient, since ingredients are shown in Italian. slots use B/L/D/S. needs may include stove, oven, microwave, blender. flags letters: F fish, S shellfish, E egg, D dairy, G gluten, N nuts, Y soy, Z sesame, M meat, R red meat. Keep hands-on time at or under the person's limit, ingredients cheap and available in an Italian supermarket, saturated fat low, fibre high. Write "name" in English but "it", the "steps" and the "note" IN ITALIAN, because the app shows recipes in Italian.`,
 
   async chat(turns, opts = {}) {
     const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
@@ -99,13 +99,13 @@ Rules: one serving; grams for every ingredient; use an "id" from the catalogue w
     const ing = r.ings.map((i) => `${k === 1 ? i.disp : (CT.fmt(i.g * k) + ' g')} ${i.en}${i.opt ? ' (optional)' : ''}`).join('; ');
     const prompt = `You are the built-in cooking coach of CookThis, writing for someone who cooks fast, simple food and wants to follow this exact recipe without guessing. They cook in an Italian kitchen with metric measures.
 
-RECIPE: ${r.name}${r.it ? ` (${r.it})` : ''}
+RECIPE: ${CT.rName(r)}${r.it && r.name !== CT.rName(r) ? ` (in English: ${r.name})` : ''}
 PORTION: ${k === 1 ? 'one serving' : k + ' servings worth, quantities below are already scaled'}
 EQUIPMENT AVAILABLE: ${r.needs.length ? r.needs.join(', ') : 'no cooking equipment needed'}
 INGREDIENTS: ${ing}
-SHORT METHOD AS WRITTEN: ${r.steps.map((s, i) => `${i + 1}. ${s}`).join(' ')}
+SHORT METHOD AS WRITTEN: ${CT.rSteps(r).map((s, i) => `${i + 1}. ${s}`).join(' ')}
 
-TASK: Rewrite the method as a detailed walkthrough of this same dish. Keep the same ingredients and the same result: do not invent a different recipe and do not add ingredients beyond salt, pepper or a herb already listed. Cover, in numbered steps: what to get out and prepare before the heat goes on; how each thing is cut and to what size; the heat level and the pan; exact timings with the sign to look for rather than only the clock (what it should look, sound or smell like); how to tell when the protein or the pasta is done; what to do during the waiting; and how to finish and plate it. End with two short lines: one titled "Easy to get wrong" naming the single most common mistake in this dish, and one titled "Keeps" saying how to store and reheat leftovers. Plain text, no markdown headings or bold, under 400 words.`;
+TASK: Rewrite the method as a detailed walkthrough of this same dish. Keep the same ingredients and the same result: do not invent a different recipe and do not add ingredients beyond salt, pepper or a herb already listed. Cover, in numbered steps: what to get out and prepare before the heat goes on; how each thing is cut and to what size; the heat level and the pan; exact timings with the sign to look for rather than only the clock (what it should look, sound or smell like); how to tell when the protein or the pasta is done; what to do during the waiting; and how to finish and plate it. End with two short lines: one titled "Easy to get wrong" naming the single most common mistake in this dish, and one titled "Keeps" saying how to store and reheat leftovers. Plain text, no markdown headings or bold, under 400 words.${CT.recipeLang() === 'it' ? ' WRITE THE WHOLE ANSWER IN ITALIAN, using normal Italian kitchen vocabulary, including the two closing lines, titled "Facile sbagliare" and "Si conserva".' : ''}`;
     return sample(prompt, { cache: { gcTime: 24 * 3600 * 1000 }, onText: opts.onText, signal: opts.signal, modelTier: 'default' });
   },
 

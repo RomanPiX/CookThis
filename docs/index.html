@@ -552,7 +552,7 @@ body.cooking { overflow: hidden; }
 </div>
 
 <script>
-window.CT_CONFIG={"appName":"CookThis","build":"202609072151"};
+window.CT_CONFIG={"appName":"CookThis","build":"202609072204"};
 // ==== data/ingredients.js
 try {
 /* CookThis ingredient table.
@@ -1344,6 +1344,165 @@ CT.RECIPES.push(
 
 } catch (ctLoadError) { console.error('CookThis: data/recipes-chicken.js failed to load', ctLoadError); }
 
+// ==== data/recipes-it-a.js
+try {
+/* Italian method text. The recipe names already live on each recipe as `it`; this holds the steps
+   and the notes, keyed by recipe id, so the app can show a whole recipe in Italian offline.
+   Voice: imperative informal, the way an Italian recipe actually talks to you. */
+CT.IT = CT.IT || {};
+Object.assign(CT.IT, {
+  overnight_oats: { steps: ['In un barattolo o in una ciotola mescola avena, latte, yogurt, chia e cannella.', 'Copri e lascia in frigo tutta la notte (o almeno 3 ore).', 'Al mattino completa con i frutti di bosco (vanno bene anche surgelati) e le noci.'], note: 'Avena e chia portano la fibra solubile che abbassa il colesterolo LDL; le noci aggiungono omega-3 vegetali.' },
+  porridge_banana_pb: { steps: ['Mescola avena e latte in una ciotola fonda. Microonde 2 minuti, mescola, altri 60 secondi (3 minuti in tutto).', 'Affetta la banana sopra, aggiungi il burro di arachidi e la cannella.', 'Lascia riposare un minuto: si addensa da solo.'] },
+  yogurt_apple_almond: { steps: ['Taglia la mela a dadini, con la buccia, direttamente nello yogurt.', 'Completa con mandorle, semi di lino macinati, cannella e un filo di miele.'] },
+  ricotta_tomato_toast: { steps: ['Tosta il pane.', 'Spalma la ricotta, disponi sopra il pomodoro a fette, condisci con olio, origano e pepe nero.', 'Mangia il kiwi a parte.'], note: 'La stessa fatica di un panino con le sottilette, con una frazione dei grassi saturi e del sale.' },
+  avocado_egg_toast: { steps: ['Tosta il pane. Schiaccia l’avocado con limone, sale e pepe e spalmalo sopra.', 'Cuoci l’uovo all’occhio di bue in padella antiaderente con qualche goccia d’olio, 3 minuti.', 'Adagia l’uovo sul pane e finisci con il peperoncino.'] },
+  scrambled_spinach_toast: { steps: ['Fai appassire gli spinaci in padella con l’olio, 2 minuti.', 'Sbatti le uova con pepe e poco sale, versale e mescola a fuoco basso finché sono appena rapprese, 2 minuti.', 'Servi sul pane tostato.'] },
+  pb_banana_toast: { steps: ['Tosta il pane e spalma il burro di arachidi.', 'Completa con la banana a fette e una spolverata di cannella.'] },
+  chia_cocoa_pudding: { steps: ['Sbatti chia, latte, cacao e miele in un barattolo. Aspetta 5 minuti e rimescola, così non si formano grumi.', 'Metti in frigo tutta la notte (o almeno 2 ore).', 'Completa con frutti di bosco e noci.'] },
+  lazy_fruit_nuts_yogurt: { steps: ['Apri lo yogurt. Prendi la mela e una manciata di noci.', 'Finito. Il caffè è concesso, ma senza zucchero.'] },
+  berry_oat_smoothie: { steps: ['Frulla tutto fino a ottenere un composto liscio, un minuto.', 'Troppo denso? Aggiungi un goccio d’acqua.'] },
+  cottage_cucumber_toast: { steps: ['Tosta il pane e spalma i fiocchi di latte.', 'Completa con il cetriolo a fette sottili, i semi, il pepe e una spruzzata di limone.'] },
+  omelette_tomato_basil: { steps: ['Sbatti le uova con sale e pepe.', 'Scalda l’olio, versa le uova e distribuisci sopra il pomodoro a dadini e il basilico, 3 minuti a fuoco basso.', 'Piega l’omelette e servi con il pane.'] },
+  crackers_ricotta_orange: { steps: ['Spalma la ricotta sui crackers, versa un filo di miele e sbriciola sopra le noci.', 'Sbuccia l’arancia. Fatto.'] },
+  choc_banana_yogurt: { steps: ['Mescola il cacao nello yogurt fino a scioglierlo del tutto.', 'Aggiungi la banana a fette e le arachidi.'], note: 'Sa di dolce al cucchiaio. I flavanoli del cacao fanno bene ai vasi e non serve zucchero aggiunto.' },
+
+  apple_walnuts: { steps: ['Lava la mela. Conta le noci una a una: contarle è il modo di non esagerare.'] },
+  yogurt_berries: { steps: ['Versa i frutti di bosco surgelati nello yogurt; 30 secondi di microonde se li vuoi morbidi.', 'Cannella sopra.'] },
+  veg_sticks_hummus: { steps: ['Taglia le verdure a bastoncini e intingile nell’hummus.'] },
+  almonds_orange: { steps: ['Sbuccia l’arancia e sgranocchia le mandorle.'] },
+  crackers_pb_pear: { steps: ['Spalma il burro di arachidi sui crackers e mangia la pera a parte o a fette sopra.'] },
+  dark_choc_walnuts: { steps: ['Mangia piano. Questo è lo sfizio della giornata, e vale come tale.'], note: 'Il fondente dal 70% in su ha poco zucchero: fermati a due quadretti.' },
+  cherries_bowl: { steps: ['Lava, mangia, sputa i noccioli.'], note: 'Le ciliegie sono uno dei pochi alimenti con prove a favore sull’acido urico.' },
+  edamame_chili: { steps: ['Scalda gli edamame surgelati al microonde con un goccio d’acqua, 3 minuti.', 'Limone, sale, peperoncino. Si mangiano spremendo il baccello coi denti.'] },
+  banana_almonds: { steps: ['Sbuccia e mangia, con le mandorle a parte.'] },
+  cottage_cherry_tomatoes: { steps: ['Taglia i pomodorini a metà dentro i fiocchi di latte, pepe e qualche goccia d’olio.'] },
+  kiwi_pumpkin_seeds: { steps: ['Taglia i kiwi a metà e mangiali col cucchiaino; i semi a manciate.'] },
+  popcorn_paprika: { steps: ['Olio e chicchi in una pentola, coperchio, fuoco medio-alto. Scuoti ogni tanto: sono pronti quando gli scoppi rallentano, circa 4 minuti.', 'Condisci con paprika e poco sale.'], note: 'Cereale integrale, 15 g di fibra per 100 g, e ha la soddisfazione di uno sfizio vero.' },
+  roasted_chickpeas: { steps: ['Forno a 200 °C. Asciuga bene i ceci, condiscili con olio, paprika e sale.', 'Inforna 25 minuti, scuotendo la teglia a metà cottura, finché sono croccanti.', 'Fai una scatola intera: si conservano 3 giorni in un barattolo.'] },
+  bruschetta_tomato: { steps: ['Tosta il pane e strofinalo con l’aglio.', 'Completa con pomodoro a dadini, olio, sale e basilico.'] },
+  apple_peanut_butter: { steps: ['Taglia la mela a spicchi e intingila nel burro di arachidi.'] },
+});
+
+} catch (ctLoadError) { console.error('CookThis: data/recipes-it-a.js failed to load', ctLoadError); }
+
+// ==== data/recipes-it-b.js
+try {
+/* Italian method text, part two: i pranzi. */
+CT.IT = CT.IT || {};
+Object.assign(CT.IT, {
+  tuna_bean_salad: { steps: ['Sciacqua i fagioli. Affetta la cipolla sottile e taglia il pomodoro a pezzi.', 'Condisci tutto con olio, limone, sale e pepe.', 'Servi con il pane.'], note: 'Il classico tonno e fagioli: fibra dai legumi, proteine magre dal tonno e nessun salume in vista.' },
+  chickpea_med_salad: { steps: ['Sciacqua i ceci. Taglia a dadini pomodoro, cetriolo e cipolla.', 'Mescola con olive, olio, limone, prezzemolo, sale e pepe. Se hai tempo lascia insaporire 5 minuti.', 'Servi con il pane.'] },
+  hummus_veg_wrap: { steps: ['Scalda la piadina 20 secondi in padella o al microonde (facoltativo).', 'Spalma l’hummus, distribuisci carota grattugiata, cetriolo, peperone a listarelle e rucola, poi una spruzzata di limone.', 'Arrotola stretto. Mela come dessert.'] },
+  turkey_rocket_sandwich: { steps: ['Spalma la senape su una fetta e un filo d’olio sull’altra.', 'Farcisci con tacchino, pomodoro e rucola. Chiudi, schiaccia, mangia.', 'Pera a parte.'], note: 'La fesa di tacchino ha circa un quinto dei grassi saturi del salame. Resta comunque un affettato: qualche volta a settimana, non tutti i giorni.' },
+  mackerel_toast: { steps: ['Tosta il pane.', 'Sfalda sopra lo sgombro, aggiungi il pomodoro a fette, la rucola, molto limone e pepe.', 'Bastoncini di cetriolo a parte.'], note: 'Uno dei piatti più ricchi di omega-3 dell’app: ottimo per i trigliceridi. Lo sgombro è ricco di purine, quindi il piano lo tiene a circa una volta a settimana.' },
+  lentil_egg_bowl: { steps: ['Rassoda l’uovo, 8 minuti, raffreddalo sotto l’acqua fredda e sgusciarlo.', 'Sciacqua le lenticchie, taglia i pomodorini a metà e affetta la cipolla.', 'Condisci con olio, limone, prezzemolo, sale e pepe. Adagia sopra l’uovo tagliato a metà.'] },
+  pasta_tuna_tomato: { steps: ['Cuoci la pasta in acqua salata, 10 minuti.', 'Intanto scalda olio, aglio e peperoncino in padella; unisci i pomodorini a metà e falli scoppiare, 4 minuti.', 'Aggiungi tonno e olive, poi la pasta scolata. Salta tutto e finisci con il prezzemolo.'] },
+  pasta_ceci: { steps: ['Cuoci la pasta, 10 minuti.', 'In padella scalda olio, aglio e rosmarino per un minuto; unisci ceci e passata e fai sobbollire 6 minuti, schiacciando qualche cece per addensare.', 'Manteca con la pasta e un mestolo di acqua di cottura. Parmigiano sopra.'] },
+  bresaola_rocket_plate: { steps: ['Disponi la bresaola sul piatto e coprila con rucola e pomodorini.', 'Condisci con limone, olio, pepe e le scaglie di grana.', 'Pane a parte.'], note: 'L’unico salume che rientra: magrissimo, ma salato. Il piano lo concede circa una volta a settimana.' },
+  caprese_beans: { steps: ['Affetta pomodori e mozzarella, sciacqua i fagioli.', 'Disponi sul piatto, strappa sopra il basilico, condisci con olio, sale e pepe.'] },
+  couscous_chickpea_salad: { steps: ['Versa 90 ml di acqua bollente sul cous cous, copri, aspetta 5 minuti e sgrana con una forchetta.', 'Taglia le verdure a dadini e uniscile con ceci, olio, limone, cumino e prezzemolo.', 'Si conserva 3 giorni in frigo: fanne il doppio e domani è pronto.'] },
+  smoked_salmon_sandwich: { steps: ['Spalma il formaggio, disponi salmone e cetriolo a fette, spremi il limone, aggiungi aneto e pepe.', 'Chiudi e mangia. Kiwi dopo.'], note: 'Il salmone affumicato è salato: resta uno sfizio da una volta a settimana. Gli omega-3 però ci sono.' },
+  minestrone_quick: { steps: ['Porta a bollore acqua, dado e passata con le verdure surgelate, 5 minuti.', 'Aggiungi pasta e fagioli e fai sobbollire 8 minuti.', 'Finisci con olio, parmigiano e pepe. Vengono due porzioni: la seconda in frigo.'] },
+  farro_tuna_salad: { steps: ['Usa il farro precotto direttamente dalla busta, o scaldalo un minuto al microonde.', 'Taglia le verdure a dadini e mescola tutto con olio, sale e pepe.'] },
+  tuna_corn_pita: { steps: ['Mescola tonno, mais, yogurt, limone e pepe.', 'Farcisci la pita con la rucola e il composto di tonno.', 'Arancia dopo.'] },
+  tofu_veg_stirfry: { steps: ['Asciuga bene il tofu, taglialo a cubi e rosolalo nell’olio a fuoco vivo, 5 minuti.', 'Unisci le verdure surgelate e l’aglio e salta 5 minuti.', 'Sfuma con la salsa di soia. Scalda il riso al microonde un minuto e servi il tofu sopra.'] },
+  egg_fried_rice: { steps: ['Scalda l’olio, unisci piselli e cipollotto, 2 minuti.', 'Aggiungi il riso e mescola 2 minuti finché è ben caldo.', 'Sposta tutto da un lato, versa le uova sbattute, strapazzale e poi mescola con la salsa di soia.'] },
+  spinach_pear_walnut_salad: { steps: ['Affetta la pera. Condisci spinaci, pera e noci con aceto balsamico e olio.', 'Aggiungi i fiocchi di latte a cucchiaiate e una macinata di pepe. Pane a parte.'] },
+  cannellini_crostini: { steps: ['Schiaccia i fagioli con una forchetta insieme a olio, limone, aglio, rosmarino tritato, sale e pepe.', 'Tosta il pane, spalma la crema di fagioli in abbondanza e completa con il pomodoro a fette.'], note: 'La crema di fagioli fa il lavoro del paté o della sottiletta: cremosa e saporita, e in più abbassa davvero l’LDL.' },
+  turkey_hummus_wrap: { steps: ['Spalma l’hummus sulla piadina e farcisci con tacchino, lattuga, pomodoro e cetriolo.', 'Arrotola, taglia a metà, mangia. Mela dopo.'] },
+  pea_mint_soup: { steps: ['Fai appassire la cipolla nell’olio, 3 minuti. Unisci piselli, dado e acqua e sobbolli 6 minuti.', 'Aggiungi latte e menta e frulla fino a ottenere una vellutata. Aggiusta di sale.', 'Servi con il pane tostato.'] },
+  egg_salad_sandwich: { steps: ['Rassoda le uova, 8 minuti, raffreddale, sgusciale e tritale grossolanamente.', 'Mescola con yogurt, senape, sedano a dadini, sale e pepe.', 'Farcisci il panino con lattuga e il composto di uova.'] },
+  ricotta_spinach_wrap: { steps: ['Spalma la ricotta sulla piadina e condiscila con sale, pepe e limone.', 'Aggiungi le foglie di spinaci e il pomodoro a fette, un filo d’olio e arrotola.'] },
+  nicoise_weeknight: { steps: ['Lessa la patata a cubi 10 minuti; negli ultimi 8 unisci i fagiolini e l’uovo.', 'Emulsiona olio, senape, limone, sale e pepe.', 'Condisci tutto con tonno, pomodorini e olive e completa con l’uovo tagliato a metà.'] },
+});
+
+} catch (ctLoadError) { console.error('CookThis: data/recipes-it-b.js failed to load', ctLoadError); }
+
+// ==== data/recipes-it-c.js
+try {
+/* Italian method text, part three: le cene. */
+CT.IT = CT.IT || {};
+Object.assign(CT.IT, {
+  salmon_tray_veg: { steps: ['Forno a 220 °C. Taglia la patata a cubetti piccoli e le zucchine a rondelle; condisci sulla teglia con olio, sale e rosmarino. Inforna 12 minuti.', 'Aggiungi il salmone e i pomodorini e spremi sopra il limone. Rimetti in forno 10 minuti.', 'Se non ti vede nessuno, mangia direttamente dalla teglia.'], note: 'Il salmone due volte a settimana è la mossa più utile contro i trigliceridi alti.' },
+  lemon_chicken_beans: { steps: ['Apri il petto di pollo a libro per renderlo sottile. Sale, pepe e un filo d’olio.', 'Padella ben calda: 4 minuti per lato. Fai riposare 2 minuti e affetta.', 'Condisci rucola, pomodorini e fagioli con il resto dell’olio e il limone; il pollo sopra, il pane a parte.'] },
+  chicken_stirfry_rice: { steps: ['Taglia il pollo a striscioline sottili e rosolalo nell’olio a fuoco vivo, 4 minuti.', 'Unisci le verdure surgelate e l’aglio e salta 6 minuti.', 'Sfuma con la salsa di soia, scalda il riso al microonde un minuto e servi.'] },
+  red_lentil_soup: { steps: ['Fai appassire nell’olio cipolla, carota e aglio tritati, 4 minuti. Unisci il cumino.', 'Aggiungi lenticchie, passata e acqua. Sobbolli 15 minuti, finché sono morbide.', 'Spremi il limone e aggiusta di sale. Frulla se la vuoi vellutata. Vengono 2 porzioni.'], note: 'Le lenticchie rosse decorticate non vanno ammollate e cuociono in 15 minuti. Sono l’alimento più economico che abbassa l’LDL.' },
+  cod_livornese: { steps: ['Scalda olio e aglio, unisci passata, olive e capperi e sobbolli 3 minuti.', 'Adagia i filetti ancora surgelati nel sugo, copri e cuoci 10 minuti girandoli una volta.', 'Intanto scalda i fagiolini al microonde, 4 minuti. Prezzemolo su tutto e pane per fare la scarpetta.'] },
+  frittata_zucchini: { steps: ['Grattugia o affetta finemente le zucchine e falle appassire con la cipolla nell’olio, 5 minuti.', 'Sbatti le uova con parmigiano, pepe e poco sale e versale sopra. Fuoco basso, coperchio, 5 minuti.', 'Gira la frittata o piegala. Insalata e pane a parte.'] },
+  pasta_broccoli_almonds: { steps: ['Cuoci la pasta e negli ultimi 5 minuti butta nella stessa pentola le cimette di broccolo.', 'Intanto scalda in padella olio, aglio a fettine e peperoncino; tosta lì dentro le mandorle per un minuto.', 'Scola, salta pasta e broccoli in padella schiacciandoli un po’. Parmigiano.'] },
+  pasta_pomodoro_cannellini: { steps: ['Cuoci la pasta, 10 minuti.', 'Scalda olio e aglio, unisci la passata e sobbolli 6 minuti; aggiungi i fagioli.', 'Manteca con la pasta, strappa sopra il basilico e finisci con il parmigiano.'], note: 'I fagioli nel sugo: più fibra e più proteine, e quasi non te ne accorgi.' },
+  shrimp_zucchini_couscous: { steps: ['Versa 80 ml di acqua bollente sul cous cous e copri.', 'Salta le zucchine a dadini nell’olio 4 minuti, unisci aglio e pomodorini a metà per 2 minuti, poi i gamberetti finché diventano rosa, 3 minuti.', 'Limone, prezzemolo e servi sul cous cous sgranato.'], note: 'I gamberetti sono ricchi di purine: finché l’acido urico è sopra range, questo piatto compare al massimo una volta a settimana.' },
+  chicken_bean_chili: { steps: ['Fai appassire cipolla e peperone nell’olio, 4 minuti. Unisci il pollo, il cumino e la paprika, 3 minuti.', 'Aggiungi passata e fagioli e sobbolli 10 minuti.', 'Completa con lo yogurt. Si raddoppia bene: la seconda porzione in freezer.'] },
+  sheetpan_chicken_veg: { steps: ['Forno a 220 °C. Taglia tutto a pezzi grossi e condisci con olio, paprika, rosmarino e sale.', 'Distribuisci sulla teglia con il pollo al centro. Inforna 22 minuti.', 'Domenica falla tripla e hai tre cene pronte.'] },
+  baked_cod_potato_tomato: { steps: ['Forno a 220 °C. Affetta la patata sottile, condiscila con metà olio e sale e inforna 12 minuti.', 'Aggiungi merluzzo, pomodorini, olive, aglio, origano e il resto dell’olio. Altri 12 minuti.', 'Insalata a parte.'] },
+  chickpea_spinach_curry: { steps: ['Fai appassire cipolla e aglio nell’olio, 3 minuti, poi unisci il curry e tostalo 30 secondi.', 'Aggiungi passata, ceci e spinaci e sobbolli 8 minuti.', 'Scalda il riso al microonde un minuto. Versa sopra il curry e completa con lo yogurt.'] },
+  eggs_purgatory: { steps: ['Scalda olio, aglio e peperoncino; unisci passata e fagioli, sobbolli 4 minuti e aggiusta di sale.', 'Fai due fossette nel sugo, rompici dentro le uova, copri e cuoci 5 minuti finché l’albume è rappreso.', 'Scarpetta con il pane tostato.'] },
+  mackerel_potato_warm_salad: { steps: ['Lessa la patata a cubi 10 minuti, unendo i fagiolini negli ultimi 5.', 'Emulsiona olio, limone, senape e pepe.', 'Condisci le verdure ancora tiepide con la salsa e la cipolla; sfalda sopra lo sgombro.'] },
+  turkey_lemon_peas: { steps: ['Cuoci i piselli con l’aglio e un goccio d’acqua in padella coperta, 5 minuti.', 'Spostali di lato e scotta le fettine di tacchino nell’olio, 2-3 minuti per lato. Sale, pepe e succo di limone.', 'Pane per raccogliere il fondo.'] },
+  pasta_zucchini_pea_ricotta: { steps: ['Cuoci la pasta e unisci i piselli negli ultimi 3 minuti.', 'Salta le zucchine a dadini nell’olio, 6 minuti.', 'Scola e manteca con zucchine, ricotta, scorza e succo di limone, menta e un goccio di acqua di cottura. Parmigiano.'] },
+  chicken_avocado_salad: { steps: ['Apri il pollo a libro e cuocilo in padella 4 minuti per lato. Affettalo.', 'Componi l’insalata, aggiungi l’avocado a dadini e condisci con olio, limone, sale e pepe.', 'Semi sopra, pane a parte.'] },
+  salmon_spinach_potatoes: { steps: ['Cuoci la patata a cubi al microonde con 2 cucchiai d’acqua, coperta, 6 minuti.', 'Salmone dal lato della pelle in padella calda con poco olio: 4 minuti, poi girato altri 2. Fallo riposare.', 'Nella stessa padella aglio e spinaci, 2 minuti. Limone su tutto.'] },
+  beef_fajita_piadina: { steps: ['Salta peperone e cipolla a fette nell’olio, 6 minuti. Unisci il manzo, la paprika e il cumino e cuoci 3 minuti a fuoco vivo.', 'Scalda la piadina e farciscila con gli straccetti, lo yogurt e una spruzzata di limone.'], note: 'Carne rossa una volta a settimana va bene. Solo tagli magri, e senza salame a fianco.' },
+  piadina_pizza: { steps: ['Forno o grill ben caldi. Stendi la passata sulla piadina, strappaci sopra la mozzarella e aggiungi l’origano. Sette minuti, finché sfrigola.', 'Rucola sopra. A parte i fagioli conditi con olio, limone e pepe.'], note: 'La voglia di pizza risolta in 12 minuti con un terzo dei grassi saturi di quella vera.' },
+  sardines_toast: { steps: ['Tosta il pane, strofinalo con il pomodoro e disponici sopra le fette.', 'Adagia le sardine, poi limone, olio, pepe e rucola.'], note: 'Le sardine sono campionesse di omega-3 e calcio, ma ricche di purine: una volta a settimana finché l’acido urico è alto.' },
+  mushroom_spinach_omelette: { steps: ['Salta i funghi a fette 4 minuti, poi unisci gli spinaci per un minuto.', 'Versa le uova sbattute con parmigiano e pepe; fuoco basso 3 minuti, poi piega.', 'Pane a parte.'] },
+  pumpkin_lentil_soup: { steps: ['Fai appassire la cipolla nell’olio, 3 minuti, poi unisci curry, zucca, lenticchie e acqua. Sobbolli 15 minuti.', 'Frulla, aggiungi il latte e aggiusta di sale.', 'Vengono 2 porzioni. Pane a parte.'] },
+  cauliflower_chickpea_tray: { steps: ['Forno a 220 °C. Condisci le cimette di cavolfiore e i ceci ben asciutti con olio, paprika, cumino e sale. Inforna 20 minuti.', 'Mescola yogurt, tahina, limone e un pizzico di sale.', 'Versa la salsa sopra. Pane per raccogliere.'] },
+  chicken_shawarma_wrap: { steps: ['Condisci il pollo con cumino, paprika, aglio, sale e olio. Padella a fuoco vivo, 6 minuti.', 'Mescola lo yogurt con limone e pepe.', 'Scalda la piadina e farciscila con lattuga, pomodoro, cetriolo, pollo e salsa.'] },
+  tuna_pea_pasta_lemon: { steps: ['Cuoci la pasta e unisci i piselli negli ultimi 3 minuti.', 'Scola e condisci con tonno, olio, scorza e succo di limone, prezzemolo e pepe.'] },
+  microwave_sweet_potato_beans: { steps: ['Bucherella la patata dolce su tutti i lati; microonde 8 minuti, girandola a metà, finché è morbida.', 'Scalda fagioli e mais al microonde, un minuto.', 'Apri la patata a metà e riempila con fagioli, mais, yogurt, cipollotto, peperoncino e limone.'], note: 'Zero padelle: la cena intera si fa al microonde.' },
+  microwave_cod_parcel: { steps: ['Versa 80 ml di acqua bollente sul cous cous e copri.', 'Merluzzo in un contenitore da microonde con pomodorini a metà, olive, olio, limone, origano e sale. Copri senza sigillare e cuoci 5 minuti alla massima potenza.', 'Lascia riposare un minuto e servi sul cous cous con tutto il suo fondo.'] },
+  chicken_pesto_pasta: { steps: ['Cuoci la pasta, 10 minuti.', 'Rosola il pollo a dadini nell’olio 5 minuti, poi unisci i pomodorini a metà per 2 minuti.', 'Manteca pasta, pollo, pesto e rucola con un goccio di acqua di cottura.'] },
+});
+
+} catch (ctLoadError) { console.error('CookThis: data/recipes-it-c.js failed to load', ctLoadError); }
+
+// ==== data/recipes-it-d.js
+try {
+/* Italian method text, part four: i classici italiani e il pollo in padella. */
+CT.IT = CT.IT || {};
+Object.assign(CT.IT, {
+  pasta_fagioli: { steps: ['Trita finemente cipolla, carota e sedano e falli appassire nell’olio con il rosmarino, 5 minuti.', 'Unisci passata, fagioli e acqua. Sobbolli 8 minuti, poi schiaccia un mestolo di fagioli per addensare.', 'Butta la pasta e cuocila lì dentro, circa 8 minuti, mescolando perché non attacchi. Parmigiano e pepe.'], note: 'Il piatto più economico dell’app e uno dei migliori per il colesterolo: legumi e pasta integrale insieme.' },
+  aglio_olio_broccoli: { steps: ['Cuoci la pasta e negli ultimi 5 minuti butta le cimette di broccolo nella stessa acqua.', 'Intanto scalda dolcemente l’olio con l’aglio a fettine e il peperoncino. L’aglio non deve mai colorire.', 'Scola tenendo da parte un bicchiere di acqua di cottura. Salta tutto in padella con un goccio d’acqua finché diventa lucido.'], note: 'Quattro ingredienti, un quarto d’ora, e il broccolo cuoce nell’acqua della pasta: una pentola sola.' },
+  insalata_riso: { steps: ['Scalda il riso un minuto, oppure usalo freddo direttamente dalla busta.', 'Taglia a dadini mozzarella e pomodorini, scola tonno e mais.', 'Mescola tutto con olio, sale e pepe. Migliora dopo un’ora in frigo e si conserva due giorni.'], note: 'La schiscetta italiana d’estate. Falla doppia e domani è già pronta.' },
+  panzanella: { steps: ['Spezza il pane a pezzi, bagnalo un attimo sotto l’acqua e strizzalo bene.', 'Taglia pomodori, cetriolo e cipolla tenendo tutto il succo del pomodoro.', 'Condisci con olio, aceto, basilico, sale e pepe. Aspetta 10 minuti: il pane deve bere il succo.'], note: 'L’insalata di pane toscana. Esiste esattamente per recuperare il pane raffermo.' },
+  zuppa_ceci_rosmarino: { steps: ['Scalda l’olio con aglio e rosmarino per un minuto.', 'Unisci ceci, passata e acqua. Sobbolli 12 minuti, poi frulla metà zuppa: cremosa, ma con i ceci interi dentro.', 'Tosta il pane, strofinalo con l’aglio e mettilo a galleggiare sopra con un filo d’olio a crudo.'], note: 'Ceci e rosmarino sono la cena povera toscana più antica che ci sia. Si congela benissimo.' },
+  pasta_patate: { steps: ['Fai appassire cipolla e carota nell’olio, 4 minuti. Unisci la patata a dadini e falla insaporire 2 minuti.', 'Aggiungi passata, dado e acqua. Sobbolli 10 minuti, finché la patata si sfalda quasi da sola.', 'Butta la pasta e cuocila nella stessa pentola, 8 minuti. Deve restare densa, non brodosa. Parmigiano e molto pepe.'], note: 'Napoli in una pentola. Costa poco, sazia, e l’amido della patata fa la cremosità senza panna.' },
+  pollo_cacciatora: { steps: ['Rosola i bocconcini di pollo nell’olio a fuoco vivo, 4 minuti, poi mettili da parte.', 'Nella stessa padella cipolla, peperone, aglio e rosmarino, 5 minuti. Unisci passata e olive e sobbolli 5 minuti.', 'Rimetti dentro il pollo e cuoci altri 4 minuti. Pane per il sugo.'] },
+  orata_forno: { steps: ['Forno a 220 °C. Affetta le patate sottili, condiscile con metà olio, rosmarino e sale e inforna 15 minuti.', 'Adagia sopra il pesce con pomodorini, olive, aglio, il resto dell’olio e qualche fetta di limone.', 'Rimetti in forno 12 minuti, finché la polpa si sfalda. Irrora tutto con il fondo di cottura.'], note: 'Sembra domenica, si fa di martedì. Pesce bianco due volte a settimana è quello che chiedono i trigliceridi.' },
+  caponata_veloce: { steps: ['Taglia la melanzana a cubi e falla rosolare nell’olio a fuoco vivo finché è dorata, 8 minuti. Unisci sedano e cipolla, 3 minuti.', 'Aggiungi passata, olive, capperi e aceto. Sobbolli 6 minuti, finché è densa e lucida.', 'Servi tiepida o a temperatura ambiente sul pane tostato, con un cucchiaio di ricotta.'], note: 'Siciliana, agrodolce, e il giorno dopo è più buona. Fai la padella piena e mangiala due volte.' },
+  pasta_pesto_fagiolini: { steps: ['Lessa la patata a dadini 5 minuti, poi unisci i fagiolini e infine la pasta, tutto nella stessa pentola.', 'Scola quando la pasta è cotta, tenendo un po’ di acqua di cottura.', 'Manteca fuori dal fuoco con il pesto allungato con l’acqua di cottura. Il pesto non va mai scaldato.'], note: 'Alla ligure: verdure e pasta nella stessa pentola, e il pesto sempre a fuoco spento.' },
+  pomodori_ripieni_tonno: { steps: ['Taglia la calotta ai pomodori e svuotali. Sala l’interno e lasciali capovolti 5 minuti.', 'Schiaccia insieme tonno, ricotta, parmigiano, basilico, pepe e la polpa di pomodoro tritata.', 'Riempi i pomodori, versa un filo d’olio e servili sul farro.'] },
+  fagioli_uccelletto: { steps: ['Scalda l’olio con l’aglio e la salvia per un minuto.', 'Unisci fagioli e passata, aggiusta di sale e sobbolli piano 10 minuti perché prendano il sugo.', 'Tosta il pane, strofinalo con lo spicchio d’aglio e versaci sopra i fagioli.'], note: 'Dieci minuti di lavoro per un piatto fatto quasi solo di fibra solubile. Il trucco è tutto nella salvia.' },
+  risi_bisi: { steps: ['Fai appassire la cipolla nell’olio, 4 minuti. Unisci piselli, dado e acqua e sobbolli 6 minuti.', 'Aggiungi il riso e cuoci altri 3 minuti: deve restare a metà strada tra una minestra e un risotto.', 'Fuori dal fuoco manteca con il parmigiano e molto pepe.'], note: 'Veneziani. All’onda, col cucchiaio, non un riso asciutto.' },
+  polpette_ceci: { steps: ['Forno a 200 °C. Schiaccia i ceci grossolanamente con una forchetta, poi impasta con uovo, parmigiano, pangrattato, aglio, prezzemolo, sale e pepe.', 'Forma una decina di polpette, disponile sulla teglia con carta forno e spennellale con metà olio. Inforna 20 minuti girandole a metà.', 'Insalata condita con il resto dell’olio e il limone a parte. Si conservano tre giorni e sono buone anche fredde.'], note: 'Polpette senza carne, con un terzo dei grassi saturi. Falle in quantità la domenica.' },
+  sgombro_pomodorini: { steps: ['Prepara la polenta: acqua salata a bollore, versa la polenta a pioggia frustando, 3 minuti per quella istantanea.', 'Intanto fai scoppiare i pomodorini a metà nell’olio con l’aglio, 4 minuti. Unisci olive e sgombro sfaldato, 2 minuti.', 'Versa il condimento sulla polenta morbida e completa con il prezzemolo.'], note: 'Uno dei piatti più ricchi di omega-3 qui dentro. Lo sgombro è ricco di purine, quindi resta una volta a settimana.' },
+  finocchi_arance: { steps: ['Affetta il finocchio più sottile che puoi. Pela l’arancia a vivo e tagliala a rondelle, tenendo il succo.', 'Condisci con il succo, olio, sale e pepe. Noci e olive sopra.'], note: 'Insalata siciliana d’inverno. Vitamina C e finocchio aiutano entrambi sull’acido urico, e ci vogliono otto minuti.' },
+  ricotta_miele_pane: { steps: ['Tosta il pane e spalma la ricotta in abbondanza.', 'Filo di miele sopra, noci sbriciolate e, se ti va, una spolverata di cannella.'], note: 'Quello che una nonna ti dà al posto del biscotto.' },
+
+  pollo_limone_scaloppine: { steps: ['Taglia il petto in scaloppine sottili e asciugale bene. Sale e pepe.', 'Padella ben calda con metà olio, 2 minuti per lato. Toglile dalla padella.', 'Spremi il limone nella padella con un goccio d’acqua, lascia sfrigolare 30 secondi e versa il fondo sul pollo. Fagiolini lessati o al microonde a fianco, conditi con il resto dell’olio.'], note: 'Il modo più leggero di cuocere un petto di pollo: niente farina, niente burro, tutto il sapore dal limone.' },
+  straccetti_rucola: { steps: ['Taglia il petto a striscioline sottili. Padella rovente con metà olio, 3 minuti, girandole una sola volta.', 'Fuori dal fuoco butta in padella rucola e pomodorini a metà: devono appassire restando verdi.', 'Limone, il resto dell’olio, scaglie di grana e pepe. Pane a parte.'], note: 'Classico da trattoria romana, tre minuti di cottura.' },
+  pollo_pizzaiola: { steps: ['Apri il petto a libro per renderlo sottile. Rosolalo 2 minuti per lato nell’olio con l’aglio.', 'Versa la passata e l’origano, aggiusta di sale e sobbolli 6 minuti.', 'Adagia sopra la mozzarella a pezzi, copri e lascia sciogliere 2 minuti. Pane per il sugo.'], note: 'Il sapore della pizza senza la pizza. La mozzarella è tutto lo sfizio: leggera e poca.' },
+  pollo_peperoni: { steps: ['Cuoci la patata a dadini al microonde con un goccio d’acqua, 6 minuti, mentre prepari il resto.', 'Rosola i bocconcini di pollo nell’olio, 4 minuti, e mettili da parte. Nella stessa padella peperoni e cipolla, 6 minuti.', 'Unisci la passata, sobbolli 4 minuti, rimetti pollo e patate e cuoci altri 2 minuti.'] },
+  pollo_funghi: { steps: ['Affetta i funghi. Padella calda con metà olio, cuocili 5 minuti senza girarli troppo: devono rosolare, non stufare.', 'Spostali di lato, unisci il pollo a fette e l’aglio, 4 minuti.', 'Prezzemolo, pepe e il resto dell’olio. Servi sul farro caldo.'] },
+  pollo_balsamico_radicchio: { steps: ['Cuoci il petto aperto a libro con metà olio, 4 minuti per lato. Mettilo a riposare.', 'Nella stessa padella il radicchio a spicchi, 3 minuti, poi il balsamico e un goccio d’acqua per farne uno sciroppo.', 'Rimetti il pollo affettato in padella e completa con le noci.'], note: 'Radicchio amaro e balsamico dolce. Le noci ci sono per l’LDL quanto per la croccantezza.' },
+  pollo_piselli_umido: { steps: ['Fai appassire la cipolla nell’olio, 4 minuti. Unisci i bocconcini di pollo e falli colorire, 3 minuti.', 'Aggiungi passata, piselli, un po’ d’acqua e il dado. Coperchio, fuoco basso, 12 minuti.', 'Pane per raccogliere il sugo.'], note: 'Fa tutto la pentola. I piselli portano la fibra che il pollo non ha.' },
+  polpette_pollo_sugo: { steps: ['Impasta il macinato con pangrattato, uovo, parmigiano, prezzemolo, sale e pepe. Forma otto polpette.', 'Rosolale nell’olio 4 minuti girandole. Unisci la passata e l’aglio.', 'Sobbolli 12 minuti con il coperchio socchiuso. Insalata a parte.'], note: 'Polpette con un quinto dei grassi saturi di quelle di manzo, e si congelano nel loro sugo.' },
+  pollo_caprese_padella: { steps: ['Cuoci il petto aperto a libro nell’olio, 4 minuti per lato, ben condito.', 'Adagia sopra il pomodoro a fette e la mozzarella spezzettata, coperchio, 2 minuti per farla sciogliere.', 'Basilico, un filo di balsamico, rucola e pane a fianco.'] },
+  pollo_diavola_padella: { steps: ['Massaggia il petto schiacciato con peperoncino, sale, pepe e metà olio. Se hai 5 minuti, lascialo insaporire.', 'Padella rovente, 4 minuti per lato, finché i bordi sono ben bruciacchiati.', 'Scalda i fagioli nella stessa padella con il resto dell’olio e il rosmarino. Limone su tutto e rucola sopra.'] },
+  involtini_pollo_zucchine: { steps: ['Grattugia le zucchine e mescolale con ricotta, parmigiano, sale e pepe.', 'Spalma il composto sulle fettine battute, arrotolale e fermale con uno stuzzicadenti.', 'Padella con l’olio, 8 minuti girandoli, unendo i pomodorini a metà negli ultimi 3.'] },
+  chicken_paprika_yogurt: { steps: ['Salta peperone e cipolla nell’olio, 5 minuti. Unisci le striscioline di pollo e la paprika, 5 minuti.', 'Togli la padella dal fuoco prima di mescolare lo yogurt, altrimenti impazzisce.', 'Servi sul riso caldo.'], note: 'Yogurt al posto della panna acida: stessa acidità, una frazione dei grassi saturi.' },
+  chicken_teriyaki_rice: { steps: ['Rosola bene le striscioline di pollo nell’olio, 4 minuti. Unisci zenzero e aglio, un minuto.', 'Aggiungi le cimette di broccolo e 3 cucchiai d’acqua, coperchio, 4 minuti.', 'Versa soia e miele e lascia glassare un minuto. Riso sotto.'], note: 'La soia rende questo il piatto di pollo più salato della raccolta: resta un’opzione da una volta a settimana.' },
+  chicken_fajita_pan: { steps: ['Peperoni e cipolla nell’olio caldo, 5 minuti. Poi pollo e spezie, 5 minuti.', 'Unisci i fagioli negli ultimi 2 minuti, giusto per scaldarli.', 'Limone sopra, yogurt a cucchiaiate e si raccoglie tutto con la piadina scaldata.'] },
+  chicken_tikka_pan: { steps: ['Condisci i bocconcini con metà yogurt, curry, aglio, sale e limone. Dieci minuti di marinatura se ce li hai, zero se non ce li hai.', 'Padella rovente con l’olio, 6 minuti, lasciando che i bordi si abbrustoliscano.', 'Taglia cetriolo e pomodoro e condiscili con il resto dello yogurt e la menta. Riso a fianco.'] },
+  chicken_mustard_mushrooms: { steps: ['Rosola i funghi nell’olio, 5 minuti, poi unisci il pollo a fette, 4 minuti.', 'Fuori dal fuoco manteca con senape e yogurt e un goccio d’acqua per fare la salsa.', 'Scalda le lenticchie con gli spinaci. Prezzemolo sopra.'], note: 'Le lenticchie sotto il pollo portano il piatto a quasi 15 g di fibra, cosa che un piatto di pollo non fa quasi mai.' },
+  chicken_peanut_pan: { steps: ['Rosola il pollo nell’olio, 4 minuti. Unisci le verdure surgelate e lo zenzero, 5 minuti a fuoco vivo.', 'Sciogli il burro di arachidi con soia, limone e 3 cucchiai di acqua calda, versalo in padella e lascia insaporire un minuto.', 'Riso sotto.'] },
+  chicken_burger_padella: { steps: ['Impasta macinato, pangrattato, parmigiano, origano, uovo, sale e pepe. Forma due burger schiacciati.', 'Fuoco medio con l’olio, 5 minuti per lato. Meglio bassi e pazienti che alti e veloci.', 'Pomodoro, insalata e fagioli conditi con limone a fianco.'] },
+  chicken_lemon_garlic_beans: { steps: ['Cuoci la patata a dadini al microonde con un goccio d’acqua, 6 minuti.', 'Tosta le mandorle in padella a secco, un minuto, e mettile da parte. Versa l’olio, il pollo 4 minuti, poi aglio e fagiolini 4 minuti con un goccio d’acqua e il coperchio.', 'Unisci la patata per scaldarla, limone sopra e le mandorle a completare.'] },
+});
+
+} catch (ctLoadError) { console.error('CookThis: data/recipes-it-d.js failed to load', ctLoadError); }
+
 // ==== data/content.js
 try {
 /* Static content: meal slots, preference groups, health focus, lab panel, tips, swaps, achievements. */
@@ -1664,14 +1823,20 @@ CT.$$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 CT.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 CT.fmt = (n, d = 0) => (n == null || isNaN(n)) ? '–' : Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
 CT.eur = (n) => '€' + CT.fmt(n, 2);
+/* Recipe language. Italian is the default: the cooking vocabulary is more precise in Italian and
+   the list is read in an Italian shop. Everything falls back to English where a translation is
+   missing, which is what happens with recipes Claude has just invented. */
+CT.recipeLang = () => (((CT.state && CT.state.settings) || {}).recipeLang) || 'it';
+CT.rName = (r) => (CT.recipeLang() === 'it' && r.it) ? r.it : r.name;
+CT.rSteps = (r) => (CT.recipeLang() === 'it' && r.itSteps) ? r.itSteps : r.steps;
+CT.rNote = (r) => (CT.recipeLang() === 'it' && r.itNote) ? r.itNote : (r.note || '');
+
 /* Ingredient naming. Italian leads by default, because the list is read in an Italian supermarket;
    English follows in small type as the check. Either way, a missing translation falls back rather
    than leaving a blank, which matters for ingredients Claude invents on the fly. */
 CT.ingNames = (i) => {
   const it = (i.it || '').trim(), en = (i.en || '').trim();
-  const italianFirst = ((CT.state && CT.state.settings) || {}).ingredientLang !== 'en';
-  if (italianFirst) return { primary: it || en, secondary: it && en && it !== en ? en : '' };
-  return { primary: en || it, secondary: en && it && it !== en ? it : '' };
+  return CT.recipeLang() === 'it' ? { primary: it || en, secondary: '' } : { primary: en || it, secondary: '' };
 };
 // Inline: "pane integrale <em>Wholegrain bread</em>"
 CT.ingLabel = (i) => { const n = CT.ingNames(i); return CT.esc(n.primary) + (n.secondary ? ` <em class="it">${CT.esc(n.secondary)}</em>` : ''); };
@@ -1912,6 +2077,9 @@ try {
     r.mainProtein = prot ? prot.tag : null;
     r.mins = r.active || r.time || 10;
     r.italian = r.tags.includes('italian') || CT.ITALIAN.has(r.id);
+    const tr = (CT.IT || {})[r.id] || {};
+    r.itSteps = Array.isArray(tr.steps) && tr.steps.length ? tr.steps : (Array.isArray(r.stepsIt) ? r.stepsIt : null);
+    r.itNote = tr.note || r.noteIt || '';
     r.animalG = r.ings.reduce((a, i) => a + (ANIMAL_TAGS.has(i.tag) ? i.g : 0), 0);
     CT.computeBenefits(r);
     r._prepped = true;
@@ -1994,7 +2162,7 @@ try {
     profile: { name: '', sex: 'm', age: 32, height: 178, weight: 80, activity: 'light', goal: 'lose' },
     focus: { ldl: true, tg: true, liver: true, uric: true, glucose: true, thyroid: true },
     prefs: { likes: {}, allergens: [], diet: 'omni', maxActive: 15, meals: { B: true, L: true, D: true, S: true }, equipment: { stove: true, oven: true, microwave: true, blender: true }, budget: 'normal', lazy: false, cuisine: 'italian', chickenPerWeek: 0, autoPortion: false },
-    settings: { theme: 'auto', palette: CT.DEFAULT_PALETTE, ingredientLang: 'it' },
+    settings: { theme: 'auto', palette: CT.DEFAULT_PALETTE, recipeLang: 'it' },
     favorites: [], ratings: {}, expanded: {},
     labs: [JSON.parse(JSON.stringify(CT.INITIAL_LABS))],
     nextCheckup: (window.CT_CONFIG || {}).nextCheckup || '',
@@ -2032,6 +2200,8 @@ try {
         s = deepMerge(s, saved);
       }
     } catch (e) { /* fresh start */ }
+    // Earlier builds called this ingredientLang and only switched the names.
+    if (s.settings && !s.settings.recipeLang && s.settings.ingredientLang) s.settings.recipeLang = s.settings.ingredientLang;
     CT.state = s;
     return s;
   };
@@ -2553,7 +2723,7 @@ CT.ai = {
   },
 
   // ---- Context the model needs: who the user is, what the blood test said, what is planned.
-  RULES: `You are the built-in dietician assistant of CookThis, a meal-planning app used by ONE specific person whose profile follows. Be concise, practical, warm and a little witty. Use metric units and euros, and Italian supermarket products (pane integrale, fesa di tacchino, ricotta light, ceci in scatola...). Favour meals that are fast (under 15 minutes hands-on), cheap and lazy-cook friendly. Never suggest cured meats (salame, prosciutto, mortadella), processed cheese, sugary drinks or alcohol as options. You are not a doctor: for medication, diagnosis or thyroid treatment questions, give general information and point them to their doctor. Answer in English unless asked otherwise. Keep answers under 200 words unless the user asks for detail.
+  RULES: `You are the built-in dietician assistant of CookThis, a meal-planning app used by ONE specific person whose profile follows. Be concise, practical, warm and a little witty. Use metric units and euros, and Italian supermarket products (pane integrale, fesa di tacchino, ricotta light, ceci in scatola...). Favour meals that are fast (under 15 minutes hands-on), cheap and lazy-cook friendly. Never suggest cured meats (salame, prosciutto, mortadella), processed cheese, sugary drinks or alcohol as options. You are not a doctor: for medication, diagnosis or thyroid treatment questions, give general information and point them to their doctor. Answer in English unless asked otherwise, but keep dish names, ingredients and any method you write in Italian, which is how the app shows them. Keep answers under 200 words unless the user asks for detail.
 
 YOU CAN EDIT THE PLAN. The tools let you read the planned week and change what is planned. The shopping list is generated from the plan, so every change you make updates it automatically. Use them whenever the person asks for a different meal, a variation of one, or a fix to the week:
 - To put an existing recipe in a slot: find_recipes, then set_meal.
@@ -2576,11 +2746,11 @@ Change only what was asked, one slot at a time, and never touch a meal already m
     const dislikes = Object.entries(s.prefs.likes).filter(([, v]) => v === -1).map(([k]) => k).join(', ') || 'none';
     const allergens = s.prefs.allergens.map((a) => (CT.ALLERGENS.find((x) => x[0] === a) || [])[1]).filter(Boolean).join(', ') || 'none';
     const plan = s.plans[today] || {};
-    const planLines = CT.SLOT_ORDER.filter((k) => plan[k]).map((k) => { const r = CT.recipe(plan[k].id); return r ? `${CT.SLOTS[k].en}: ${r.name}${plan[k].done ? ' (eaten)' : ''}` : null; }).filter(Boolean).join('; ') || 'nothing planned yet';
+    const planLines = CT.SLOT_ORDER.filter((k) => plan[k]).map((k) => { const r = CT.recipe(plan[k].id); return r ? `${CT.SLOTS[k].en}: ${CT.rName(r)}${plan[k].done ? ' (eaten)' : ''}` : null; }).filter(Boolean).join('; ') || 'nothing planned yet';
     const recent = [];
     for (let i = 1; i <= 7; i++) {
       const d = CT.addDays(today, -i), l = s.log[d]; if (!l) continue;
-      const ids = Object.values(l.cooked || {}).map((id) => (CT.recipe(id) || {}).name).filter(Boolean);
+      const ids = Object.values(l.cooked || {}).map((id) => { const r = CT.recipe(id); return r ? CT.rName(r) : null; }).filter(Boolean);
       const extras = (l.extra || []).map((x) => x.name);
       const slips = (l.slips || []).map((x) => x.what);
       if (ids.length || extras.length || slips.length) recent.push(`${d}: cooked ${ids.join(', ') || '-'}${extras.length ? '; also ate ' + extras.join(', ') : ''}${slips.length ? '; slipped: ' + slips.join(', ') : ''}`);
@@ -2603,8 +2773,8 @@ STREAKS: cooking streak ${st.cookStreak} days, ${st.slipFreeDays} days without c
   RECIPE_SHAPE: `Reply with ONLY one JSON object, no prose, in exactly this shape:
 {"name": "Recipe name", "it": "Nome italiano", "slots": ["L"], "time": 15, "active": 10, "needs": ["stove"], "tags": ["one-pan"],
  "ingredients": [ {"id": "chicken", "g": 130, "disp": "1 small breast"}, {"name": "Fennel", "it": "finocchio", "g": 150, "disp": "1 bulb", "aisle": "Produce", "per100": {"kcal": 31, "p": 1.2, "c": 7, "fib": 3.1, "fat": 0.2, "sf": 0, "sug": 4, "na": 52}, "price": 3, "flags": "", "pur": 0, "o3": 0} ],
- "steps": ["Step one.", "Step two (5 min)."], "note": "One sentence on why it suits this person's blood work."}
-Rules: one serving; grams for every ingredient; use an "id" from the catalogue whenever the ingredient exists there (then omit per100); for anything else give realistic per-100 g values AND an "it" field with the Italian name of that ingredient, since ingredients are shown in Italian. slots use B/L/D/S. needs may include stove, oven, microwave, blender. flags letters: F fish, S shellfish, E egg, D dairy, G gluten, N nuts, Y soy, Z sesame, M meat, R red meat. Keep hands-on time at or under the person's limit, ingredients cheap and available in an Italian supermarket, saturated fat low, fibre high.`,
+ "steps": ["Primo passo.", "Secondo passo (5 min)."], "note": "Una frase sul perché va bene per i suoi valori del sangue."}
+Rules: one serving; grams for every ingredient; use an "id" from the catalogue whenever the ingredient exists there (then omit per100); for anything else give realistic per-100 g values AND an "it" field with the Italian name of that ingredient, since ingredients are shown in Italian. slots use B/L/D/S. needs may include stove, oven, microwave, blender. flags letters: F fish, S shellfish, E egg, D dairy, G gluten, N nuts, Y soy, Z sesame, M meat, R red meat. Keep hands-on time at or under the person's limit, ingredients cheap and available in an Italian supermarket, saturated fat low, fibre high. Write "name" in English but "it", the "steps" and the "note" IN ITALIAN, because the app shows recipes in Italian.`,
 
   async chat(turns, opts = {}) {
     const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
@@ -2627,13 +2797,13 @@ Rules: one serving; grams for every ingredient; use an "id" from the catalogue w
     const ing = r.ings.map((i) => `${k === 1 ? i.disp : (CT.fmt(i.g * k) + ' g')} ${i.en}${i.opt ? ' (optional)' : ''}`).join('; ');
     const prompt = `You are the built-in cooking coach of CookThis, writing for someone who cooks fast, simple food and wants to follow this exact recipe without guessing. They cook in an Italian kitchen with metric measures.
 
-RECIPE: ${r.name}${r.it ? ` (${r.it})` : ''}
+RECIPE: ${CT.rName(r)}${r.it && r.name !== CT.rName(r) ? ` (in English: ${r.name})` : ''}
 PORTION: ${k === 1 ? 'one serving' : k + ' servings worth, quantities below are already scaled'}
 EQUIPMENT AVAILABLE: ${r.needs.length ? r.needs.join(', ') : 'no cooking equipment needed'}
 INGREDIENTS: ${ing}
-SHORT METHOD AS WRITTEN: ${r.steps.map((s, i) => `${i + 1}. ${s}`).join(' ')}
+SHORT METHOD AS WRITTEN: ${CT.rSteps(r).map((s, i) => `${i + 1}. ${s}`).join(' ')}
 
-TASK: Rewrite the method as a detailed walkthrough of this same dish. Keep the same ingredients and the same result: do not invent a different recipe and do not add ingredients beyond salt, pepper or a herb already listed. Cover, in numbered steps: what to get out and prepare before the heat goes on; how each thing is cut and to what size; the heat level and the pan; exact timings with the sign to look for rather than only the clock (what it should look, sound or smell like); how to tell when the protein or the pasta is done; what to do during the waiting; and how to finish and plate it. End with two short lines: one titled "Easy to get wrong" naming the single most common mistake in this dish, and one titled "Keeps" saying how to store and reheat leftovers. Plain text, no markdown headings or bold, under 400 words.`;
+TASK: Rewrite the method as a detailed walkthrough of this same dish. Keep the same ingredients and the same result: do not invent a different recipe and do not add ingredients beyond salt, pepper or a herb already listed. Cover, in numbered steps: what to get out and prepare before the heat goes on; how each thing is cut and to what size; the heat level and the pan; exact timings with the sign to look for rather than only the clock (what it should look, sound or smell like); how to tell when the protein or the pasta is done; what to do during the waiting; and how to finish and plate it. End with two short lines: one titled "Easy to get wrong" naming the single most common mistake in this dish, and one titled "Keeps" saying how to store and reheat leftovers. Plain text, no markdown headings or bold, under 400 words.${CT.recipeLang() === 'it' ? ' WRITE THE WHOLE ANSWER IN ITALIAN, using normal Italian kitchen vocabulary, including the two closing lines, titled "Facile sbagliare" and "Si conserva".' : ''}`;
     return sample(prompt, { cache: { gcTime: 24 * 3600 * 1000 }, onText: opts.onText, signal: opts.signal, modelTier: 'default' });
   },
 
@@ -2728,14 +2898,14 @@ try {
       saturated_fat_g: +n.sf.toFixed(1), sugars_g: Math.round(n.sug), sodium_mg: Math.round(n.na),
       omega3_g: +n.o3.toFixed(1), cost_eur: +n.cost.toFixed(2) };
   };
-  const brief = (r) => ({ id: r.id, name: r.name, meals: r.slots.map((s) => CT.SLOTS[s].en), hands_on_min: r.active,
+  const brief = (r) => ({ id: r.id, name: CT.rName(r), meals: r.slots.map((s) => CT.SLOTS[s].en), hands_on_min: r.active,
     total_min: r.time, kcal: Math.round(r.nutri.kcal), fibre_g: Math.round(r.nutri.fib),
     saturated_fat_g: +r.nutri.sf.toFixed(1), cost_eur: +r.cost.toFixed(2), tags: r.tags });
 
   CT.ui.planEdits = CT.ui.planEdits || [];
   const noteEdit = (date, slot, prevId, r) => {
-    CT.ui.planEdits.push({ date, slot, prevId, newId: r.id, newName: r.name });
-    CT.toast(CT.SLOTS[slot].en + ' ' + CT.relDay(date).toLowerCase() + ': ' + r.name, 'good');
+    CT.ui.planEdits.push({ date, slot, prevId, newId: r.id, newName: CT.rName(r) });
+    CT.toast(CT.SLOTS[slot].en + ' ' + CT.relDay(date).toLowerCase() + ': ' + CT.rName(r), 'good');
   };
   const guardCooked = (date, slot) => {
     const s = (CT.state.plans[date] || {})[slot];
@@ -2754,7 +2924,7 @@ try {
           const d = CT.addDays(CT.today(), i), plan = CT.ensurePlan(d);
           for (const s of CT.enabledSlots()) {
             const p = plan[s], r = p && CT.recipe(p.id); if (!r) continue;
-            meals.push({ date: d, when: CT.relDay(d), slot: CT.SLOTS[s].en, recipeId: r.id, name: r.name,
+            meals.push({ date: d, when: CT.relDay(d), slot: CT.SLOTS[s].en, recipeId: r.id, name: CT.rName(r),
               hands_on_min: r.active, portion: p.mult || 1, kcal: Math.round(r.nutri.kcal * (p.mult || 1)),
               cooked: !!p.done, locked: !!p.locked });
           }
@@ -2770,9 +2940,9 @@ try {
         const r = CT.recipe(String(recipeId || ''));
         if (!r) throw new Error('No recipe with id "' + recipeId + '".');
         return {
-          id: r.id, name: r.name, it: r.it, slots: r.slots, time: r.time, active: r.active, needs: r.needs, tags: r.tags,
-          ingredients: r.ings.map((i) => ({ id: i.id, name: i.en, g: i.g, disp: i.disp, optional: i.opt })),
-          steps: r.steps, note: r.note || '',
+          id: r.id, name: CT.rName(r), en: r.name, it: r.it, slots: r.slots, time: r.time, active: r.active, needs: r.needs, tags: r.tags,
+          ingredients: r.ings.map((i) => ({ id: i.id, name: CT.ingNames(i).primary, en: i.en, g: i.g, disp: i.disp, optional: i.opt })),
+          steps: CT.rSteps(r), note: CT.rNote(r),
           nutrition: { kcal: Math.round(r.nutri.kcal), protein_g: Math.round(r.nutri.p), fibre_g: +r.nutri.fib.toFixed(1),
             saturated_fat_g: +r.nutri.sf.toFixed(1), sugars_g: Math.round(r.nutri.sug), sodium_mg: Math.round(r.nutri.na),
             omega3_g: +r.nutri.o3.toFixed(2) },
@@ -2818,11 +2988,11 @@ try {
         if (!r) throw new Error('No recipe with id "' + recipeId + '". Call find_recipes first and use an id it returned.');
         guardCooked(d, sl);
         const prev = (CT.state.plans[d] || {})[sl];
-        const prevName = prev ? (CT.recipe(prev.id) || {}).name : null;
+        const prevName = prev ? (CT.recipe(prev.id) ? CT.rName(CT.recipe(prev.id)) : null) : null;
         CT.setSlot(d, sl, r.id);
         if (Number(portion) > 0) CT.setPortion(d, sl, Number(portion));
         noteEdit(d, sl, prev ? prev.id : null, r);
-        return { ok: true, date: d, slot: CT.SLOTS[sl].en, planned: r.name, replaced: prevName,
+        return { ok: true, date: d, slot: CT.SLOTS[sl].en, planned: CT.rName(r), replaced: prevName,
           portion: (CT.state.plans[d][sl] || {}).mult || 1, day_totals: dayTotals(d), shopping_list_updated: true };
       },
     },
@@ -3075,7 +3245,7 @@ try {
     const m = s.mult || 1;
     return `<article class="slot-card ${s.done ? 'done' : ''}">
       <header class="slot-head"><span class="eyebrow">${CT.SLOTS[slot].it} <span class="sep">·</span> ${CT.SLOTS[slot].en}</span><span class="slot-meta">${CT.metaLine(r, m)}</span></header>
-      <a class="slot-title" href="#/recipe/${r.id}?portion=${m}">${CT.esc(r.name)}</a>
+      <a class="slot-title" href="#/recipe/${r.id}?portion=${m}">${CT.esc(CT.rName(r))}</a>
       ${r.why.length ? `<p class="slot-why muted">${r.why.slice(0, 3).join(' · ')}</p>` : ''}
       ${CT.benefitBadges(r, 2)}
       <footer class="slot-actions">
@@ -3197,7 +3367,7 @@ try {
     const choices = CT.slotChoices(d.date, d.slot).slice(0, 14);
     const cur = (CT.state.plans[d.date] || {})[d.slot];
     CT.dialog(`<h3>${CT.SLOTS[d.slot].en} · ${CT.relDay(d.date)}</h3><p class="muted small">Sorted by how well each fits your goals and likes today.</p>
-      <div class="pick-list">${choices.map(({ r }) => `<button class="pick ${cur && cur.id === r.id ? 'current' : ''}" data-action="pick-set" data-date="${d.date}" data-slot="${d.slot}" data-id="${r.id}"><span class="pick-name">${CT.esc(r.name)}</span><span class="pick-meta">${r.active} min · ${CT.fmt(r.nutri.kcal)} kcal · ${CT.eur(r.cost)}</span>${CT.benefitBadges(r, 2)}</button>`).join('')}</div>`, { wide: true });
+      <div class="pick-list">${choices.map(({ r }) => `<button class="pick ${cur && cur.id === r.id ? 'current' : ''}" data-action="pick-set" data-date="${d.date}" data-slot="${d.slot}" data-id="${r.id}"><span class="pick-name">${CT.esc(CT.rName(r))}</span><span class="pick-meta">${r.active} min · ${CT.fmt(r.nutri.kcal)} kcal · ${CT.eur(r.cost)}</span>${CT.benefitBadges(r, 2)}</button>`).join('')}</div>`, { wide: true });
   };
   CT.actions['pick-set'] = (d) => { CT.setSlot(d.date, d.slot, d.id); CT.closeDialog(); CT.render(); };
   CT.actions['fit-day'] = (d) => { CT.refitDay(d.date, true); CT.save('plans'); CT.toast('Portions sized to your target for today.', 'good'); CT.render(); };
@@ -3303,8 +3473,7 @@ try {
 
   CT.recipeCard = (r) => `<a class="rcard ${r.custom ? 'custom' : ''}" href="#/recipe/${r.id}">
     <div class="rcard-top"><span class="eyebrow">${r.slots.map((s) => CT.SLOTS[s].en).join(' · ')}</span><span class="match" title="How well this fits your goals and likes">${CT.matchScore(r)}%</span></div>
-    <h3>${CT.esc(r.name)}</h3>
-    ${r.it ? `<p class="it muted">${CT.esc(r.it)}</p>` : ''}
+    <h3>${CT.esc(CT.rName(r))}</h3>
     <div class="rmeta">${CT.metaLine(r)}</div>
     ${CT.benefitBadges(r, 2)}
   </a>`;
@@ -3369,8 +3538,7 @@ try {
     return `<article class="recipe">
       <a class="back" href="#/recipes">${CT.icon('back')} Recipes</a>
       <p class="eyebrow">${r.slots.map((x) => `${CT.SLOTS[x].it} · ${CT.SLOTS[x].en}`).join(' &nbsp;/&nbsp; ')}${r.custom ? ' &nbsp;·&nbsp; created with Claude' : ''}</p>
-      <h1>${CT.esc(r.name)}</h1>
-      ${r.it ? `<p class="it lede">${CT.esc(r.it)}</p>` : ''}
+      <h1>${CT.esc(CT.rName(r))}</h1>
       <div class="rmeta-row">${CT.metaLine(r)}<span class="meta">${r.needs.length ? r.needs.join(', ') : 'no cooking equipment'}</span></div>
       ${CT.tagChips(r)}
       <div class="recipe-actions">
@@ -3388,8 +3556,8 @@ try {
         </section>
         <section class="card">
           <div class="row-between"><h3>Method</h3>${expandControl(id, k)}</div>
-          <ol class="steps">${r.steps.map((st) => `<li>${CT.esc(st)}</li>`).join('')}</ol>
-          ${r.note ? `<p class="note">${CT.esc(r.note)}</p>` : ''}
+          <ol class="steps">${CT.rSteps(r).map((st) => `<li>${CT.esc(st)}</li>`).join('')}</ol>
+          ${CT.rNote(r) ? `<p class="note">${CT.esc(CT.rNote(r))}</p>` : ''}
           ${expandBlock(id)}
         </section>
         <section class="card">
@@ -3474,7 +3642,7 @@ try {
   CT.actions['add-to-plan'] = (d) => {
     const r = CT.recipe(d.id), today = CT.today();
     const days = Array.from({ length: 7 }, (_, i) => CT.addDays(today, i));
-    CT.dialog(`<h3>Add “${CT.esc(r.name)}” to…</h3>
+    CT.dialog(`<h3>Add “${CT.esc(CT.rName(r))}” to…</h3>
       <form class="form-grid" data-submit="plan-add" data-id="${d.id}">
         <label class="field"><span>Day</span><select name="date">${days.map((x) => `<option value="${x}">${CT.relDay(x)}</option>`).join('')}</select></label>
         <label class="field"><span>Meal</span><select name="slot">${r.slots.map((s) => `<option value="${s}">${CT.SLOTS[s].en}</option>`).join('')}</select></label>
@@ -3489,12 +3657,13 @@ try {
   const cookRender = () => {
     const c = CT.cook, r = c.r, el = CT.$('#cookmode');
     if (!r) return;
-    const total = r.steps.length, last = c.i >= total;
-    const step = r.steps[c.i];
+    const steps = CT.rSteps(r);
+    const total = steps.length, last = c.i >= total;
+    const step = steps[c.i];
     const secs = last ? null : CT.timerFromStep(step);
     el.innerHTML = `<div class="cook-inner">
-      <header class="cook-head"><span class="eyebrow">${CT.esc(r.name)}</span><button class="btn ghost icon-only" data-action="cook-close" aria-label="Close cook mode">${CT.icon('x')}</button></header>
-      <div class="cook-progress">${r.steps.map((_, k) => `<span class="${k < c.i ? 'done' : k === c.i ? 'now' : ''}"></span>`).join('')}</div>
+      <header class="cook-head"><span class="eyebrow">${CT.esc(CT.rName(r))}</span><button class="btn ghost icon-only" data-action="cook-close" aria-label="Close cook mode">${CT.icon('x')}</button></header>
+      <div class="cook-progress">${steps.map((_, k) => `<span class="${k < c.i ? 'done' : k === c.i ? 'now' : ''}"></span>`).join('')}</div>
       ${last ? `<div class="cook-step"><p class="eyebrow">Done</p><h2>Plate up.</h2><p class="muted">Sit down. Eat slowly. Drink a glass of water.</p></div>` : `<div class="cook-step"><p class="eyebrow">Step ${c.i + 1} of ${total}</p><h2>${CT.esc(step)}</h2></div>`}
       ${!last && (secs || c.timer) ? `<div class="cook-timer ${c.timer ? 'running' : ''}"><span class="time">${fmtTime(c.timer ? c.remaining : secs)}</span>${c.timer ? `<button class="btn ghost sm" data-action="timer-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary sm" data-action="timer-start" data-secs="${secs}">${CT.icon('play')} Start timer</button>`}</div>` : ''}
       <div class="cook-ings"><details><summary>Ingredients${c.k !== 1 ? ` <span class="chip tiny">×${c.k} portion</span>` : ''}</summary><ul>${r.ings.map((i) => `<li><strong>${c.k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? CT.fmt(i.g * c.k) + ' ml' : CT.fmt(i.g * c.k) + ' g')}</strong> ${CT.esc(CT.ingNames(i).primary)}</li>`).join('')}</ul></details></div>
@@ -3512,7 +3681,7 @@ try {
     try { if (navigator.wakeLock) CT.cook.wake = await navigator.wakeLock.request('screen'); } catch (e) { /* not critical */ }
   };
   CT.actions['cook-close'] = () => { stopTimer(); CT.$('#cookmode').hidden = true; document.body.classList.remove('cooking'); if (CT.cook.wake) { CT.cook.wake.release().catch(() => {}); CT.cook.wake = null; } };
-  CT.actions['cook-next'] = () => { stopTimer(); CT.cook.i = Math.min(CT.cook.r.steps.length, CT.cook.i + 1); cookRender(); };
+  CT.actions['cook-next'] = () => { stopTimer(); CT.cook.i = Math.min(CT.rSteps(CT.cook.r).length, CT.cook.i + 1); cookRender(); };
   CT.actions['cook-prev'] = () => { stopTimer(); CT.cook.i = Math.max(0, CT.cook.i - 1); cookRender(); };
   CT.actions['timer-start'] = (d) => {
     stopTimer(); CT.cook.remaining = Number(d.secs);
@@ -3550,7 +3719,7 @@ try {
         <header class="row-between"><h3>${CT.relDay(d)} <small class="muted">${CT.fmtDate(d, 'short')}</small></h3><span class="muted small">${CT.fmt(kcal)} kcal · ${mins} min · ${CT.eur(cost)}</span></header>
         ${slots.map((s) => { const p = plan[s]; const r = p && CT.recipe(p.id); if (!r) return ''; return `<div class="plan-row ${p.done ? 'done' : ''}">
           <span class="eyebrow">${CT.SLOTS[s].it}</span>
-          <a href="#/recipe/${r.id}?portion=${p.mult || 1}" class="plan-name">${CT.esc(r.name)}${(p.mult || 1) !== 1 ? ` <span class="chip tiny">×${p.mult}</span>` : ''}</a>
+          <a href="#/recipe/${r.id}?portion=${p.mult || 1}" class="plan-name">${CT.esc(CT.rName(r))}${(p.mult || 1) !== 1 ? ` <span class="chip tiny">×${p.mult}</span>` : ''}</a>
           <span class="muted small nowrap">${r.active} min</span>
           <button class="btn ghost xs icon-only ${p.locked ? 'on' : ''}" data-action="lock-slot" data-date="${d}" data-slot="${s}" title="${p.locked ? 'Unlock' : 'Lock so re-planning keeps it'}" aria-pressed="${!!p.locked}">${CT.icon(p.locked ? 'lock' : 'unlock')}</button>
           <button class="btn ghost xs icon-only" data-action="swap-slot" data-date="${d}" data-slot="${s}" title="Swap" ${p.locked ? 'disabled' : ''}>${CT.icon('shuffle')}</button>
@@ -3609,7 +3778,7 @@ try {
       <div class="page-head"><div><p class="eyebrow">Shopping list</p><h1>What to buy.</h1><p class="lede">${meals.length} meals still to cook · ${items.length - pantry.length} items · roughly <strong>${CT.eur(cost)}</strong></p></div>
         <div class="head-actions"><button class="btn ghost sm" data-action="shop-copy">${CT.icon('copy')} Copy</button>${navigator.share ? `<button class="btn ghost sm" data-action="shop-share">${CT.icon('share')} Share</button>` : ''}<button class="btn ghost sm" data-action="shop-clear">Clear ticks</button></div></div>
       <div class="chips">${SCOPES.map(([v, l]) => `<a class="chip ${sc === v ? 'on' : ''}" href="#/shop/${v}">${l}</a>`).join('')}</div>
-      <p class="hint">Meals already marked as cooked are left out. ${((CT.state.settings || {}).ingredientLang === 'en') ? 'Italian names in grey for the supermarket.' : 'English in grey underneath, in case a name is unfamiliar.'} ${nChecked ? `${nChecked} ticked.` : ''}</p>
+      <p class="hint">Meals already marked as cooked are left out. ${nChecked ? `${nChecked} ticked.` : ''}</p>
       <div class="shop-groups">${groups.map(([a, list]) => `<div class="shop-group"><h3>${a}</h3><ul class="shop-list">${list.map((it) => { const on = !!checked[sc + '|' + it.key]; return `<li class="${on ? 'on' : ''}"><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${on ? 'checked' : ''}><span class="shop-name">${CT.ingLabel(it)}</span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`; }).join('')}</ul></div>`).join('')}
       ${pantry.length ? `<details class="shop-group pantry"><summary>Pantry check (${pantry.length}) — you probably have these</summary><ul class="shop-list">${pantry.map((it) => `<li><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${checked[sc + '|' + it.key] ? 'checked' : ''}><span class="shop-name">${CT.ingLabel(it)}</span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`).join('')}</ul></details>` : ''}
       </div>
@@ -3743,7 +3912,7 @@ try {
     return `<section class="swaps">
       <div class="page-head"><div><p class="eyebrow">Swap guide</p><h1>Same two minutes, better numbers.</h1><p class="lede">Your old staples on the left, what does the same job on the right. Nothing here takes longer than making the original.</p></div></div>
       <div class="swap-list">${CT.SWAPS.map((s) => `<article class="swap card"><div class="swap-from"><span class="eyebrow bad-t">Instead of</span><strong>${s.from}</strong></div><div class="swap-arrow">${CT.icon('swaps')}</div><div class="swap-to"><span class="eyebrow good-t">Try</span><strong>${s.to}</strong><p class="muted small">${s.why}</p></div></article>`).join('')}</div>
-      <div class="card"><h3>Emergency meals: five minutes, no stove</h3><p class="hint">For the evenings when the old sandwich is calling.</p><ul class="compact-list">${quick.map((r) => `<li><a href="#/recipe/${r.id}">${CT.esc(r.name)}</a><span class="muted small">${r.active} min · ${CT.fmt(r.nutri.kcal)} kcal</span></li>`).join('')}</ul></div>
+      <div class="card"><h3>Emergency meals: five minutes, no stove</h3><p class="hint">For the evenings when the old sandwich is calling.</p><ul class="compact-list">${quick.map((r) => `<li><a href="#/recipe/${r.id}">${CT.esc(CT.rName(r))}</a><span class="muted small">${r.active} min · ${CT.fmt(r.nutri.kcal)} kcal</span></li>`).join('')}</ul></div>
       <div class="card"><h3>Eating out</h3><ul class="plain-list">${CT.EATING_OUT.map((t) => `<li>${t}</li>`).join('')}</ul></div>
     </section>`;
   };
@@ -3807,7 +3976,7 @@ try {
   const recipePreview = (r) => {
     const p = CT.prepRecipe(JSON.parse(JSON.stringify(r)));
     return `<div class="preview">
-      <p class="eyebrow">Draft recipe</p><h3>${CT.esc(p.name)}</h3>${p.it ? `<p class="it muted">${CT.esc(p.it)}</p>` : ''}
+      <p class="eyebrow">Draft recipe</p><h3>${CT.esc(CT.rName(p))}</h3>
       <div class="rmeta-row">${CT.metaLine(p)}<span class="meta">${p.slots.map((s) => CT.SLOTS[s].en).join(', ')}</span></div>
       ${CT.benefitBadges(p)}
       <div class="two-col"><div><h4>Ingredients</h4><ul class="ing-list small">${p.ings.map((i) => `<li><span class="ing-qty">${CT.esc(i.disp)}</span><span class="ing-name">${CT.ingLabel(i)}</span></li>`).join('')}</ul></div><div><h4>Method</h4><ol class="steps small">${p.steps.map((s) => `<li>${CT.esc(s)}</li>`).join('')}</ol></div></div>
@@ -3917,7 +4086,7 @@ try {
       <div class="card"><h3>Kitchen & time</h3>${CT.forms.kitchen()}</div>
       <div class="card"><h3>Appearance</h3>
         <div class="field"><span>Theme</span>${CT.seg('settings.theme', [['auto', 'Follow system'], ['light', 'Light'], ['dark', 'Dark']], s.settings.theme)}</div>
-        <div class="field"><span>Ingredient names</span>${CT.seg('settings.ingredientLang', [['it', 'Italiano'], ['en', 'English']], s.settings.ingredientLang || 'it')}<small class="muted">Which language leads on the shopping list and in recipes. The other follows in small type.</small></div>
+        <div class="field"><span>Recipe language</span>${CT.seg('settings.recipeLang', [['it', 'Italiano'], ['en', 'English']], CT.recipeLang())}<small class="muted">Recipe names, ingredients and method. The rest of the app stays in English.</small></div>
         <div class="field"><span>Palette</span><div class="palettes">${Object.entries(CT.PALETTES).map(([id, p]) => {
           const t = CT.isDark() ? p.dark : p.light;
           const on = (s.settings.palette || CT.DEFAULT_PALETTE) === id;

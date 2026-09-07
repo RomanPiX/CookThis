@@ -17,7 +17,7 @@
     const m = s.mult || 1;
     return `<article class="slot-card ${s.done ? 'done' : ''}">
       <header class="slot-head"><span class="eyebrow">${CT.SLOTS[slot].it} <span class="sep">·</span> ${CT.SLOTS[slot].en}</span><span class="slot-meta">${CT.metaLine(r, m)}</span></header>
-      <a class="slot-title" href="#/recipe/${r.id}?portion=${m}">${CT.esc(r.name)}</a>
+      <a class="slot-title" href="#/recipe/${r.id}?portion=${m}">${CT.esc(CT.rName(r))}</a>
       ${r.why.length ? `<p class="slot-why muted">${r.why.slice(0, 3).join(' · ')}</p>` : ''}
       ${CT.benefitBadges(r, 2)}
       <footer class="slot-actions">
@@ -139,7 +139,7 @@
     const choices = CT.slotChoices(d.date, d.slot).slice(0, 14);
     const cur = (CT.state.plans[d.date] || {})[d.slot];
     CT.dialog(`<h3>${CT.SLOTS[d.slot].en} · ${CT.relDay(d.date)}</h3><p class="muted small">Sorted by how well each fits your goals and likes today.</p>
-      <div class="pick-list">${choices.map(({ r }) => `<button class="pick ${cur && cur.id === r.id ? 'current' : ''}" data-action="pick-set" data-date="${d.date}" data-slot="${d.slot}" data-id="${r.id}"><span class="pick-name">${CT.esc(r.name)}</span><span class="pick-meta">${r.active} min · ${CT.fmt(r.nutri.kcal)} kcal · ${CT.eur(r.cost)}</span>${CT.benefitBadges(r, 2)}</button>`).join('')}</div>`, { wide: true });
+      <div class="pick-list">${choices.map(({ r }) => `<button class="pick ${cur && cur.id === r.id ? 'current' : ''}" data-action="pick-set" data-date="${d.date}" data-slot="${d.slot}" data-id="${r.id}"><span class="pick-name">${CT.esc(CT.rName(r))}</span><span class="pick-meta">${r.active} min · ${CT.fmt(r.nutri.kcal)} kcal · ${CT.eur(r.cost)}</span>${CT.benefitBadges(r, 2)}</button>`).join('')}</div>`, { wide: true });
   };
   CT.actions['pick-set'] = (d) => { CT.setSlot(d.date, d.slot, d.id); CT.closeDialog(); CT.render(); };
   CT.actions['fit-day'] = (d) => { CT.refitDay(d.date, true); CT.save('plans'); CT.toast('Portions sized to your target for today.', 'good'); CT.render(); };

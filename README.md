@@ -29,6 +29,9 @@ python -m http.server 8765 --directory docs   # then open http://localhost:8765
 Source lives in `src/`:
 
 - `data/ingredients.js` — 113 ingredients with per-100 g nutrition, €/kg, Italian names, allergen flags, purine load, omega-3
+- `data/recipes-it-*.js` — the Italian method text and notes for every recipe, keyed by id. Recipe
+  names live on each recipe as `it`. The app shows recipes in Italian by default, offline, with
+  English as the fallback and as a switch under Settings, Appearance.
 - `data/recipes-*.js` — 119 recipes (ingredients in grams; nutrition, cost and health scores are
   computed). `recipes-italian.js` holds the Italian classics; older recipes are classified by the
   `CT.ITALIAN` set in `content.js`, and the "Italian first" preference weights the planner towards them.
