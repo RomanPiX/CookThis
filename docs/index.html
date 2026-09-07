@@ -359,11 +359,11 @@ em.it { font-style: italic; color: var(--muted); }
 .recipe-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: start; }
 .stepper { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; }
 .ing-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 0; }
-.ing-list li { display: grid; grid-template-columns: minmax(74px, auto) 1fr; gap: 12px; align-items: baseline; padding: 7px 0; border-bottom: 1px dotted var(--line); }
+.ing-list li { display: grid; grid-template-columns: minmax(74px, 38%) 1fr; gap: 12px; align-items: baseline; padding: 7px 0; border-bottom: 1px dotted var(--line); }
 .ing-list li:last-child { border-bottom: 0; }
 .ing-list li.opt { color: var(--muted); }
 .ing-list.small li { font-size: 13.5px; }
-.ing-qty { font-weight: 700; white-space: nowrap; }
+.ing-qty { font-weight: 700; }
 .steps { padding-left: 0; margin: 12px 0 0; display: grid; gap: 12px; list-style: none; counter-reset: step; }
 .steps li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; counter-increment: step; }
 .steps li::before { content: counter(step); font-family: var(--display); font-size: 19px; font-weight: 600; line-height: 1.2; color: var(--accent); }
@@ -552,7 +552,7 @@ body.cooking { overflow: hidden; }
 </div>
 
 <script>
-window.CT_CONFIG={"appName":"CookThis","build":"202609072204"};
+window.CT_CONFIG={"appName":"CookThis","build":"202609072211"};
 // ==== data/ingredients.js
 try {
 /* CookThis ingredient table.
@@ -673,7 +673,7 @@ CT.ING = {};
   I('dark_choc', 'Dark chocolate, 70%+', 'cioccolato fondente 70%', 'Canned & dry', 598, 7.8, 46, 11, 43, 24, 24, 20, 15, 'chocolate', '', 0, 0, 0, '');
   // ---- Condiments, herbs, spices
   I('balsamic', 'Balsamic vinegar', 'aceto balsamico', 'Oils & condiments', 88, 0.5, 17, 0, 0, 0, 15, 23, 8, '', '', 0, 0, 0, '');
-  I('soy_sauce', 'Soy sauce, reduced salt', 'salsa di soia a ridotto contenuto di sale', 'Oils & condiments', 53, 8, 5, 0.8, 0, 0, 0.4, 3600, 7, 'soy', 'YG', 0, 0, 0, '');
+  I('soy_sauce', 'Soy sauce, reduced salt', 'salsa di soia (meno sale)', 'Oils & condiments', 53, 8, 5, 0.8, 0, 0, 0.4, 3600, 7, 'soy', 'YG', 0, 0, 0, '');
   I('mustard', 'Mustard', 'senape', 'Oils & condiments', 66, 4, 6, 3, 4, 0.2, 1, 1100, 5, 'mustard', '', 0, 0, 0, '');
   I('honey', 'Honey', 'miele', 'Canned & dry', 304, 0.3, 82, 0.2, 0, 0, 82, 4, 10, 'honey', '', 0, 0, 0, '');
   I('cocoa', 'Unsweetened cocoa powder', 'cacao amaro', 'Canned & dry', 228, 20, 58, 33, 14, 8, 1.8, 21, 10, 'chocolate', '', 0, 0, 0, '');
@@ -690,7 +690,7 @@ CT.ING = {};
   I('dill', 'Dill', 'aneto', 'Produce', 43, 3.5, 7, 2.1, 1.1, 0.1, 0, 61, 15, '', '', 0, 0, 0, '');
   I('salt', 'Iodized salt', 'sale iodato', 'Spices', 0, 0, 0, 0, 0, 0, 0, 38758, 1, '', 'I', 0, 0, 0, '');
   I('pepper_black', 'Black pepper', 'pepe nero', 'Spices', 251, 10, 64, 25, 3.3, 1.4, 0.6, 20, 20, '', '', 0, 0, 0, '');
-  I('stock', 'Low-salt vegetable stock cube', 'dado vegetale a ridotto contenuto di sale', 'Canned & dry', 150, 8, 20, 0, 5, 2, 5, 12000, 15, '', '', 0, 0, 10, 'cube');
+  I('stock', 'Low-salt vegetable stock cube', 'dado vegetale (meno sale)', 'Canned & dry', 150, 8, 20, 0, 5, 2, 5, 12000, 15, '', '', 0, 0, 10, 'cube');
   I('coffee', 'Coffee', 'caffè', 'Canned & dry', 0, 0, 0, 0, 0, 0, 0, 0, 20, 'coffee', '', 0, 0, 0, '');
   I('water', 'Water', 'acqua', 'Oils & condiments', 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, 0, 0, '');
   I('fennel', 'Fennel', 'finocchio', 'Produce', 31, 1.2, 7, 3.1, 0.2, 0, 4, 52, 2.5, 'fennel', '', 0, 0, 300, 'bulb');
@@ -1344,6 +1344,82 @@ CT.RECIPES.push(
 
 } catch (ctLoadError) { console.error('CookThis: data/recipes-chicken.js failed to load', ctLoadError); }
 
+// ==== data/quantities-it.js
+try {
+/* The household quantities that sit in the left column of an ingredient list. They are written in
+   English in the recipe data; this is the Italian for each. Anything unmapped falls through
+   unchanged, so a new phrase degrades to English rather than disappearing. */
+CT.QTY_IT = {
+  // spoons, pinches, splashes
+  '1 tbsp': '1 cucchiaio', '2 tbsp': '2 cucchiai', '3 tbsp': '3 cucchiai', '4 tbsp': '4 cucchiai', '5 tbsp': '5 cucchiai',
+  '1½ tbsp': '1½ cucchiai', '2½ tbsp': '2½ cucchiai', '1 heaped tbsp': '1 cucchiaio colmo',
+  '1 tsp': '1 cucchiaino', '2 tsp': '2 cucchiaini', '1½ tsp': '1½ cucchiaini', '½ tsp': '½ cucchiaino',
+  'a pinch': 'un pizzico', 'a good pinch': 'un pizzico abbondante', 'to taste': 'q.b.', 'plenty': 'in abbondanza',
+  'a squeeze': 'una spruzzata', 'a few drops': 'qualche goccia', 'a few shavings': 'qualche scaglia',
+  // garlic, onions, aromatics
+  '1 clove': '1 spicchio', '2 cloves': '2 spicchi', '½ clove': '½ spicchio', 'a rub of garlic': 'una strofinata d’aglio',
+  '½ onion': '½ cipolla', '½ small onion': '½ cipolla piccola', '¼ red onion': '¼ di cipolla rossa', '1 spring onion': '1 cipollotto',
+  'a thumb, grated': 'un pezzetto, grattugiato', 'a small thumb, grated': 'un pezzettino, grattugiato',
+  // herbs
+  'a small bunch': 'un ciuffo', 'a few leaves': 'qualche foglia', 'a handful of leaves': 'una manciata di foglie',
+  '2 leaves': '2 foglie', '3 leaves': '3 foglie', 'a few fronds': 'qualche ciuffetto', 'a few needles': 'qualche ago', '1 sprig': '1 rametto',
+  // vegetables
+  '1 tomato': '1 pomodoro', '1 small tomato': '1 pomodoro piccolo', '1 large tomato': '1 pomodoro grande',
+  '2 tomatoes': '2 pomodori', '2 large tomatoes': '2 pomodori grandi', '3 large tomatoes': '3 pomodori grandi',
+  '6 cherry tomatoes': '6 pomodorini', '8 cherry tomatoes': '8 pomodorini', '10 cherry tomatoes': '10 pomodorini',
+  '1 carrot': '1 carota', '1 small carrot': '1 carota piccola', '1 small carrot, grated': '1 carota piccola, grattugiata',
+  '1 stick': '1 costa', '⅓ cucumber': '⅓ di cetriolo', '¼ cucumber': '¼ di cetriolo', '½ cucumber': '½ cetriolo',
+  '1 pepper': '1 peperone', '½ pepper': '½ peperone', '⅔ pepper': '⅔ di peperone', '1½ peppers': '1½ peperoni',
+  '1 small zucchini': '1 zucchina piccola', '1 eggplant': '1 melanzana',
+  '1 potato': '1 patata', '1 small potato': '1 patata piccola', '1 large potato': '1 patata grande',
+  '2 potatoes': '2 patate', '1 sweet potato': '1 patata dolce',
+  '½ head': '½ testa', '1 head': '1 testa', '1 bulb': '1 bulbo', '1 pack pre-cut': '1 confezione già a pezzi',
+  '5 mushrooms': '5 funghi', '6 mushrooms': '6 funghi', '8 mushrooms': '8 funghi',
+  // fruit
+  '1 lemon': '1 limone', '½ lemon': '½ limone', '½ lemon, juice': '½ limone, il succo', '½ lemon, zest and juice': '½ limone, scorza e succo',
+  '1 apple': '1 mela', '1 small apple': '1 mela piccola', '1 pear': '1 pera',
+  '1 orange': '1 arancia', '1 large orange': '1 arancia grande', '1 kiwi': '1 kiwi', '2 kiwis': '2 kiwi',
+  '1 banana': '1 banana', '1 small banana': '1 banana piccola', '½ avocado': '½ avocado',
+  // handfuls
+  '1 handful': '1 manciata', '2 handfuls': '2 manciate', '3 handfuls': '3 manciate', '4 handfuls': '4 manciate',
+  '2 big handfuls': '2 manciate abbondanti', 'a big handful, frozen': 'una manciata abbondante, surgelati',
+  '2 big handfuls, frozen': '2 manciate abbondanti, surgelati', 'a handful, frozen': 'una manciata, surgelati',
+  '2 handfuls, frozen': '2 manciate, surgelati', '3 handfuls, frozen': '3 manciate, surgelate',
+  '2 handfuls, fresh': '2 manciate, freschi', '3 handfuls, fresh': '3 manciate, freschi',
+  '3 handfuls (frozen is fine)': '3 manciate (vanno bene surgelati)', '1 big bowl, frozen': '1 ciotola abbondante, surgelate',
+  // bread and crackers
+  '1 slice': '1 fetta', '2 slices': '2 fette', '3 slices': '3 fette', '6 slices': '6 fette', '2-3 slices': '2-3 fette',
+  '1 thick slice': '1 fetta spessa', '2 large slices': '2 fette grandi', '3 slices, stale is ideal': '3 fette, meglio se raffermo',
+  '1 slice, blitzed to crumbs': '1 fetta, frullata in pangrattato', '4 crackers': '4 crackers', '3 crackers': '3 crackers',
+  '1 piadina': '1 piadina', '1 pita': '1 pita',
+  // tins, pouches, cubes
+  '½ can, rinsed': '½ scatola, sciacquati', '¾ can, rinsed': '¾ di scatola, sciacquati', '⅖ can, rinsed': '⅖ di scatola, sciacquati',
+  '1 can, rinsed': '1 scatola, sciacquati', '½ can, rinsed and dried': '½ scatola, sciacquati e asciugati',
+  '1 can, rinsed and dried': '1 scatola, sciacquati e asciugati', '1 can, drained': '1 scatoletta, sgocciolato',
+  '2 small cans, drained': '2 scatolette, sgocciolato', '1½ small cans, drained': '1½ scatolette, sgocciolato',
+  '1 pouch portion': '1 busta monoporzione', '1½ pouch portions': '1½ buste monoporzione', '⅘ pouch portion': '⅘ di busta monoporzione',
+  '½ low-salt cube': '½ dado',
+  // meat, fish, eggs, cheese
+  '1 breast': '1 petto', '1 small breast': '1 petto piccolo', '1 breast, in chunks': '1 petto, a bocconcini',
+  '1 large breast, in chunks': '1 petto grande, a bocconcini', '1 breast, in strips': '1 petto, a striscioline',
+  '1 breast, sliced': '1 petto, a fette', '1 breast, sliced thin': '1 petto, a fette sottili',
+  '1 breast, butterflied': '1 petto, aperto a libro', '1 breast, cubed': '1 petto, a cubi',
+  '1 small breast, sliced': '1 petto piccolo, a fette', '1 small breast, diced': '1 petto piccolo, a dadini',
+  '½ breast, diced': '½ petto, a dadini', '2 thin steaks': '2 fettine sottili', '2 thin escalopes': '2 scaloppine sottili',
+  '1 fillet': '1 filetto', '1 large fillet': '1 filetto grande', '2 frozen fillets': '2 filetti surgelati',
+  '2 frozen fillets, thawed': '2 filetti surgelati, scongelati',
+  '1 egg': '1 uovo', '2 eggs': '2 uova', '½ egg, beaten': '½ uovo, sbattuto',
+  '½ ball': '½ mozzarella', '⅖ ball': '⅖ di mozzarella', '1 pot': '1 vasetto',
+  '6 olives': '6 olive', '8 olives': '8 olive', '4 olives': '4 olive',
+  // weights with a count in brackets
+  '15 g (4 halves)': '15 g (4 gherigli)', '10 g (3 halves)': '10 g (3 gherigli)', '20 g (5 halves)': '20 g (5 gherigli)',
+  '15 g (12 almonds)': '15 g (12 mandorle)', '25 g (20 almonds)': '25 g (20 mandorle)', '10 almonds': '10 mandorle',
+  '15 g (a small handful)': '15 g (una manciatina)', '10 g, chopped': '10 g, tritate', '15 g, chopped': '15 g, tritate',
+  '50 g (5 tbsp)': '50 g (5 cucchiai)', '25 g kernels (2 tbsp)': '25 g di chicchi (2 cucchiai)', '2 squares (15 g)': '2 quadretti (15 g)',
+};
+
+} catch (ctLoadError) { console.error('CookThis: data/quantities-it.js failed to load', ctLoadError); }
+
 // ==== data/recipes-it-a.js
 try {
 /* Italian method text. The recipe names already live on each recipe as `it`; this holds the steps
@@ -1838,6 +1914,19 @@ CT.ingNames = (i) => {
   const it = (i.it || '').trim(), en = (i.en || '').trim();
   return CT.recipeLang() === 'it' ? { primary: it || en, secondary: '' } : { primary: en || it, secondary: '' };
 };
+// The quantity in the left column, translated where we have it.
+CT.dispText = (i) => {
+  const d = i.disp || '';
+  if (CT.recipeLang() !== 'it') return d;
+  return (CT.QTY_IT && CT.QTY_IT[d]) || d;
+};
+// Words the recipe itself uses, as opposed to the surrounding app.
+CT.rWord = (en) => {
+  if (CT.recipeLang() !== 'it') return en;
+  const w = { optional: 'facoltativo', Ingredients: 'Ingredienti', Method: 'Procedimento', serving: 'porzione', servings: 'porzioni', portion: 'porzione' };
+  return w[en] || en;
+};
+
 // Inline: "pane integrale <em>Wholegrain bread</em>"
 CT.ingLabel = (i) => { const n = CT.ingNames(i); return CT.esc(n.primary) + (n.secondary ? ` <em class="it">${CT.esc(n.secondary)}</em>` : ''); };
 // For copying and sharing: "pane integrale (Wholegrain bread)"
@@ -2772,9 +2861,9 @@ STREAKS: cooking streak ${st.cookStreak} days, ${st.slipFreeDays} days without c
 
   RECIPE_SHAPE: `Reply with ONLY one JSON object, no prose, in exactly this shape:
 {"name": "Recipe name", "it": "Nome italiano", "slots": ["L"], "time": 15, "active": 10, "needs": ["stove"], "tags": ["one-pan"],
- "ingredients": [ {"id": "chicken", "g": 130, "disp": "1 small breast"}, {"name": "Fennel", "it": "finocchio", "g": 150, "disp": "1 bulb", "aisle": "Produce", "per100": {"kcal": 31, "p": 1.2, "c": 7, "fib": 3.1, "fat": 0.2, "sf": 0, "sug": 4, "na": 52}, "price": 3, "flags": "", "pur": 0, "o3": 0} ],
+ "ingredients": [ {"id": "chicken", "g": 130, "disp": "1 petto piccolo"}, {"name": "Fennel", "it": "finocchio", "g": 150, "disp": "1 bulbo", "aisle": "Produce", "per100": {"kcal": 31, "p": 1.2, "c": 7, "fib": 3.1, "fat": 0.2, "sf": 0, "sug": 4, "na": 52}, "price": 3, "flags": "", "pur": 0, "o3": 0} ],
  "steps": ["Primo passo.", "Secondo passo (5 min)."], "note": "Una frase sul perché va bene per i suoi valori del sangue."}
-Rules: one serving; grams for every ingredient; use an "id" from the catalogue whenever the ingredient exists there (then omit per100); for anything else give realistic per-100 g values AND an "it" field with the Italian name of that ingredient, since ingredients are shown in Italian. slots use B/L/D/S. needs may include stove, oven, microwave, blender. flags letters: F fish, S shellfish, E egg, D dairy, G gluten, N nuts, Y soy, Z sesame, M meat, R red meat. Keep hands-on time at or under the person's limit, ingredients cheap and available in an Italian supermarket, saturated fat low, fibre high. Write "name" in English but "it", the "steps" and the "note" IN ITALIAN, because the app shows recipes in Italian.`,
+Rules: one serving; grams for every ingredient; use an "id" from the catalogue whenever the ingredient exists there (then omit per100); for anything else give realistic per-100 g values AND an "it" field with the Italian name of that ingredient, since ingredients are shown in Italian. slots use B/L/D/S. needs may include stove, oven, microwave, blender. flags letters: F fish, S shellfish, E egg, D dairy, G gluten, N nuts, Y soy, Z sesame, M meat, R red meat. Keep hands-on time at or under the person's limit, ingredients cheap and available in an Italian supermarket, saturated fat low, fibre high. Write "name" in English but "it", the "steps", the "note" and every "disp" quantity IN ITALIAN (1 cucchiaio, un pizzico, 2 fette, 1 spicchio), because the app shows recipes in Italian.`,
 
   async chat(turns, opts = {}) {
     const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
@@ -2794,7 +2883,7 @@ Rules: one serving; grams for every ingredient; use an "id" from the catalogue w
   async expandMethod(r, portion, opts = {}) {
     const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
     const k = portion || 1;
-    const ing = r.ings.map((i) => `${k === 1 ? i.disp : (CT.fmt(i.g * k) + ' g')} ${i.en}${i.opt ? ' (optional)' : ''}`).join('; ');
+    const ing = r.ings.map((i) => `${k === 1 ? CT.dispText(i) : (CT.fmt(i.g * k) + ' g')} ${CT.ingNames(i).primary}${i.opt ? ' (facoltativo)' : ''}`).join('; ');
     const prompt = `You are the built-in cooking coach of CookThis, writing for someone who cooks fast, simple food and wants to follow this exact recipe without guessing. They cook in an Italian kitchen with metric measures.
 
 RECIPE: ${CT.rName(r)}${r.it && r.name !== CT.rName(r) ? ` (in English: ${r.name})` : ''}
@@ -2941,7 +3030,7 @@ try {
         if (!r) throw new Error('No recipe with id "' + recipeId + '".');
         return {
           id: r.id, name: CT.rName(r), en: r.name, it: r.it, slots: r.slots, time: r.time, active: r.active, needs: r.needs, tags: r.tags,
-          ingredients: r.ings.map((i) => ({ id: i.id, name: CT.ingNames(i).primary, en: i.en, g: i.g, disp: i.disp, optional: i.opt })),
+          ingredients: r.ings.map((i) => ({ id: i.id, name: CT.ingNames(i).primary, en: i.en, g: i.g, disp: CT.dispText(i), optional: i.opt })),
           steps: CT.rSteps(r), note: CT.rNote(r),
           nutrition: { kcal: Math.round(r.nutri.kcal), protein_g: Math.round(r.nutri.p), fibre_g: +r.nutri.fib.toFixed(1),
             saturated_fat_g: +r.nutri.sf.toFixed(1), sugars_g: Math.round(r.nutri.sug), sodium_mg: Math.round(r.nutri.na),
@@ -3551,11 +3640,11 @@ try {
       </div>
       <div class="recipe-grid">
         <section class="card">
-          <div class="row-between"><h3>Ingredients</h3><div class="stepper" aria-label="Portion size"><button class="btn ghost xs icon-only" data-action="serv-dec" data-id="${id}" aria-label="Smaller portion">${CT.icon('minus')}</button><span>${k === 1 ? '1 serving' : '×' + k + ' portion'}</span><button class="btn ghost xs icon-only" data-action="serv-inc" data-id="${id}" aria-label="Bigger portion">${CT.icon('plus')}</button></div></div>
-          <ul class="ing-list">${r.ings.map((i) => `<li class="${i.opt ? 'opt' : ''}"><span class="ing-qty">${k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? `${CT.fmt(i.g * k)} ml` : `${CT.fmt(i.g * k)} g`)}</span><span class="ing-name">${CT.ingLabel(i)}${i.opt ? ' <small class="muted">optional</small>' : ''}</span></li>`).join('')}</ul>
+          <div class="row-between"><h3>${CT.rWord('Ingredients')}</h3><div class="stepper" aria-label="Portion size"><button class="btn ghost xs icon-only" data-action="serv-dec" data-id="${id}" aria-label="Smaller portion">${CT.icon('minus')}</button><span>${k === 1 ? '1 ' + CT.rWord('serving') : '×' + k + ' ' + CT.rWord('portion')}</span><button class="btn ghost xs icon-only" data-action="serv-inc" data-id="${id}" aria-label="Bigger portion">${CT.icon('plus')}</button></div></div>
+          <ul class="ing-list">${r.ings.map((i) => `<li class="${i.opt ? 'opt' : ''}"><span class="ing-qty">${k === 1 ? CT.esc(CT.dispText(i)) : (CT.LIQUID.has(i.id) ? `${CT.fmt(i.g * k)} ml` : `${CT.fmt(i.g * k)} g`)}</span><span class="ing-name">${CT.ingLabel(i)}${i.opt ? ` <small class="muted">${CT.rWord('optional')}</small>` : ''}</span></li>`).join('')}</ul>
         </section>
         <section class="card">
-          <div class="row-between"><h3>Method</h3>${expandControl(id, k)}</div>
+          <div class="row-between"><h3>${CT.rWord('Method')}</h3>${expandControl(id, k)}</div>
           <ol class="steps">${CT.rSteps(r).map((st) => `<li>${CT.esc(st)}</li>`).join('')}</ol>
           ${CT.rNote(r) ? `<p class="note">${CT.esc(CT.rNote(r))}</p>` : ''}
           ${expandBlock(id)}
@@ -3666,7 +3755,7 @@ try {
       <div class="cook-progress">${steps.map((_, k) => `<span class="${k < c.i ? 'done' : k === c.i ? 'now' : ''}"></span>`).join('')}</div>
       ${last ? `<div class="cook-step"><p class="eyebrow">Done</p><h2>Plate up.</h2><p class="muted">Sit down. Eat slowly. Drink a glass of water.</p></div>` : `<div class="cook-step"><p class="eyebrow">Step ${c.i + 1} of ${total}</p><h2>${CT.esc(step)}</h2></div>`}
       ${!last && (secs || c.timer) ? `<div class="cook-timer ${c.timer ? 'running' : ''}"><span class="time">${fmtTime(c.timer ? c.remaining : secs)}</span>${c.timer ? `<button class="btn ghost sm" data-action="timer-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary sm" data-action="timer-start" data-secs="${secs}">${CT.icon('play')} Start timer</button>`}</div>` : ''}
-      <div class="cook-ings"><details><summary>Ingredients${c.k !== 1 ? ` <span class="chip tiny">×${c.k} portion</span>` : ''}</summary><ul>${r.ings.map((i) => `<li><strong>${c.k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? CT.fmt(i.g * c.k) + ' ml' : CT.fmt(i.g * c.k) + ' g')}</strong> ${CT.esc(CT.ingNames(i).primary)}</li>`).join('')}</ul></details></div>
+      <div class="cook-ings"><details><summary>${CT.rWord('Ingredients')}${c.k !== 1 ? ` <span class="chip tiny">×${c.k} ${CT.rWord('portion')}</span>` : ''}</summary><ul>${r.ings.map((i) => `<li><strong>${c.k === 1 ? CT.esc(CT.dispText(i)) : (CT.LIQUID.has(i.id) ? CT.fmt(i.g * c.k) + ' ml' : CT.fmt(i.g * c.k) + ' g')}</strong> ${CT.esc(CT.ingNames(i).primary)}</li>`).join('')}</ul></details></div>
       <footer class="cook-nav">
         <button class="btn ghost" data-action="cook-prev" ${c.i === 0 ? 'disabled' : ''}>${CT.icon('back')} Back</button>
         ${last ? `<button class="btn primary big" data-action="cook-finish" data-id="${r.id}">${CT.icon('check')} I made it</button>` : `<button class="btn primary big" data-action="cook-next">Next ${CT.icon('chev')}</button>`}
@@ -3979,7 +4068,7 @@ try {
       <p class="eyebrow">Draft recipe</p><h3>${CT.esc(CT.rName(p))}</h3>
       <div class="rmeta-row">${CT.metaLine(p)}<span class="meta">${p.slots.map((s) => CT.SLOTS[s].en).join(', ')}</span></div>
       ${CT.benefitBadges(p)}
-      <div class="two-col"><div><h4>Ingredients</h4><ul class="ing-list small">${p.ings.map((i) => `<li><span class="ing-qty">${CT.esc(i.disp)}</span><span class="ing-name">${CT.ingLabel(i)}</span></li>`).join('')}</ul></div><div><h4>Method</h4><ol class="steps small">${p.steps.map((s) => `<li>${CT.esc(s)}</li>`).join('')}</ol></div></div>
+      <div class="two-col"><div><h4>${CT.rWord('Ingredients')}</h4><ul class="ing-list small">${p.ings.map((i) => `<li><span class="ing-qty">${CT.esc(CT.dispText(i))}</span><span class="ing-name">${CT.ingLabel(i)}</span></li>`).join('')}</ul></div><div><h4>${CT.rWord('Method')}</h4><ol class="steps small">${CT.rSteps(p).map((s) => `<li>${CT.esc(s)}</li>`).join('')}</ol></div></div>
       ${p.note ? `<p class="note">${CT.esc(p.note)}</p>` : ''}
       <p class="muted small">Per serving: ${CT.fmt(p.nutri.kcal)} kcal · ${CT.fmt(p.nutri.p)} g protein · ${CT.fmt(p.nutri.fib)} g fibre · ${CT.fmt(p.nutri.sf, 1)} g saturated fat · ${CT.fmt(p.nutri.na)} mg sodium · ${CT.eur(p.cost)}</p>
       <div class="row-gap wrap"><button class="btn primary" data-action="ai-save-recipe">${CT.icon('check')} Save to my recipes</button><button class="btn ghost" data-action="ai-save-recipe" data-today="1">Save and plan for today</button><button class="btn ghost" data-action="ai-discard">Discard</button></div>

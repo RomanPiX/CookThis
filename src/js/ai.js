@@ -74,9 +74,9 @@ STREAKS: cooking streak ${st.cookStreak} days, ${st.slipFreeDays} days without c
 
   RECIPE_SHAPE: `Reply with ONLY one JSON object, no prose, in exactly this shape:
 {"name": "Recipe name", "it": "Nome italiano", "slots": ["L"], "time": 15, "active": 10, "needs": ["stove"], "tags": ["one-pan"],
- "ingredients": [ {"id": "chicken", "g": 130, "disp": "1 small breast"}, {"name": "Fennel", "it": "finocchio", "g": 150, "disp": "1 bulb", "aisle": "Produce", "per100": {"kcal": 31, "p": 1.2, "c": 7, "fib": 3.1, "fat": 0.2, "sf": 0, "sug": 4, "na": 52}, "price": 3, "flags": "", "pur": 0, "o3": 0} ],
+ "ingredients": [ {"id": "chicken", "g": 130, "disp": "1 petto piccolo"}, {"name": "Fennel", "it": "finocchio", "g": 150, "disp": "1 bulbo", "aisle": "Produce", "per100": {"kcal": 31, "p": 1.2, "c": 7, "fib": 3.1, "fat": 0.2, "sf": 0, "sug": 4, "na": 52}, "price": 3, "flags": "", "pur": 0, "o3": 0} ],
  "steps": ["Primo passo.", "Secondo passo (5 min)."], "note": "Una frase sul perché va bene per i suoi valori del sangue."}
-Rules: one serving; grams for every ingredient; use an "id" from the catalogue whenever the ingredient exists there (then omit per100); for anything else give realistic per-100 g values AND an "it" field with the Italian name of that ingredient, since ingredients are shown in Italian. slots use B/L/D/S. needs may include stove, oven, microwave, blender. flags letters: F fish, S shellfish, E egg, D dairy, G gluten, N nuts, Y soy, Z sesame, M meat, R red meat. Keep hands-on time at or under the person's limit, ingredients cheap and available in an Italian supermarket, saturated fat low, fibre high. Write "name" in English but "it", the "steps" and the "note" IN ITALIAN, because the app shows recipes in Italian.`,
+Rules: one serving; grams for every ingredient; use an "id" from the catalogue whenever the ingredient exists there (then omit per100); for anything else give realistic per-100 g values AND an "it" field with the Italian name of that ingredient, since ingredients are shown in Italian. slots use B/L/D/S. needs may include stove, oven, microwave, blender. flags letters: F fish, S shellfish, E egg, D dairy, G gluten, N nuts, Y soy, Z sesame, M meat, R red meat. Keep hands-on time at or under the person's limit, ingredients cheap and available in an Italian supermarket, saturated fat low, fibre high. Write "name" in English but "it", the "steps", the "note" and every "disp" quantity IN ITALIAN (1 cucchiaio, un pizzico, 2 fette, 1 spicchio), because the app shows recipes in Italian.`,
 
   async chat(turns, opts = {}) {
     const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
@@ -96,7 +96,7 @@ Rules: one serving; grams for every ingredient; use an "id" from the catalogue w
   async expandMethod(r, portion, opts = {}) {
     const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
     const k = portion || 1;
-    const ing = r.ings.map((i) => `${k === 1 ? i.disp : (CT.fmt(i.g * k) + ' g')} ${i.en}${i.opt ? ' (optional)' : ''}`).join('; ');
+    const ing = r.ings.map((i) => `${k === 1 ? CT.dispText(i) : (CT.fmt(i.g * k) + ' g')} ${CT.ingNames(i).primary}${i.opt ? ' (facoltativo)' : ''}`).join('; ');
     const prompt = `You are the built-in cooking coach of CookThis, writing for someone who cooks fast, simple food and wants to follow this exact recipe without guessing. They cook in an Italian kitchen with metric measures.
 
 RECIPE: ${CT.rName(r)}${r.it && r.name !== CT.rName(r) ? ` (in English: ${r.name})` : ''}

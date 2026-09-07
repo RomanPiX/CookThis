@@ -19,6 +19,19 @@ CT.ingNames = (i) => {
   const it = (i.it || '').trim(), en = (i.en || '').trim();
   return CT.recipeLang() === 'it' ? { primary: it || en, secondary: '' } : { primary: en || it, secondary: '' };
 };
+// The quantity in the left column, translated where we have it.
+CT.dispText = (i) => {
+  const d = i.disp || '';
+  if (CT.recipeLang() !== 'it') return d;
+  return (CT.QTY_IT && CT.QTY_IT[d]) || d;
+};
+// Words the recipe itself uses, as opposed to the surrounding app.
+CT.rWord = (en) => {
+  if (CT.recipeLang() !== 'it') return en;
+  const w = { optional: 'facoltativo', Ingredients: 'Ingredienti', Method: 'Procedimento', serving: 'porzione', servings: 'porzioni', portion: 'porzione' };
+  return w[en] || en;
+};
+
 // Inline: "pane integrale <em>Wholegrain bread</em>"
 CT.ingLabel = (i) => { const n = CT.ingNames(i); return CT.esc(n.primary) + (n.secondary ? ` <em class="it">${CT.esc(n.secondary)}</em>` : ''); };
 // For copying and sharing: "pane integrale (Wholegrain bread)"

@@ -116,7 +116,7 @@ CT.ING = {};
   I('dark_choc', 'Dark chocolate, 70%+', 'cioccolato fondente 70%', 'Canned & dry', 598, 7.8, 46, 11, 43, 24, 24, 20, 15, 'chocolate', '', 0, 0, 0, '');
   // ---- Condiments, herbs, spices
   I('balsamic', 'Balsamic vinegar', 'aceto balsamico', 'Oils & condiments', 88, 0.5, 17, 0, 0, 0, 15, 23, 8, '', '', 0, 0, 0, '');
-  I('soy_sauce', 'Soy sauce, reduced salt', 'salsa di soia a ridotto contenuto di sale', 'Oils & condiments', 53, 8, 5, 0.8, 0, 0, 0.4, 3600, 7, 'soy', 'YG', 0, 0, 0, '');
+  I('soy_sauce', 'Soy sauce, reduced salt', 'salsa di soia (meno sale)', 'Oils & condiments', 53, 8, 5, 0.8, 0, 0, 0.4, 3600, 7, 'soy', 'YG', 0, 0, 0, '');
   I('mustard', 'Mustard', 'senape', 'Oils & condiments', 66, 4, 6, 3, 4, 0.2, 1, 1100, 5, 'mustard', '', 0, 0, 0, '');
   I('honey', 'Honey', 'miele', 'Canned & dry', 304, 0.3, 82, 0.2, 0, 0, 82, 4, 10, 'honey', '', 0, 0, 0, '');
   I('cocoa', 'Unsweetened cocoa powder', 'cacao amaro', 'Canned & dry', 228, 20, 58, 33, 14, 8, 1.8, 21, 10, 'chocolate', '', 0, 0, 0, '');
@@ -133,7 +133,7 @@ CT.ING = {};
   I('dill', 'Dill', 'aneto', 'Produce', 43, 3.5, 7, 2.1, 1.1, 0.1, 0, 61, 15, '', '', 0, 0, 0, '');
   I('salt', 'Iodized salt', 'sale iodato', 'Spices', 0, 0, 0, 0, 0, 0, 0, 38758, 1, '', 'I', 0, 0, 0, '');
   I('pepper_black', 'Black pepper', 'pepe nero', 'Spices', 251, 10, 64, 25, 3.3, 1.4, 0.6, 20, 20, '', '', 0, 0, 0, '');
-  I('stock', 'Low-salt vegetable stock cube', 'dado vegetale a ridotto contenuto di sale', 'Canned & dry', 150, 8, 20, 0, 5, 2, 5, 12000, 15, '', '', 0, 0, 10, 'cube');
+  I('stock', 'Low-salt vegetable stock cube', 'dado vegetale (meno sale)', 'Canned & dry', 150, 8, 20, 0, 5, 2, 5, 12000, 15, '', '', 0, 0, 10, 'cube');
   I('coffee', 'Coffee', 'caffè', 'Canned & dry', 0, 0, 0, 0, 0, 0, 0, 0, 20, 'coffee', '', 0, 0, 0, '');
   I('water', 'Water', 'acqua', 'Oils & condiments', 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, 0, 0, '');
   I('fennel', 'Fennel', 'finocchio', 'Produce', 31, 1.2, 7, 3.1, 0.2, 0, 4, 52, 2.5, 'fennel', '', 0, 0, 300, 'bulb');

@@ -341,11 +341,11 @@ em.it { font-style: italic; color: var(--muted); }
 .recipe-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: start; }
 .stepper { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; }
 .ing-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 0; }
-.ing-list li { display: grid; grid-template-columns: minmax(74px, auto) 1fr; gap: 12px; align-items: baseline; padding: 7px 0; border-bottom: 1px dotted var(--line); }
+.ing-list li { display: grid; grid-template-columns: minmax(74px, 38%) 1fr; gap: 12px; align-items: baseline; padding: 7px 0; border-bottom: 1px dotted var(--line); }
 .ing-list li:last-child { border-bottom: 0; }
 .ing-list li.opt { color: var(--muted); }
 .ing-list.small li { font-size: 13.5px; }
-.ing-qty { font-weight: 700; white-space: nowrap; }
+.ing-qty { font-weight: 700; }
 .steps { padding-left: 0; margin: 12px 0 0; display: grid; gap: 12px; list-style: none; counter-reset: step; }
 .steps li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; counter-increment: step; }
 .steps li::before { content: counter(step); font-family: var(--display); font-size: 19px; font-weight: 600; line-height: 1.2; color: var(--accent); }

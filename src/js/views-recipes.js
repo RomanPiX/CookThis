@@ -86,11 +86,11 @@
       </div>
       <div class="recipe-grid">
         <section class="card">
-          <div class="row-between"><h3>Ingredients</h3><div class="stepper" aria-label="Portion size"><button class="btn ghost xs icon-only" data-action="serv-dec" data-id="${id}" aria-label="Smaller portion">${CT.icon('minus')}</button><span>${k === 1 ? '1 serving' : '×' + k + ' portion'}</span><button class="btn ghost xs icon-only" data-action="serv-inc" data-id="${id}" aria-label="Bigger portion">${CT.icon('plus')}</button></div></div>
-          <ul class="ing-list">${r.ings.map((i) => `<li class="${i.opt ? 'opt' : ''}"><span class="ing-qty">${k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? `${CT.fmt(i.g * k)} ml` : `${CT.fmt(i.g * k)} g`)}</span><span class="ing-name">${CT.ingLabel(i)}${i.opt ? ' <small class="muted">optional</small>' : ''}</span></li>`).join('')}</ul>
+          <div class="row-between"><h3>${CT.rWord('Ingredients')}</h3><div class="stepper" aria-label="Portion size"><button class="btn ghost xs icon-only" data-action="serv-dec" data-id="${id}" aria-label="Smaller portion">${CT.icon('minus')}</button><span>${k === 1 ? '1 ' + CT.rWord('serving') : '×' + k + ' ' + CT.rWord('portion')}</span><button class="btn ghost xs icon-only" data-action="serv-inc" data-id="${id}" aria-label="Bigger portion">${CT.icon('plus')}</button></div></div>
+          <ul class="ing-list">${r.ings.map((i) => `<li class="${i.opt ? 'opt' : ''}"><span class="ing-qty">${k === 1 ? CT.esc(CT.dispText(i)) : (CT.LIQUID.has(i.id) ? `${CT.fmt(i.g * k)} ml` : `${CT.fmt(i.g * k)} g`)}</span><span class="ing-name">${CT.ingLabel(i)}${i.opt ? ` <small class="muted">${CT.rWord('optional')}</small>` : ''}</span></li>`).join('')}</ul>
         </section>
         <section class="card">
-          <div class="row-between"><h3>Method</h3>${expandControl(id, k)}</div>
+          <div class="row-between"><h3>${CT.rWord('Method')}</h3>${expandControl(id, k)}</div>
           <ol class="steps">${CT.rSteps(r).map((st) => `<li>${CT.esc(st)}</li>`).join('')}</ol>
           ${CT.rNote(r) ? `<p class="note">${CT.esc(CT.rNote(r))}</p>` : ''}
           ${expandBlock(id)}
@@ -201,7 +201,7 @@
       <div class="cook-progress">${steps.map((_, k) => `<span class="${k < c.i ? 'done' : k === c.i ? 'now' : ''}"></span>`).join('')}</div>
       ${last ? `<div class="cook-step"><p class="eyebrow">Done</p><h2>Plate up.</h2><p class="muted">Sit down. Eat slowly. Drink a glass of water.</p></div>` : `<div class="cook-step"><p class="eyebrow">Step ${c.i + 1} of ${total}</p><h2>${CT.esc(step)}</h2></div>`}
       ${!last && (secs || c.timer) ? `<div class="cook-timer ${c.timer ? 'running' : ''}"><span class="time">${fmtTime(c.timer ? c.remaining : secs)}</span>${c.timer ? `<button class="btn ghost sm" data-action="timer-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary sm" data-action="timer-start" data-secs="${secs}">${CT.icon('play')} Start timer</button>`}</div>` : ''}
-      <div class="cook-ings"><details><summary>Ingredients${c.k !== 1 ? ` <span class="chip tiny">×${c.k} portion</span>` : ''}</summary><ul>${r.ings.map((i) => `<li><strong>${c.k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? CT.fmt(i.g * c.k) + ' ml' : CT.fmt(i.g * c.k) + ' g')}</strong> ${CT.esc(CT.ingNames(i).primary)}</li>`).join('')}</ul></details></div>
+      <div class="cook-ings"><details><summary>${CT.rWord('Ingredients')}${c.k !== 1 ? ` <span class="chip tiny">×${c.k} ${CT.rWord('portion')}</span>` : ''}</summary><ul>${r.ings.map((i) => `<li><strong>${c.k === 1 ? CT.esc(CT.dispText(i)) : (CT.LIQUID.has(i.id) ? CT.fmt(i.g * c.k) + ' ml' : CT.fmt(i.g * c.k) + ' g')}</strong> ${CT.esc(CT.ingNames(i).primary)}</li>`).join('')}</ul></details></div>
       <footer class="cook-nav">
         <button class="btn ghost" data-action="cook-prev" ${c.i === 0 ? 'disabled' : ''}>${CT.icon('back')} Back</button>
         ${last ? `<button class="btn primary big" data-action="cook-finish" data-id="${r.id}">${CT.icon('check')} I made it</button>` : `<button class="btn primary big" data-action="cook-next">Next ${CT.icon('chev')}</button>`}

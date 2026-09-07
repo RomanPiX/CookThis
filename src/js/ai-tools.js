@@ -69,7 +69,7 @@
         if (!r) throw new Error('No recipe with id "' + recipeId + '".');
         return {
           id: r.id, name: CT.rName(r), en: r.name, it: r.it, slots: r.slots, time: r.time, active: r.active, needs: r.needs, tags: r.tags,
-          ingredients: r.ings.map((i) => ({ id: i.id, name: CT.ingNames(i).primary, en: i.en, g: i.g, disp: i.disp, optional: i.opt })),
+          ingredients: r.ings.map((i) => ({ id: i.id, name: CT.ingNames(i).primary, en: i.en, g: i.g, disp: CT.dispText(i), optional: i.opt })),
           steps: CT.rSteps(r), note: CT.rNote(r),
           nutrition: { kcal: Math.round(r.nutri.kcal), protein_g: Math.round(r.nutri.p), fibre_g: +r.nutri.fib.toFixed(1),
             saturated_fat_g: +r.nutri.sf.toFixed(1), sugars_g: Math.round(r.nutri.sug), sodium_mg: Math.round(r.nutri.na),
