@@ -14,9 +14,10 @@ No backend, no build tooling beyond Node. One codebase, two outputs:
 | `dist/artifact.html` | Published as a claude.ai Artifact with the `sample` and `db` capabilities | Yes (uses your Claude account): ask the dietician, invent recipes, analyse a meal or a plate photo, weekly review, explain results | Synced across your devices through the artifact's database |
 | `docs/index.html` (+ `sw.js`, manifest, icons) | Any static host, e.g. GitHub Pages; installable as a PWA on Android and desktop; works offline | No (shows a link to the claude.ai version) | Stored in the browser; export/import a backup to move it |
 
-Lab values are never committed. A local `personal.json` (gitignored) can seed them into the private
-artifact build; the public `docs/` build always starts empty, and you enter your results once under
-Health or import a backup exported from the claude.ai version.
+Nothing personal is committed. A local `personal.json` (gitignored) holds the lab seed values and the
+artifact URL, and only the private artifact build receives them. The public `docs/` build starts with
+empty labs and generic focus text; you enter your results once under Health, or import a backup
+exported from the claude.ai version.
 
 ## Develop
 
@@ -47,13 +48,17 @@ palette, so change the three colours at the top of that script if you change the
 
 ## Deploy the PWA to GitHub Pages
 
+Live at **https://romanpix.github.io/CookThis/**, served from `/docs` on `main`. On Android, open it
+in Chrome and choose *Install app* (or *Add to Home screen*).
+
+To ship a change:
+
 ```bash
-gh repo create CookThis --public --source=. --push
-gh api -X POST repos/{owner}/CookThis/pages -f "source[branch]=main" -f "source[path]=/docs"
+node build.mjs && git add -A && git commit -m "..." && git push
 ```
 
-After a minute the app is at `https://<user>.github.io/CookThis/`. On Android, open it in Chrome and
-choose *Install app* (or *Add to Home screen*). Later updates: `node build.mjs`, commit, push.
+Pages rebuilds in about a minute. The service worker serves the cached shell first, so an open tab
+offers a "CookThis was updated, tap to reload" toast once the new build is fetched.
 
 ## Publish the Artifact
 

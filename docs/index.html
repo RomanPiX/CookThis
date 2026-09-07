@@ -490,7 +490,7 @@ body.cooking { overflow: hidden; }
 </div>
 
 <script>
-window.CT_CONFIG={"appName":"CookThis","artifactUrl":"https://claude.ai/code/artifact/d904023b-2e2b-42e6-8840-0d7977786334","publicBuildKeepsLabs":false,"build":"202609071813"};
+window.CT_CONFIG={"appName":"CookThis","build":"202609071816"};
 // ==== data/ingredients.js
 /* CookThis ingredient table.
    Per 100 g: kcal, protein, carbs, fiber, fat, saturated fat, sugars (g), sodium (mg).
@@ -2875,7 +2875,7 @@ CT.openSetupAt = (key, returnTo) => { CT.setup.step = Math.max(0, STEPS.findInde
       return `<section class="claude"><div class="page-head"><div><p class="eyebrow">Claude</p><h1>Ask, invent, analyse.</h1></div></div>
         <div class="card unavailable"><h3>${CT.icon('claude')} Claude features run in the claude.ai version</h3>
         <p>This copy of CookThis is running on its own (installed app or GitHub Pages), where it cannot reach Claude. The version published on claude.ai uses your Claude subscription to answer questions about your diet, invent recipes from what is in your fridge, estimate the nutrition of a meal from a photo, review your week and explain your blood results.</p>
-        ${url ? `<a class="btn primary" href="${CT.esc(url)}" target="_blank" rel="noopener">Open CookThis on claude.ai</a>` : '<p class="muted small">Once published, the link to the claude.ai version appears here.</p>'}
+        ${url ? `<a class="btn primary" href="${CT.esc(url)}" target="_blank" rel="noopener">Open CookThis on claude.ai</a>` : '<p class="muted small">Open that version from your artifacts on claude.ai. Its link is deliberately not built into this public copy.</p>'}
         <p class="muted small">Both versions keep their own data. Use Settings → Export to move it across.</p></div></section>`;
     }
     const panel = u.tab === 'ask' ? askPanel() : u.tab === 'create' ? createPanel() : u.tab === 'analyze' ? analyzePanel() : u.tab === 'review' ? textPanel('review', 'Review my week', 'A frank look at the last seven days: what worked, what to fix, one idea for next week.') : textPanel('labs', 'Explain my blood test', 'Plain-language reading of your latest results, how they connect, and what to ask the doctor.');
