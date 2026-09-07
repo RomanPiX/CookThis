@@ -4,6 +4,8 @@ CT.$$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 CT.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 CT.fmt = (n, d = 0) => (n == null || isNaN(n)) ? '–' : Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
 CT.eur = (n) => '€' + CT.fmt(n, 2);
+// Plain text from Claude into safe paragraphs.
+CT.prose = (t) => CT.esc(t).split(/\n{2,}/).map((x) => '<p>' + x.replace(/\n/g, '<br>') + '</p>').join('');
 CT.clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 CT.uid = () => Math.random().toString(36).slice(2, 10);
 CT.debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };

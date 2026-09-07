@@ -478,6 +478,15 @@ body.cooking { overflow: hidden; }
 .portion-val { font-size: 13px; font-weight: 600; min-width: 30px; text-align: center; }
 .meta.portion { color: var(--accent2-ink); background: var(--accent2-soft); padding: 1px 7px; border-radius: 6px; font-weight: 600; }
 
+.expanded { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.expanded .prose { margin-top: 4px; font-size: 14.5px; }
+
+.suggest-list { display: grid; gap: 6px; margin-top: 4px; }
+.suggest { display: grid; gap: 2px; text-align: left; padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--card); cursor: pointer; }
+.suggest:hover { background: var(--soft); border-color: var(--accent); }
+.suggest-name { font-weight: 600; }
+.suggest-meta { font-size: 12.5px; color: var(--muted); }
+
 </style>
 </head>
 <body>
@@ -498,7 +507,7 @@ body.cooking { overflow: hidden; }
 </div>
 
 <script>
-window.CT_CONFIG={"appName":"CookThis","build":"202609071901"};
+window.CT_CONFIG={"appName":"CookThis","build":"202609072126"};
 // ==== data/ingredients.js
 try {
 /* CookThis ingredient table.
@@ -549,6 +558,8 @@ CT.ING = {};
   I('shrimp', 'Shrimp, frozen, peeled', 'gamberetti sgusciati surgelati', 'Frozen', 85, 20, 0, 0, 0.5, 0.1, 0, 300, 15, 'shrimp', 'SIL', 0.3, 3, 0, '');
   // ---- Meat, poultry, eggs
   I('chicken', 'Chicken breast', 'petto di pollo', 'Meat & fish', 110, 23, 0, 0, 1.5, 0.4, 0, 65, 9, 'chicken', 'ML', 0, 2, 0, '');
+  I('chicken_thigh', 'Chicken thighs, skinless', 'sovracosce di pollo senza pelle', 'Meat & fish', 121, 20, 0, 0, 4.5, 1.2, 0, 80, 8, 'chicken', 'ML', 0, 2, 0, '');
+  I('chicken_mince', 'Minced chicken', 'macinato di pollo', 'Meat & fish', 143, 20, 0, 0, 7, 2, 0, 70, 9, 'chicken', 'ML', 0, 2, 0, '');
   I('turkey_steak', 'Turkey breast steaks', 'fettine di tacchino', 'Meat & fish', 105, 24, 0, 0, 1, 0.3, 0, 55, 10, 'turkey', 'ML', 0, 2, 0, '');
   I('turkey_slices', 'Turkey breast slices (cold cut)', 'fesa di tacchino affettata', 'Meat & fish', 105, 20, 1.5, 0, 2, 0.6, 1, 900, 18, 'turkey', 'ML', 0, 2, 0, '');
   I('bresaola', 'Bresaola', 'bresaola', 'Meat & fish', 150, 32, 0, 0, 2.5, 1, 0, 1600, 40, 'bresaola', 'MRL', 0, 2, 0, '');
@@ -642,6 +653,7 @@ CT.ING = {};
   I('seabass', 'Sea bream or sea bass fillet', 'filetto di orata o branzino', 'Meat & fish', 97, 18, 0, 0, 2.5, 0.6, 0, 70, 18, 'seabass', 'FIL', 0.6, 2, 180, 'fillet');
   I('polenta', 'Instant polenta', 'polenta istantanea', 'Bakery & grains', 358, 8, 76, 4, 1.5, 0.3, 0.6, 5, 2.5, 'polenta', '', 0, 0, 0, '');
   I('sage', 'Sage', 'salvia', 'Spices', 315, 11, 61, 40, 13, 7, 1.7, 11, 20, '', '', 0, 0, 0, '');
+  I('ginger', 'Fresh ginger', 'zenzero fresco', 'Produce', 80, 1.8, 18, 2, 0.8, 0.2, 1.7, 13, 8, 'ginger', '', 0, 0, 0, '');
 
   // Liquids shown in ml rather than g.
   CT.LIQUID = new Set(['milk_skim', 'water', 'passata', 'evoo', 'soy_sauce', 'balsamic']);
@@ -1170,6 +1182,123 @@ CT.RECIPES.push(
 
 } catch (ctLoadError) { console.error('CookThis: data/recipes-italian.js failed to load', ctLoadError); }
 
+// ==== data/recipes-chicken.js
+try {
+/* Pan-cooked chicken, one skillet each. Half Italian, half from elsewhere, so a week built mostly
+   on chicken still tastes like different meals. Every one pairs the chicken with vegetables, a
+   legume or a whole grain, because chicken brings protein but no fibre at all. */
+CT.RECIPES = CT.RECIPES || [];
+CT.RECIPES.push(
+  // ---------- Italian
+  {
+    id: 'pollo_limone_scaloppine', name: 'Chicken scaloppine al limone with green beans', it: 'Scaloppine di pollo al limone', slots: ['D', 'L'], time: 14, active: 14, tags: ['italian', 'chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, sliced thin'], ['lemon', 25, '1 lemon'], ['evoo', 10, '1 tbsp'], ['parsley', 5, 'a small bunch', 1], ['green_beans', 180, '2 big handfuls'], ['bread_ww', 50, '1 thick slice'], ['garlic', 3, '1 clove', 1]],
+    steps: ['Slice the breast into thin escalopes and pat them dry. Salt and pepper.', 'Hot pan, half the oil, 2 minutes a side. Take them out.', 'Squeeze the lemon into the pan with a splash of water, let it bubble 30 seconds, pour it over the chicken. Green beans boiled or microwaved alongside, dressed with the rest of the oil.'],
+    note: 'The lightest way to cook a chicken breast: no flour, no butter, all the flavour from lemon.'
+  },
+  {
+    id: 'straccetti_rucola', name: 'Chicken straccetti with rocket & parmigiano', it: 'Straccetti di pollo con rucola e grana', slots: ['D', 'L'], time: 12, active: 12, tags: ['italian', 'chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, in strips'], ['rocket', 60, '3 handfuls'], ['parm', 10, 'a few shavings'], ['cherry_tom', 120, '8 cherry tomatoes'], ['evoo', 10, '1 tbsp'], ['lemon', 15, '½ lemon'], ['bread_ww', 60, '2 slices']],
+    steps: ['Cut the breast into thin strips. Very hot pan, half the oil, 3 minutes, moving them once.', 'Off the heat, throw the rocket and halved tomatoes straight into the pan so they wilt but stay green.', 'Lemon, the rest of the oil, parmigiano shavings, pepper. Bread on the side.'],
+    note: 'Roman trattoria standard, three minutes of cooking.'
+  },
+  {
+    id: 'pollo_pizzaiola', name: 'Chicken alla pizzaiola', it: 'Pollo alla pizzaiola', slots: ['D', 'L'], time: 18, active: 10, tags: ['italian', 'chicken', 'one-pan', 'comfort'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, butterflied'], ['passata', 200], ['mozz_light', 50, '⅖ ball'], ['oregano', 1, 'a good pinch'], ['garlic', 3, '1 clove', 1], ['olives', 15, '6 olives', 1], ['evoo', 10, '1 tbsp'], ['bread_ww', 60, '2 slices']],
+    steps: ['Butterfly the breast so it is thin. Brown it 2 minutes a side in the oil with the garlic.', 'Pour in the passata and oregano, season, simmer 6 minutes.', 'Lay the torn mozzarella on top, lid on, 2 minutes until it melts. Bread for the sauce.'],
+    note: 'Pizza flavours without the pizza. The mozzarella is the whole treat, so light mozzarella and a small amount of it.'
+  },
+  {
+    id: 'pollo_peperoni', name: 'Chicken with peppers, Roman style', it: 'Pollo con i peperoni', slots: ['D', 'L'], time: 20, active: 12, tags: ['italian', 'chicken', 'one-pan', 'batch'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, in chunks'], ['pepper', 200, '1½ peppers'], ['passata', 120], ['onion', 50, '½ onion'], ['garlic', 3, '1 clove', 1], ['evoo', 12, '1 heaped tbsp'], ['basil', 3, 'a few leaves', 1], ['potato', 150, '1 potato']],
+    steps: ['Microwave the diced potato with a splash of water, 6 min, while you cook the rest.', 'Brown the chicken chunks in the oil, 4 min, set aside. Same pan: peppers and onion, 6 min.', 'Passata in, simmer 4 min, return the chicken and the potato, 2 more minutes.'],
+  },
+  {
+    id: 'pollo_funghi', name: 'Chicken with mushrooms & parsley', it: 'Petto di pollo ai funghi', slots: ['D', 'L'], time: 15, active: 15, tags: ['italian', 'chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, sliced'], ['mushrooms', 200, '8 mushrooms'], ['garlic', 3, '1 clove'], ['parsley', 5, 'a small bunch'], ['evoo', 12, '1 heaped tbsp'], ['farro_pre', 150, '1 pouch portion'], ['lemon', 10, 'a squeeze', 1]],
+    steps: ['Slice the mushrooms. Hot pan, half the oil, cook them hard for 5 minutes without stirring much so they brown instead of steaming.', 'Push them aside, add the chicken slices and the garlic, 4 minutes.', 'Parsley, pepper, the rest of the oil. Serve on the warmed farro.'],
+  },
+  {
+    id: 'pollo_balsamico_radicchio', name: 'Balsamic chicken with radicchio', it: 'Pollo al balsamico con radicchio', slots: ['D'], time: 15, active: 15, tags: ['italian', 'chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, butterflied'], ['radicchio', 150, '1 head'], ['balsamic', 15, '1 tbsp'], ['evoo', 12, '1 heaped tbsp'], ['walnuts', 15, '15 g (4 halves)'], ['bread_ww', 50, '1 thick slice'], ['honey', 5, '1 tsp', 1]],
+    steps: ['Cook the butterflied breast in half the oil, 4 minutes a side. Set aside to rest.', 'Same pan: the radicchio cut into wedges, 3 minutes, then the balsamic and a splash of water to make a syrup.', 'Slice the chicken back in, walnuts over the top.'],
+    note: 'Bitter radicchio and sweet balsamic. The walnuts are there for the LDL as much as the crunch.'
+  },
+  {
+    id: 'pollo_piselli_umido', name: 'Braised chicken with peas', it: 'Pollo e piselli in umido', slots: ['D', 'L'], time: 22, active: 8, tags: ['italian', 'chicken', 'one-pot', 'comfort', 'batch'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, in chunks'], ['peas', 200, '2 big handfuls, frozen'], ['passata', 150], ['onion', 50, '½ onion'], ['evoo', 12, '1 heaped tbsp'], ['stock', 5, '½ low-salt cube', 1], ['bread_ww', 60, '2 slices'], ['parsley', 5, 'a small bunch', 1]],
+    steps: ['Soften the onion in the oil, 4 min. Add the chicken chunks and colour them, 3 min.', 'Passata, peas, a little water and the stock. Lid on, low heat, 12 minutes.', 'Bread to mop it up.'],
+    note: 'The pot does the work. Peas bring the fibre the chicken does not have.'
+  },
+  {
+    id: 'polpette_pollo_sugo', name: 'Chicken polpette in tomato sauce', it: 'Polpette di pollo al sugo', slots: ['D', 'L'], time: 25, active: 15, tags: ['italian', 'chicken', 'one-pan', 'batch', 'comfort'], needs: ['stove'],
+    ing: [['chicken_mince', 150], ['bread_ww', 30, '1 slice, blitzed to crumbs'], ['egg', 25, '½ egg, beaten'], ['parm', 12, '1 tbsp'], ['parsley', 5, 'a small bunch'], ['passata', 250], ['garlic', 3, '1 clove', 1], ['evoo', 10, '1 tbsp'], ['salad', 60, '2 handfuls']],
+    steps: ['Mix the mince with crumbs, egg, parmigiano, parsley, salt and pepper. Roll about eight balls.', 'Brown them in the oil, 4 minutes, turning. Add the passata and garlic.', 'Simmer 12 minutes with the lid ajar. Salad on the side.'],
+    note: 'Meatballs with a fifth of the saturated fat of beef ones, and they freeze in their sauce.'
+  },
+  {
+    id: 'pollo_caprese_padella', name: 'Caprese chicken in the pan', it: 'Pollo alla caprese in padella', slots: ['D', 'L'], time: 14, active: 14, tags: ['italian', 'chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, butterflied'], ['tomato', 150, '1 large tomato'], ['mozz_light', 50, '⅖ ball'], ['basil', 5, 'a handful of leaves'], ['evoo', 10, '1 tbsp'], ['balsamic', 8, '1½ tsp'], ['bread_ww', 60, '2 slices'], ['rocket', 40, '2 handfuls']],
+    steps: ['Cook the butterflied breast in the oil, 4 minutes a side, seasoned well.', 'Lay tomato slices and torn mozzarella on top, lid on, 2 minutes to melt.', 'Basil, a thread of balsamic, rocket and bread alongside.'],
+  },
+  {
+    id: 'pollo_diavola_padella', name: 'Chilli chicken alla diavola with cannellini', it: 'Pollo alla diavola con cannellini', slots: ['D'], time: 16, active: 12, tags: ['italian', 'chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, butterflied'], ['chili', 2, 'a good pinch'], ['lemon', 20, '½ lemon'], ['evoo', 12, '1 heaped tbsp'], ['cannellini', 150, '½ can, rinsed'], ['rocket', 40, '2 handfuls'], ['rosemary', 1, '1 sprig', 1]],
+    steps: ['Rub the flattened breast with chili, salt, pepper and half the oil. Leave it 5 minutes if you have them.', 'Very hot pan, 4 minutes a side, until properly charred at the edges.', 'Warm the beans in the same pan with the rest of the oil and the rosemary. Lemon over everything, rocket on top.'],
+  },
+  {
+    id: 'involtini_pollo_zucchine', name: 'Chicken rolls with zucchini & ricotta', it: 'Involtini di pollo con zucchine e ricotta', slots: ['D'], time: 20, active: 15, tags: ['italian', 'chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '2 thin escalopes'], ['zucchini', 150, '1 small zucchini'], ['ricotta_light', 60], ['parm', 8, '1½ tsp'], ['evoo', 10, '1 tbsp'], ['cherry_tom', 120, '8 cherry tomatoes'], ['basil', 3, 'a few leaves', 1], ['bread_ww', 50, '1 thick slice']],
+    steps: ['Grate the zucchini and mix it with the ricotta, parmigiano, salt and pepper.', 'Spread it on the flattened escalopes, roll them up, hold with a toothpick.', 'Pan with the oil, 8 minutes turning, adding the halved tomatoes for the last 3.'],
+  },
+  // ---------- From elsewhere
+  {
+    id: 'chicken_paprika_yogurt', name: 'Paprika chicken with yogurt sauce & rice', it: 'Pollo alla paprika con salsa allo yogurt', slots: ['D', 'L'], time: 16, active: 12, tags: ['chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, in strips'], ['pepper', 120, '1 pepper'], ['onion', 50, '½ onion'], ['paprika', 3, '1½ tsp'], ['yogurt_greek', 60, '4 tbsp'], ['evoo', 10, '1 tbsp'], ['rice_brown', 125, '1 pouch portion'], ['parsley', 5, 'a small bunch', 1]],
+    steps: ['Fry pepper and onion in the oil, 5 min. Add the chicken strips and the paprika, 5 min.', 'Take the pan off the heat before stirring the yogurt in, or it will split.', 'Serve on the heated rice.'],
+    note: 'Yogurt instead of soured cream: the same tang, a fraction of the saturated fat.'
+  },
+  {
+    id: 'chicken_teriyaki_rice', name: 'Ginger, soy & honey chicken with broccoli', it: 'Pollo allo zenzero, soia e miele con broccoli', slots: ['D', 'L'], time: 16, active: 14, tags: ['chicken', 'one-pan', 'bowl'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, in strips'], ['broccoli', 180, '½ head'], ['soy_sauce', 10, '2 tsp'], ['honey', 8, '1½ tsp'], ['ginger', 8, 'a thumb, grated'], ['garlic', 3, '1 clove', 1], ['evoo', 8, '2 tsp'], ['rice_brown', 125, '1 pouch portion'], ['chili', 1, 'a pinch', 1]],
+    steps: ['Brown the chicken strips hard in the oil, 4 min. Add ginger and garlic, 1 min.', 'Broccoli florets and 3 tbsp water, lid on, 4 min.', 'Soy and honey in, let it glaze for a minute. Rice underneath.'],
+    note: 'The soy makes this the saltiest chicken plate here, so it stays a once-a-week option.'
+  },
+  {
+    id: 'chicken_fajita_pan', name: 'Chicken fajita pan with beans', it: 'Pollo alla messicana con fagioli', slots: ['D', 'L'], time: 16, active: 14, tags: ['chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, in strips'], ['pepper', 150, '1 pepper'], ['onion', 60, '½ onion'], ['borlotti', 150, '½ can, rinsed'], ['cumin', 2, '1 tsp'], ['paprika', 2, '1 tsp'], ['evoo', 10, '1 tbsp'], ['yogurt_greek', 40, '2 tbsp'], ['lemon', 15, '½ lemon'], ['piadina_ww', 70, '1 piadina']],
+    steps: ['Peppers and onion in the hot oil, 5 min. Chicken and spices, 5 min.', 'Beans in for the last 2 minutes, just to warm through.', 'Lemon over, yogurt on top, scooped up with the warmed piadina.'],
+  },
+  {
+    id: 'chicken_tikka_pan', name: 'Yogurt-marinated spiced chicken with cucumber salad', it: 'Pollo speziato marinato nello yogurt', slots: ['D', 'L'], time: 15, active: 12, tags: ['chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, cubed'], ['yogurt_greek', 80, '5 tbsp'], ['curry', 4, '2 tsp'], ['garlic', 3, '1 clove'], ['lemon', 20, '½ lemon'], ['cucumber', 120, '½ cucumber'], ['tomato', 100, '1 tomato'], ['evoo', 8, '2 tsp'], ['rice_brown', 125, '1 pouch portion'], ['mint', 3, 'a few leaves', 1]],
+    steps: ['Toss the cubes with half the yogurt, the curry powder, garlic, salt and lemon. Ten minutes if you have them, none if you do not.', 'Very hot pan with the oil, 6 minutes, letting the edges catch.', 'Chop cucumber and tomato, dress with the rest of the yogurt and the mint. Rice alongside.'],
+  },
+  {
+    id: 'chicken_mustard_mushrooms', name: 'Mustard chicken with mushrooms & lentils', it: 'Pollo alla senape con funghi e lenticchie', slots: ['D', 'L'], time: 16, active: 14, tags: ['chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, sliced'], ['mushrooms', 150, '6 mushrooms'], ['mustard', 10, '2 tsp'], ['yogurt_greek', 50, '3 tbsp'], ['lentils_can', 150, '½ can, rinsed'], ['evoo', 10, '1 tbsp'], ['parsley', 5, 'a small bunch', 1], ['spinach', 60, '2 handfuls', 1]],
+    steps: ['Brown the mushrooms in the oil, 5 min, then the chicken slices, 4 min.', 'Off the heat, stir in the mustard and yogurt with a splash of water to make a sauce.', 'Warm the lentils through with the spinach. Parsley over the top.'],
+    note: 'Lentils under the chicken take this to nearly 15 g of fibre, which a chicken plate almost never manages.'
+  },
+  {
+    id: 'chicken_peanut_pan', name: 'Peanut chicken with crunchy vegetables', it: 'Pollo alle arachidi con verdure croccanti', slots: ['D', 'L'], time: 15, active: 13, tags: ['chicken', 'one-pan', 'bowl'], needs: ['stove'],
+    ing: [['chicken', 140, '1 breast, in strips'], ['stirfry_mix', 200, '2 big handfuls, frozen'], ['peanut_butter', 20, '1 heaped tbsp'], ['soy_sauce', 8, '1½ tsp'], ['lemon', 15, '½ lemon'], ['ginger', 6, 'a small thumb, grated', 1], ['chili', 1, 'a pinch', 1], ['evoo', 6, '1½ tsp'], ['rice_brown', 125, '1 pouch portion']],
+    steps: ['Brown the chicken in the oil, 4 min. Add the frozen vegetables and ginger, 5 min on high.', 'Whisk the peanut butter with the soy, lemon and 3 tbsp hot water, pour it in, 1 minute.', 'Rice underneath.'],
+  },
+  {
+    id: 'chicken_burger_padella', name: 'Chicken patties with tomato salad', it: 'Burger di pollo in padella con insalata', slots: ['D', 'L'], time: 18, active: 14, tags: ['chicken', 'one-pan', 'batch'], needs: ['stove'],
+    ing: [['chicken_mince', 150], ['bread_ww', 30, '1 slice, blitzed to crumbs'], ['parm', 10, '2 tsp'], ['oregano', 1, 'a pinch'], ['egg', 25, '½ egg, beaten'], ['evoo', 10, '1 tbsp'], ['tomato', 150, '1 large tomato'], ['salad', 60, '2 handfuls'], ['cannellini', 120, '½ can, rinsed'], ['lemon', 10, 'a squeeze']],
+    steps: ['Mix mince, crumbs, parmigiano, oregano, egg, salt and pepper. Shape two flat patties.', 'Medium heat with the oil, 5 minutes a side. Flat and patient beats hot and fast here.', 'Tomato, salad and beans dressed with lemon on the side.'],
+  },
+  {
+    id: 'chicken_lemon_garlic_beans', name: 'Garlic chicken with green beans & almonds', it: 'Pollo all’aglio con fagiolini e mandorle', slots: ['D', 'L'], time: 14, active: 14, tags: ['chicken', 'one-pan'], needs: ['stove'],
+    ing: [['chicken', 150, '1 breast, sliced'], ['green_beans', 200, '2 big handfuls'], ['garlic', 6, '2 cloves'], ['almonds', 15, '15 g, chopped'], ['lemon', 20, '½ lemon'], ['evoo', 12, '1 heaped tbsp'], ['potato', 150, '1 potato'], ['chili', 1, 'a pinch', 1]],
+    steps: ['Microwave the diced potato with a splash of water, 6 min.', 'Toast the almonds dry in the pan, 1 min, tip them out. Oil in, chicken 4 min, garlic and green beans 4 min with a splash of water and a lid.', 'Potato in to warm, lemon over, almonds back on top.'],
+  }
+);
+
+} catch (ctLoadError) { console.error('CookThis: data/recipes-chicken.js failed to load', ctLoadError); }
+
 // ==== data/content.js
 try {
 /* Static content: meal slots, preference groups, health focus, lab panel, tips, swaps, achievements. */
@@ -1466,6 +1595,8 @@ CT.$$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 CT.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 CT.fmt = (n, d = 0) => (n == null || isNaN(n)) ? '–' : Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
 CT.eur = (n) => '€' + CT.fmt(n, 2);
+// Plain text from Claude into safe paragraphs.
+CT.prose = (t) => CT.esc(t).split(/\n{2,}/).map((x) => '<p>' + x.replace(/\n/g, '<br>') + '</p>').join('');
 CT.clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 CT.uid = () => Math.random().toString(36).slice(2, 10);
 CT.debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
@@ -1632,6 +1763,9 @@ try {
 
   const LEGUME_TAGS = new Set(['chickpeas', 'beans', 'lentils', 'peas', 'hummus', 'soy']);
   const LDL_HELPERS = new Set(['oats', 'walnuts', 'almonds', 'peanuts', 'seeds', 'oliveoil', 'avocado', 'chickpeas', 'beans', 'lentils', 'peas', 'farro']);
+  // Grams of meat, poultry and fish on the plate. Purines come with these, so a day's total is worth
+  // watching when uric acid is above range, whatever the calories say.
+  const ANIMAL_TAGS = new Set(['chicken', 'turkey', 'beef', 'bresaola', 'tuna', 'salmon', 'mackerel', 'sardines', 'codfish', 'seabass', 'shrimp', 'smokedsalmon']);
   const PROTEIN_TAGS = new Set(['tuna', 'salmon', 'mackerel', 'sardines', 'codfish', 'shrimp', 'smokedsalmon', 'chicken', 'turkey', 'beef', 'bresaola', 'eggs', 'chickpeas', 'beans', 'lentils', 'soy', 'yogurt', 'ricotta', 'cottage', 'mozzarella']);
 
   CT.computeBenefits = (r) => {
@@ -1695,6 +1829,7 @@ try {
     r.mainProtein = prot ? prot.tag : null;
     r.mins = r.active || r.time || 10;
     r.italian = r.tags.includes('italian') || CT.ITALIAN.has(r.id);
+    r.animalG = r.ings.reduce((a, i) => a + (ANIMAL_TAGS.has(i.tag) ? i.g : 0), 0);
     CT.computeBenefits(r);
     r._prepped = true;
     return r;
@@ -1775,9 +1910,9 @@ try {
     startDate: CT.today(),
     profile: { name: '', sex: 'm', age: 32, height: 178, weight: 80, activity: 'light', goal: 'lose' },
     focus: { ldl: true, tg: true, liver: true, uric: true, glucose: true, thyroid: true },
-    prefs: { likes: {}, allergens: [], diet: 'omni', maxActive: 15, meals: { B: true, L: true, D: true, S: true }, equipment: { stove: true, oven: true, microwave: true, blender: true }, budget: 'normal', lazy: false, cuisine: 'italian' },
+    prefs: { likes: {}, allergens: [], diet: 'omni', maxActive: 15, meals: { B: true, L: true, D: true, S: true }, equipment: { stove: true, oven: true, microwave: true, blender: true }, budget: 'normal', lazy: false, cuisine: 'italian', chickenPerWeek: 0 },
     settings: { theme: 'auto', palette: CT.DEFAULT_PALETTE },
-    favorites: [], ratings: {},
+    favorites: [], ratings: {}, expanded: {},
     labs: [JSON.parse(JSON.stringify(CT.INITIAL_LABS))],
     nextCheckup: (window.CT_CONFIG || {}).nextCheckup || '',
     doctorNotes: '',
@@ -1985,7 +2120,7 @@ try {
   // What happened around this date: recency of each recipe and weekly counts of capped categories.
   CT.planContext = (date) => {
     const today = CT.today();
-    const ctx = { lastUsed: {}, fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0 };
+    const ctx = { lastUsed: {}, fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0 };
     for (let i = 1; i <= 6; i++) {
       const plan = CT.state.plans[CT.addDays(date, -i)];
       if (!plan) continue;
@@ -2009,18 +2144,20 @@ try {
         if (r.tags.includes('occasional')) ctx.occasional++;
         if (r.eggs) ctx.eggs++;
         if (!r.italian) ctx.nonItalian++;
+        if (r.mainProtein === 'chicken') ctx.chicken++;
       }
     }
     return ctx;
   };
 
-  const dayAcc = () => ({ ids: new Set(), proteins: new Set(), fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, legume: false, pasta: false, sandwich: false });
+  const dayAcc = () => ({ ids: new Set(), proteins: new Set(), fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0, legume: false, pasta: false, sandwich: false });
   const addToDay = (day, r) => {
     day.ids.add(r.id);
     if (r.mainProtein) day.proteins.add(r.mainProtein);
     if (r.fish) day.fish++; if (r.redmeat) day.redmeat++; if (r.purine >= 3) day.purine3++;
     if (r.tags.includes('occasional')) day.occasional++; if (r.eggs) day.eggs++;
     if (!r.italian) day.nonItalian++;
+    if (r.mainProtein === 'chicken') day.chicken++;
     if (r.legume) day.legume = true; if (r.tags.includes('pasta')) day.pasta = true; if (r.tags.includes('sandwich')) day.sandwich = true;
   };
 
@@ -2036,9 +2173,14 @@ try {
     const rec = ctx.lastUsed[r.id] || 0;
     if (rec >= 4) sc -= 5; else if (rec > 0) sc -= 2;
     if (day.ids.has(r.id)) sc -= 8;
-    if (r.mainProtein && day.proteins.has(r.mainProtein)) sc -= 3;
-    if (r.fish) { const f = ctx.fish + day.fish; sc += f < 2 ? 2.5 : f >= 3 ? -1.5 : 0; }
-    if (r.legume && !day.legume) sc += 1.5;
+    if (r.mainProtein && day.proteins.has(r.mainProtein)) sc -= (r.mainProtein === 'chicken' && (Number(p.chickenPerWeek) || 0) >= 8) ? 0 : 3;
+    if (r.fish) { const f = ctx.fish + day.fish; sc += f < 2 ? 5 : f >= 3 ? -1.5 : 0; }
+    const chickenCap = Number(p.chickenPerWeek) || 0;
+    if (chickenCap && r.mainProtein === 'chicken') {
+      // Wanted often, but never at the cost of the week's fish, and never past the dial.
+      sc += (ctx.chicken + day.chicken) < chickenCap ? 4.5 : -14;
+    }
+    if (r.legume && !day.legume) sc += (Number(p.chickenPerWeek) || 0) >= 7 ? 2.5 : 1.5;
     if (r.eggs && day.eggs) sc -= 6;
     if (r.eggs && ctx.eggs + day.eggs >= 4) sc -= 3;
     if (r.purine >= 3 && ctx.purine3 + day.purine3 >= 1) sc -= 20;
@@ -2077,16 +2219,24 @@ try {
   CT.PORTION_STEPS = PORTION_STEPS;
   const nearestStep = (x) => PORTION_STEPS.reduce((a, b) => (Math.abs(b - x) < Math.abs(a - x) ? b : a), PORTION_STEPS[0]);
 
+  /* A meat or fish plate is not stretched as far as a plant one: growing a 150 g chicken breast to
+     260 g adds purines the uric acid does not need, so those meals cap lower and the remaining
+     calories go to the vegetables, grains and legumes on the rest of the day. */
+  const maxPortionFor = (r) => (r.animalG >= 140 ? 1.5 : r.animalG >= 80 ? 1.75 : 2.5);
+  const stepsFor = (r) => PORTION_STEPS.filter((x) => x <= maxPortionFor(r));
+
   CT.fitPortions = (chosen, fixed) => {
     const T = CT.targets();
     const active = Object.keys(chosen).filter((s) => chosen[s]);
     if (!active.length) return {};
     const shareTot = active.reduce((a, s) => a + (CT.SLOTS[s].share || 0.25), 0);
-    const mult = {};
+    const mult = {}, steps = {};
+    for (const s of active) steps[s] = stepsFor(chosen[s]);
     for (const s of active) {
       if (fixed && fixed[s] != null) { mult[s] = fixed[s]; continue; }
       const want = T.kcal * ((CT.SLOTS[s].share || 0.25) / shareTot);
-      mult[s] = nearestStep(want / Math.max(80, chosen[s].nutri.kcal));
+      const ideal = want / Math.max(80, chosen[s].nutri.kcal);
+      mult[s] = steps[s].reduce((a, b) => (Math.abs(b - ideal) < Math.abs(a - ideal) ? b : a), steps[s][0]);
     }
     const total = () => active.reduce((a, s) => a + chosen[s].nutri.kcal * mult[s], 0);
     for (let i = 0; i < 16; i++) {
@@ -2096,10 +2246,11 @@ try {
       let best = null, bestErr = Math.abs(t - T.kcal);
       for (const s of active) {
         if (fixed && fixed[s] != null) continue;
-        const ni = PORTION_STEPS.indexOf(mult[s]) + (up ? 1 : -1);
-        if (ni < 0 || ni >= PORTION_STEPS.length) continue;
-        const err = Math.abs(t + chosen[s].nutri.kcal * (PORTION_STEPS[ni] - mult[s]) - T.kcal);
-        if (err < bestErr - 0.5) { bestErr = err; best = [s, PORTION_STEPS[ni]]; }
+        const list = steps[s];
+        const ni = list.indexOf(mult[s]) + (up ? 1 : -1);
+        if (ni < 0 || ni >= list.length) continue;
+        const err = Math.abs(t + chosen[s].nutri.kcal * (list[ni] - mult[s]) - T.kcal);
+        if (err < bestErr - 0.5) { bestErr = err; best = [s, list[ni]]; }
       }
       if (!best) break;
       mult[best[0]] = best[1];
@@ -2167,6 +2318,10 @@ try {
       pen += Math.max(0, T.p * 0.8 - n.p) * 0.25;
       pen += Math.max(0, n.sug - T.sug) * 0.3;
       if (day.purine3 > 1) pen += 15;
+      // Uric acid: keep the day's meat and fish near a sensible total even when portions scale up.
+      let animal = 0;
+      for (const s of slots) if (chosen[s]) animal += (chosen[s].animalG || 0) * (mult[s] || 1);
+      pen += Math.max(0, animal - 200) * 0.09;
       const score = total - pen;
       if (score > bestScore) { bestScore = score; best = { chosen, day, mult }; }
     }
@@ -2347,6 +2502,36 @@ Rules: one serving; grams for every ingredient; use an "id" from the catalogue w
     const prompt = `${this.RULES}\n\n${this.context()}\n\nINGREDIENT CATALOGUE (id=name): ${this.ingredientCatalogue()}\n\nTASK: ${brief}\n\n${this.RECIPE_SHAPE}`;
     const obj = await sample.json(prompt, { cache: false, onText: opts.onText, signal: opts.signal });
     return CT.recipeFromAI(obj);
+  },
+
+  // A detailed walkthrough of one recipe. Deliberately built from the recipe alone rather than the
+  // full profile context, so the answer is stable and the five-minute cache can actually hit.
+  async expandMethod(r, portion, opts = {}) {
+    const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
+    const k = portion || 1;
+    const ing = r.ings.map((i) => `${k === 1 ? i.disp : (CT.fmt(i.g * k) + ' g')} ${i.en}${i.opt ? ' (optional)' : ''}`).join('; ');
+    const prompt = `You are the built-in cooking coach of CookThis, writing for someone who cooks fast, simple food and wants to follow this exact recipe without guessing. They cook in an Italian kitchen with metric measures.
+
+RECIPE: ${r.name}${r.it ? ` (${r.it})` : ''}
+PORTION: ${k === 1 ? 'one serving' : k + ' servings worth, quantities below are already scaled'}
+EQUIPMENT AVAILABLE: ${r.needs.length ? r.needs.join(', ') : 'no cooking equipment needed'}
+INGREDIENTS: ${ing}
+SHORT METHOD AS WRITTEN: ${r.steps.map((s, i) => `${i + 1}. ${s}`).join(' ')}
+
+TASK: Rewrite the method as a detailed walkthrough of this same dish. Keep the same ingredients and the same result: do not invent a different recipe and do not add ingredients beyond salt, pepper or a herb already listed. Cover, in numbered steps: what to get out and prepare before the heat goes on; how each thing is cut and to what size; the heat level and the pan; exact timings with the sign to look for rather than only the clock (what it should look, sound or smell like); how to tell when the protein or the pasta is done; what to do during the waiting; and how to finish and plate it. End with two short lines: one titled "Easy to get wrong" naming the single most common mistake in this dish, and one titled "Keeps" saying how to store and reheat leftovers. Plain text, no markdown headings or bold, under 400 words.`;
+    return sample(prompt, { cache: { gcTime: 24 * 3600 * 1000 }, onText: opts.onText, signal: opts.signal, modelTier: 'default' });
+  },
+
+  /* Autocomplete for the "log what you ate" box. Runs on a typing pause, on the quick tier, with a
+     tight prompt and the default answer cache, so repeating a food costs nothing. */
+  async suggestFoods(text, opts = {}) {
+    const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
+    const q = String(text || '').trim().slice(0, 80);
+    const prompt = `Someone is logging what they ate into a food diary, in an Italian context, and has typed: "${q}".
+Reply with ONLY a JSON array of up to 4 objects, most likely first, each a plausible completion of what they mean, with the nutrition of ONE realistic portion as eaten:
+[{"name": "Pizza margherita, whole", "portion": "1 pizza, about 300 g", "kcal": 850, "p": 35, "c": 105, "fib": 6, "fat": 30, "sf": 12, "sug": 9, "na": 1800}]
+Rules: name is short and specific, in the language they typed; portion names a realistic serving with grams or a household measure; numbers are grams for the whole portion, sodium in mg; if they already named a size or quantity, honour it; prefer Italian dishes and supermarket products when the text is Italian. No prose, no markdown.`;
+    return sample.json(prompt, { modelTier: 'quick', signal: opts.signal });
   },
 
   async analyzeMeal(text, images, opts = {}) {
@@ -2594,7 +2779,9 @@ try {
 // ==== js/views-setup.js
 try {
 /* Setup wizard and the form fragments it shares with Settings. */
+// Every registry the views write into, created once here because this is the first view file loaded.
 CT.views = CT.views || {}; CT.after = CT.after || {}; CT.actions = CT.actions || {}; CT.changes = CT.changes || {};
+CT.inputs = CT.inputs || {}; CT.submits = CT.submits || {};
 CT.ui = CT.ui || {};
 CT.setup = { step: 0, returnTo: null };
 
@@ -2659,6 +2846,7 @@ CT.forms = {
     return `<div class="form-grid">
       <div class="field span2"><span>What you have</span><div class="chips">${CT.EQUIPMENT.map(([id, label]) => `<button type="button" class="chip ${p.equipment[id] ? 'on' : ''}" data-action="toggle" data-path="prefs.equipment.${id}">${label}</button>`).join('')}</div></div>
       <div class="field span2"><span>Cooking style</span>${seg('prefs.cuisine', [['italian', 'Italian first'], ['any', 'Anything goes']], p.cuisine || 'italian')}<small class="muted">Italian first keeps the week mostly Italian, with the occasional dish from elsewhere.</small></div>
+      <div class="field span2"><span>Chicken meals per week</span>${seg('prefs.chickenPerWeek', [[0, 'No preference'], [3, '3'], [5, '5'], [7, '7 (one a day)'], [10, '10']], p.chickenPerWeek || 0, 'number')}<small class="muted">The planner aims for this many pan-cooked chicken meals, while still keeping two fish meals and legumes through the week.</small></div>
       <div class="field span2"><span>Maximum hands-on time per meal</span>${seg('prefs.maxActive', [[10, '10 min'], [15, '15 min'], [20, '20 min'], [30, '30 min']], p.maxActive, 'number')}<small class="muted">Oven or simmering time does not count: the planner looks at the minutes you actually spend.</small></div>
       <div class="field span2"><span>Meals to plan</span><div class="chips">${CT.SLOT_ORDER.map((k) => `<button type="button" class="chip ${p.meals[k] ? 'on' : ''}" data-action="toggle" data-path="prefs.meals.${k}">${CT.SLOTS[k].en} <em>${CT.SLOTS[k].it}</em></button>`).join('')}</div></div>
       <label class="switch-row span2"><span><strong>Lazy mode</strong><small>Only no-cook or microwave meals, 10 minutes tops. For the days when the stove is not happening.</small></span><input type="checkbox" data-change="path" data-path="prefs.lazy" data-type="bool" data-rerender="1" ${p.lazy ? 'checked' : ''}></label>
@@ -2907,8 +3095,9 @@ try {
   CT.actions['add-extra'] = () => {
     CT.dialog(`<h3>Log something you ate</h3>
       <form class="form-grid" data-submit="extra-save">
-        <label class="field span2"><span>What</span><input name="name" required placeholder="e.g. pizza margherita, half">
+        <label class="field span2"><span>What</span><input name="name" required autocomplete="off" placeholder="e.g. pizza margherita, half" ${CT.ai.available() ? 'data-input="extra-suggest"' : ''}>
         </label>
+        <div class="span2" id="extra-suggest"></div>
         <label class="field"><span>Calories (kcal)</span><input name="kcal" type="number" min="0" placeholder="400"></label>
         <label class="field"><span>Protein (g)</span><input name="p" type="number" min="0" placeholder="15"></label>
         <label class="field"><span>Saturated fat (g)</span><input name="sf" type="number" min="0" step="0.1"></label>
@@ -2919,6 +3108,50 @@ try {
       </form>
       <p class="hint">Do not know the numbers? ${CT.ai.available() ? '<a href="#/claude/analyze" data-action="dlg-cancel">Describe it to Claude</a> and it will estimate them.' : 'Leave them blank, or use the claude.ai version to have them estimated.'}</p>`);
   };
+  /* As you type, Claude proposes the food and its nutrition. Fires on a typing pause, never per
+     keystroke, and each new request cancels the one before it. */
+  CT.ui.foodSuggest = { ctl: null, q: '', items: [], busy: false };
+  const suggestBox = () => {
+    const u = CT.ui.foodSuggest, el = CT.$('#extra-suggest');
+    if (!el) return;
+    if (u.busy) { el.innerHTML = '<p class="hint"><span class="thinking">Looking it up</span></p>'; return; }
+    if (!u.items.length) { el.innerHTML = ''; return; }
+    el.innerHTML = `<p class="eyebrow">Did you mean</p><div class="suggest-list">${u.items.map((x, i) => `
+      <button type="button" class="suggest" data-action="extra-pick" data-i="${i}">
+        <span class="suggest-name">${CT.esc(x.name)}</span>
+        <span class="suggest-meta">${CT.esc(x.portion || '')}${x.portion ? ' · ' : ''}${CT.fmt(x.kcal)} kcal · ${CT.fmt(x.p)} g protein · ${CT.fmt(x.sf, 1)} g sat. fat</span>
+      </button>`).join('')}</div><p class="hint">Estimated by Claude. Tap one to fill the form, then adjust anything you know better.</p>`;
+  };
+  const runSuggest = CT.debounce(async (text) => {
+    const u = CT.ui.foodSuggest;
+    if (u.ctl) u.ctl.abort();
+    if (!CT.$('#extra-suggest')) return;
+    u.ctl = new AbortController(); u.busy = true; u.items = []; suggestBox();
+    try {
+      const list = await CT.ai.suggestFoods(text, { signal: u.ctl.signal });
+      if (u.q !== text) return;
+      u.items = (Array.isArray(list) ? list : []).slice(0, 4).map((x) => {
+        const o = { name: String((x && x.name) || text).slice(0, 80), portion: String((x && x.portion) || '').slice(0, 60) };
+        for (const k of ['kcal', 'p', 'c', 'fib', 'fat', 'sf', 'sug', 'na']) o[k] = Math.max(0, Number(x && x[k]) || 0);
+        return o;
+      }).filter((o) => o.kcal > 0);
+    } catch (e) { if (e && e.code !== 'cancelled') console.warn('suggest', e); }
+    u.busy = false; u.ctl = null; suggestBox();
+  }, 700);
+  CT.inputs['extra-suggest'] = (d, el) => {
+    const u = CT.ui.foodSuggest, q = el.value.trim();
+    u.q = q;
+    if (q.length < 3) { if (u.ctl) u.ctl.abort(); u.items = []; u.busy = false; suggestBox(); return; }
+    runSuggest(q);
+  };
+  CT.actions['extra-pick'] = (d) => {
+    const x = CT.ui.foodSuggest.items[Number(d.i)]; if (!x) return;
+    const form = CT.$('#dlg form[data-submit="extra-save"]'); if (!form) return;
+    form.querySelector('[name=name]').value = x.portion ? `${x.name} (${x.portion})` : x.name;
+    for (const k of ['kcal', 'p', 'sf', 'sug', 'fib', 'na']) { const f = form.querySelector(`[name=${k}]`); if (f) f.value = x[k] || ''; }
+    CT.ui.foodSuggest.items = []; suggestBox();
+  };
+
   CT.submits = CT.submits || {};
   CT.submits['extra-save'] = (form) => {
     const f = new FormData(form); const x = { name: String(f.get('name') || '').slice(0, 80) };
@@ -3027,9 +3260,10 @@ try {
           <ul class="ing-list">${r.ings.map((i) => `<li class="${i.opt ? 'opt' : ''}"><span class="ing-qty">${k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? `${CT.fmt(i.g * k)} ml` : `${CT.fmt(i.g * k)} g`)}</span><span class="ing-name">${CT.esc(i.en)}${i.it ? ` <em class="it">${CT.esc(i.it)}</em>` : ''}${i.opt ? ' <small class="muted">optional</small>' : ''}</span></li>`).join('')}</ul>
         </section>
         <section class="card">
-          <h3>Method</h3>
+          <div class="row-between"><h3>Method</h3>${expandControl(id, k)}</div>
           <ol class="steps">${r.steps.map((st) => `<li>${CT.esc(st)}</li>`).join('')}</ol>
           ${r.note ? `<p class="note">${CT.esc(r.note)}</p>` : ''}
+          ${expandBlock(id)}
         </section>
         <section class="card">
           <h3>Why it fits your numbers</h3>
@@ -3050,6 +3284,46 @@ try {
     CT.ui.servings[id] = CT.PORTION_STEPS[ni];
     CT.render();
   };
+  // ---- "Expand": Claude writes the same recipe out in full detail, saved with the recipe.
+  CT.ui.expand = { id: null, busy: false, out: '', ctl: null, error: '' };
+  const expandControl = (id, k) => {
+    const u = CT.ui.expand, saved = CT.state.expanded[id];
+    if (!CT.ai.available()) return saved ? '' : '';
+    if (u.busy && u.id === id) return `<button class="btn ghost sm" data-action="expand-stop">${CT.icon('stop')} Stop</button>`;
+    if (saved) return `<span class="row-gap"><button class="btn ghost sm" data-action="expand-method" data-id="${id}" data-portion="${k}" data-redo="1">${CT.icon('sync')} Redo</button><button class="btn ghost sm" data-action="expand-clear" data-id="${id}">Hide</button></span>`;
+    return `<button class="btn ghost sm" data-action="expand-method" data-id="${id}" data-portion="${k}">${CT.icon('claude')} Expand</button>`;
+  };
+  const expandBlock = (id) => {
+    const u = CT.ui.expand, saved = CT.state.expanded[id];
+    if (u.error && u.id === id) return `<div class="banner bad">${CT.esc(u.error)} <button class="btn ghost xs" data-action="expand-dismiss">Dismiss</button></div>`;
+    if (u.busy && u.id === id) return `<div class="expanded"><p class="eyebrow">Step by step</p><div id="expand-out" class="prose">${CT.esc(u.out) || '<span class="thinking">Writing it out…</span>'}</div></div>`;
+    if (saved) return `<div class="expanded"><p class="eyebrow">Step by step${saved.portion && saved.portion !== 1 ? ` · for ×${saved.portion}` : ''}</p><div class="prose">${CT.prose(saved.text)}</div></div>`;
+    if (!CT.ai.available()) return '';
+    return `<p class="hint">Expand asks Claude to write this out in full detail: prep order, heat, timings and what to look for. It writes from what it knows about the dish, since the page cannot browse the web.</p>`;
+  };
+  CT.actions['expand-method'] = async (d) => {
+    const r = CT.recipe(d.id); if (!r) return;
+    const u = CT.ui.expand;
+    u.id = d.id; u.busy = true; u.out = ''; u.error = ''; u.ctl = new AbortController();
+    if (d.redo) delete CT.state.expanded[d.id];
+    CT.render();
+    const onText = ({ text }) => { u.out = text; const el = CT.$('#expand-out'); if (el) el.textContent = text; };
+    try {
+      const { text } = await CT.ai.expandMethod(r, Number(d.portion) || 1, { onText, signal: u.ctl.signal, cache: d.redo ? { gcTime: 86400000, refresh: true } : undefined });
+      CT.state.expanded[d.id] = { text, at: CT.today(), portion: Number(d.portion) || 1 };
+      CT.save();
+    } catch (e) {
+      if (e && e.text) { CT.state.expanded[d.id] = { text: e.text, at: CT.today(), portion: Number(d.portion) || 1 }; CT.save(); }
+      else if (e && e.code !== 'cancelled') u.error = CT.ai.errorCopy(e);
+      console.warn('expand', e);
+    }
+    u.busy = false; u.ctl = null; u.out = '';
+    CT.render();
+  };
+  CT.actions['expand-stop'] = () => { const u = CT.ui.expand; if (u.ctl) u.ctl.abort(); };
+  CT.actions['expand-clear'] = (d) => { delete CT.state.expanded[d.id]; CT.save(); CT.render(); };
+  CT.actions['expand-dismiss'] = () => { CT.ui.expand.error = ''; CT.render(); };
+
   CT.actions['serv-inc'] = (d) => stepPortion(d.id, 1);
   CT.actions['serv-dec'] = (d) => stepPortion(d.id, -1);
   CT.actions['fav-toggle'] = (d) => { const f = CT.state.favorites, i = f.indexOf(d.id); if (i >= 0) f.splice(i, 1); else f.push(d.id); CT.save(); CT.render(); };
@@ -3437,7 +3711,7 @@ try {
     const u = CT.ui.ai; const out = u.texts && u.texts[kind];
     return `<div class="card"><p class="muted">${hint}</p>
       <div class="row-gap">${u.busy && u.tab === kind ? `<button class="btn ghost" data-action="ai-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary" data-action="ai-text" data-kind="${kind}">${CT.icon('claude')} ${label}</button>`}</div>
-      ${u.busy && u.tab === kind ? `<div class="stream-box"><div id="ai-stream" class="prose">${CT.esc(u.out) || '<span class="thinking">Thinking…</span>'}</div></div>` : out ? `<div class="prose">${CT.esc(out).replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</div>` : ''}
+      ${u.busy && u.tab === kind ? `<div class="stream-box"><div id="ai-stream" class="prose">${CT.esc(u.out) || '<span class="thinking">Thinking…</span>'}</div></div>` : out ? `<div class="prose">${CT.prose(out)}</div>` : ''}
     </div>`;
   };
 

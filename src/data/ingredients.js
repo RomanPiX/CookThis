@@ -46,6 +46,8 @@ CT.ING = {};
   I('shrimp', 'Shrimp, frozen, peeled', 'gamberetti sgusciati surgelati', 'Frozen', 85, 20, 0, 0, 0.5, 0.1, 0, 300, 15, 'shrimp', 'SIL', 0.3, 3, 0, '');
   // ---- Meat, poultry, eggs
   I('chicken', 'Chicken breast', 'petto di pollo', 'Meat & fish', 110, 23, 0, 0, 1.5, 0.4, 0, 65, 9, 'chicken', 'ML', 0, 2, 0, '');
+  I('chicken_thigh', 'Chicken thighs, skinless', 'sovracosce di pollo senza pelle', 'Meat & fish', 121, 20, 0, 0, 4.5, 1.2, 0, 80, 8, 'chicken', 'ML', 0, 2, 0, '');
+  I('chicken_mince', 'Minced chicken', 'macinato di pollo', 'Meat & fish', 143, 20, 0, 0, 7, 2, 0, 70, 9, 'chicken', 'ML', 0, 2, 0, '');
   I('turkey_steak', 'Turkey breast steaks', 'fettine di tacchino', 'Meat & fish', 105, 24, 0, 0, 1, 0.3, 0, 55, 10, 'turkey', 'ML', 0, 2, 0, '');
   I('turkey_slices', 'Turkey breast slices (cold cut)', 'fesa di tacchino affettata', 'Meat & fish', 105, 20, 1.5, 0, 2, 0.6, 1, 900, 18, 'turkey', 'ML', 0, 2, 0, '');
   I('bresaola', 'Bresaola', 'bresaola', 'Meat & fish', 150, 32, 0, 0, 2.5, 1, 0, 1600, 40, 'bresaola', 'MRL', 0, 2, 0, '');
@@ -139,6 +141,7 @@ CT.ING = {};
   I('seabass', 'Sea bream or sea bass fillet', 'filetto di orata o branzino', 'Meat & fish', 97, 18, 0, 0, 2.5, 0.6, 0, 70, 18, 'seabass', 'FIL', 0.6, 2, 180, 'fillet');
   I('polenta', 'Instant polenta', 'polenta istantanea', 'Bakery & grains', 358, 8, 76, 4, 1.5, 0.3, 0.6, 5, 2.5, 'polenta', '', 0, 0, 0, '');
   I('sage', 'Sage', 'salvia', 'Spices', 315, 11, 61, 40, 13, 7, 1.7, 11, 20, '', '', 0, 0, 0, '');
+  I('ginger', 'Fresh ginger', 'zenzero fresco', 'Produce', 80, 1.8, 18, 2, 0.8, 0.2, 1.7, 13, 8, 'ginger', '', 0, 0, 0, '');
 
   // Liquids shown in ml rather than g.
   CT.LIQUID = new Set(['milk_skim', 'water', 'passata', 'evoo', 'soy_sauce', 'balsamic']);

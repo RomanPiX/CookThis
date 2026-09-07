@@ -30,7 +30,7 @@
   // What happened around this date: recency of each recipe and weekly counts of capped categories.
   CT.planContext = (date) => {
     const today = CT.today();
-    const ctx = { lastUsed: {}, fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0 };
+    const ctx = { lastUsed: {}, fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0 };
     for (let i = 1; i <= 6; i++) {
       const plan = CT.state.plans[CT.addDays(date, -i)];
       if (!plan) continue;
@@ -54,18 +54,20 @@
         if (r.tags.includes('occasional')) ctx.occasional++;
         if (r.eggs) ctx.eggs++;
         if (!r.italian) ctx.nonItalian++;
+        if (r.mainProtein === 'chicken') ctx.chicken++;
       }
     }
     return ctx;
   };
 
-  const dayAcc = () => ({ ids: new Set(), proteins: new Set(), fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, legume: false, pasta: false, sandwich: false });
+  const dayAcc = () => ({ ids: new Set(), proteins: new Set(), fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0, legume: false, pasta: false, sandwich: false });
   const addToDay = (day, r) => {
     day.ids.add(r.id);
     if (r.mainProtein) day.proteins.add(r.mainProtein);
     if (r.fish) day.fish++; if (r.redmeat) day.redmeat++; if (r.purine >= 3) day.purine3++;
     if (r.tags.includes('occasional')) day.occasional++; if (r.eggs) day.eggs++;
     if (!r.italian) day.nonItalian++;
+    if (r.mainProtein === 'chicken') day.chicken++;
     if (r.legume) day.legume = true; if (r.tags.includes('pasta')) day.pasta = true; if (r.tags.includes('sandwich')) day.sandwich = true;
   };
 
@@ -81,9 +83,14 @@
     const rec = ctx.lastUsed[r.id] || 0;
     if (rec >= 4) sc -= 5; else if (rec > 0) sc -= 2;
     if (day.ids.has(r.id)) sc -= 8;
-    if (r.mainProtein && day.proteins.has(r.mainProtein)) sc -= 3;
-    if (r.fish) { const f = ctx.fish + day.fish; sc += f < 2 ? 2.5 : f >= 3 ? -1.5 : 0; }
-    if (r.legume && !day.legume) sc += 1.5;
+    if (r.mainProtein && day.proteins.has(r.mainProtein)) sc -= (r.mainProtein === 'chicken' && (Number(p.chickenPerWeek) || 0) >= 8) ? 0 : 3;
+    if (r.fish) { const f = ctx.fish + day.fish; sc += f < 2 ? 5 : f >= 3 ? -1.5 : 0; }
+    const chickenCap = Number(p.chickenPerWeek) || 0;
+    if (chickenCap && r.mainProtein === 'chicken') {
+      // Wanted often, but never at the cost of the week's fish, and never past the dial.
+      sc += (ctx.chicken + day.chicken) < chickenCap ? 4.5 : -14;
+    }
+    if (r.legume && !day.legume) sc += (Number(p.chickenPerWeek) || 0) >= 7 ? 2.5 : 1.5;
     if (r.eggs && day.eggs) sc -= 6;
     if (r.eggs && ctx.eggs + day.eggs >= 4) sc -= 3;
     if (r.purine >= 3 && ctx.purine3 + day.purine3 >= 1) sc -= 20;
@@ -122,16 +129,24 @@
   CT.PORTION_STEPS = PORTION_STEPS;
   const nearestStep = (x) => PORTION_STEPS.reduce((a, b) => (Math.abs(b - x) < Math.abs(a - x) ? b : a), PORTION_STEPS[0]);
 
+  /* A meat or fish plate is not stretched as far as a plant one: growing a 150 g chicken breast to
+     260 g adds purines the uric acid does not need, so those meals cap lower and the remaining
+     calories go to the vegetables, grains and legumes on the rest of the day. */
+  const maxPortionFor = (r) => (r.animalG >= 140 ? 1.5 : r.animalG >= 80 ? 1.75 : 2.5);
+  const stepsFor = (r) => PORTION_STEPS.filter((x) => x <= maxPortionFor(r));
+
   CT.fitPortions = (chosen, fixed) => {
     const T = CT.targets();
     const active = Object.keys(chosen).filter((s) => chosen[s]);
     if (!active.length) return {};
     const shareTot = active.reduce((a, s) => a + (CT.SLOTS[s].share || 0.25), 0);
-    const mult = {};
+    const mult = {}, steps = {};
+    for (const s of active) steps[s] = stepsFor(chosen[s]);
     for (const s of active) {
       if (fixed && fixed[s] != null) { mult[s] = fixed[s]; continue; }
       const want = T.kcal * ((CT.SLOTS[s].share || 0.25) / shareTot);
-      mult[s] = nearestStep(want / Math.max(80, chosen[s].nutri.kcal));
+      const ideal = want / Math.max(80, chosen[s].nutri.kcal);
+      mult[s] = steps[s].reduce((a, b) => (Math.abs(b - ideal) < Math.abs(a - ideal) ? b : a), steps[s][0]);
     }
     const total = () => active.reduce((a, s) => a + chosen[s].nutri.kcal * mult[s], 0);
     for (let i = 0; i < 16; i++) {
@@ -141,10 +156,11 @@
       let best = null, bestErr = Math.abs(t - T.kcal);
       for (const s of active) {
         if (fixed && fixed[s] != null) continue;
-        const ni = PORTION_STEPS.indexOf(mult[s]) + (up ? 1 : -1);
-        if (ni < 0 || ni >= PORTION_STEPS.length) continue;
-        const err = Math.abs(t + chosen[s].nutri.kcal * (PORTION_STEPS[ni] - mult[s]) - T.kcal);
-        if (err < bestErr - 0.5) { bestErr = err; best = [s, PORTION_STEPS[ni]]; }
+        const list = steps[s];
+        const ni = list.indexOf(mult[s]) + (up ? 1 : -1);
+        if (ni < 0 || ni >= list.length) continue;
+        const err = Math.abs(t + chosen[s].nutri.kcal * (list[ni] - mult[s]) - T.kcal);
+        if (err < bestErr - 0.5) { bestErr = err; best = [s, list[ni]]; }
       }
       if (!best) break;
       mult[best[0]] = best[1];
@@ -212,6 +228,10 @@
       pen += Math.max(0, T.p * 0.8 - n.p) * 0.25;
       pen += Math.max(0, n.sug - T.sug) * 0.3;
       if (day.purine3 > 1) pen += 15;
+      // Uric acid: keep the day's meat and fish near a sensible total even when portions scale up.
+      let animal = 0;
+      for (const s of slots) if (chosen[s]) animal += (chosen[s].animalG || 0) * (mult[s] || 1);
+      pen += Math.max(0, animal - 200) * 0.09;
       const score = total - pen;
       if (score > bestScore) { bestScore = score; best = { chosen, day, mult }; }
     }

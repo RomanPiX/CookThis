@@ -28,6 +28,9 @@
 
   const LEGUME_TAGS = new Set(['chickpeas', 'beans', 'lentils', 'peas', 'hummus', 'soy']);
   const LDL_HELPERS = new Set(['oats', 'walnuts', 'almonds', 'peanuts', 'seeds', 'oliveoil', 'avocado', 'chickpeas', 'beans', 'lentils', 'peas', 'farro']);
+  // Grams of meat, poultry and fish on the plate. Purines come with these, so a day's total is worth
+  // watching when uric acid is above range, whatever the calories say.
+  const ANIMAL_TAGS = new Set(['chicken', 'turkey', 'beef', 'bresaola', 'tuna', 'salmon', 'mackerel', 'sardines', 'codfish', 'seabass', 'shrimp', 'smokedsalmon']);
   const PROTEIN_TAGS = new Set(['tuna', 'salmon', 'mackerel', 'sardines', 'codfish', 'shrimp', 'smokedsalmon', 'chicken', 'turkey', 'beef', 'bresaola', 'eggs', 'chickpeas', 'beans', 'lentils', 'soy', 'yogurt', 'ricotta', 'cottage', 'mozzarella']);
 
   CT.computeBenefits = (r) => {
@@ -91,6 +94,7 @@
     r.mainProtein = prot ? prot.tag : null;
     r.mins = r.active || r.time || 10;
     r.italian = r.tags.includes('italian') || CT.ITALIAN.has(r.id);
+    r.animalG = r.ings.reduce((a, i) => a + (ANIMAL_TAGS.has(i.tag) ? i.g : 0), 0);
     CT.computeBenefits(r);
     r._prepped = true;
     return r;

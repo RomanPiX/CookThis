@@ -160,8 +160,9 @@
   CT.actions['add-extra'] = () => {
     CT.dialog(`<h3>Log something you ate</h3>
       <form class="form-grid" data-submit="extra-save">
-        <label class="field span2"><span>What</span><input name="name" required placeholder="e.g. pizza margherita, half">
+        <label class="field span2"><span>What</span><input name="name" required autocomplete="off" placeholder="e.g. pizza margherita, half" ${CT.ai.available() ? 'data-input="extra-suggest"' : ''}>
         </label>
+        <div class="span2" id="extra-suggest"></div>
         <label class="field"><span>Calories (kcal)</span><input name="kcal" type="number" min="0" placeholder="400"></label>
         <label class="field"><span>Protein (g)</span><input name="p" type="number" min="0" placeholder="15"></label>
         <label class="field"><span>Saturated fat (g)</span><input name="sf" type="number" min="0" step="0.1"></label>
@@ -172,6 +173,50 @@
       </form>
       <p class="hint">Do not know the numbers? ${CT.ai.available() ? '<a href="#/claude/analyze" data-action="dlg-cancel">Describe it to Claude</a> and it will estimate them.' : 'Leave them blank, or use the claude.ai version to have them estimated.'}</p>`);
   };
+  /* As you type, Claude proposes the food and its nutrition. Fires on a typing pause, never per
+     keystroke, and each new request cancels the one before it. */
+  CT.ui.foodSuggest = { ctl: null, q: '', items: [], busy: false };
+  const suggestBox = () => {
+    const u = CT.ui.foodSuggest, el = CT.$('#extra-suggest');
+    if (!el) return;
+    if (u.busy) { el.innerHTML = '<p class="hint"><span class="thinking">Looking it up</span></p>'; return; }
+    if (!u.items.length) { el.innerHTML = ''; return; }
+    el.innerHTML = `<p class="eyebrow">Did you mean</p><div class="suggest-list">${u.items.map((x, i) => `
+      <button type="button" class="suggest" data-action="extra-pick" data-i="${i}">
+        <span class="suggest-name">${CT.esc(x.name)}</span>
+        <span class="suggest-meta">${CT.esc(x.portion || '')}${x.portion ? ' · ' : ''}${CT.fmt(x.kcal)} kcal · ${CT.fmt(x.p)} g protein · ${CT.fmt(x.sf, 1)} g sat. fat</span>
+      </button>`).join('')}</div><p class="hint">Estimated by Claude. Tap one to fill the form, then adjust anything you know better.</p>`;
+  };
+  const runSuggest = CT.debounce(async (text) => {
+    const u = CT.ui.foodSuggest;
+    if (u.ctl) u.ctl.abort();
+    if (!CT.$('#extra-suggest')) return;
+    u.ctl = new AbortController(); u.busy = true; u.items = []; suggestBox();
+    try {
+      const list = await CT.ai.suggestFoods(text, { signal: u.ctl.signal });
+      if (u.q !== text) return;
+      u.items = (Array.isArray(list) ? list : []).slice(0, 4).map((x) => {
+        const o = { name: String((x && x.name) || text).slice(0, 80), portion: String((x && x.portion) || '').slice(0, 60) };
+        for (const k of ['kcal', 'p', 'c', 'fib', 'fat', 'sf', 'sug', 'na']) o[k] = Math.max(0, Number(x && x[k]) || 0);
+        return o;
+      }).filter((o) => o.kcal > 0);
+    } catch (e) { if (e && e.code !== 'cancelled') console.warn('suggest', e); }
+    u.busy = false; u.ctl = null; suggestBox();
+  }, 700);
+  CT.inputs['extra-suggest'] = (d, el) => {
+    const u = CT.ui.foodSuggest, q = el.value.trim();
+    u.q = q;
+    if (q.length < 3) { if (u.ctl) u.ctl.abort(); u.items = []; u.busy = false; suggestBox(); return; }
+    runSuggest(q);
+  };
+  CT.actions['extra-pick'] = (d) => {
+    const x = CT.ui.foodSuggest.items[Number(d.i)]; if (!x) return;
+    const form = CT.$('#dlg form[data-submit="extra-save"]'); if (!form) return;
+    form.querySelector('[name=name]').value = x.portion ? `${x.name} (${x.portion})` : x.name;
+    for (const k of ['kcal', 'p', 'sf', 'sug', 'fib', 'na']) { const f = form.querySelector(`[name=${k}]`); if (f) f.value = x[k] || ''; }
+    CT.ui.foodSuggest.items = []; suggestBox();
+  };
+
   CT.submits = CT.submits || {};
   CT.submits['extra-save'] = (form) => {
     const f = new FormData(form); const x = { name: String(f.get('name') || '').slice(0, 80) };

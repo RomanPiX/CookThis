@@ -101,7 +101,7 @@
     const u = CT.ui.ai; const out = u.texts && u.texts[kind];
     return `<div class="card"><p class="muted">${hint}</p>
       <div class="row-gap">${u.busy && u.tab === kind ? `<button class="btn ghost" data-action="ai-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary" data-action="ai-text" data-kind="${kind}">${CT.icon('claude')} ${label}</button>`}</div>
-      ${u.busy && u.tab === kind ? `<div class="stream-box"><div id="ai-stream" class="prose">${CT.esc(u.out) || '<span class="thinking">Thinking…</span>'}</div></div>` : out ? `<div class="prose">${CT.esc(out).replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</div>` : ''}
+      ${u.busy && u.tab === kind ? `<div class="stream-box"><div id="ai-stream" class="prose">${CT.esc(u.out) || '<span class="thinking">Thinking…</span>'}</div></div>` : out ? `<div class="prose">${CT.prose(out)}</div>` : ''}
     </div>`;
   };
 

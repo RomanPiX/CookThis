@@ -92,9 +92,10 @@
           <ul class="ing-list">${r.ings.map((i) => `<li class="${i.opt ? 'opt' : ''}"><span class="ing-qty">${k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? `${CT.fmt(i.g * k)} ml` : `${CT.fmt(i.g * k)} g`)}</span><span class="ing-name">${CT.esc(i.en)}${i.it ? ` <em class="it">${CT.esc(i.it)}</em>` : ''}${i.opt ? ' <small class="muted">optional</small>' : ''}</span></li>`).join('')}</ul>
         </section>
         <section class="card">
-          <h3>Method</h3>
+          <div class="row-between"><h3>Method</h3>${expandControl(id, k)}</div>
           <ol class="steps">${r.steps.map((st) => `<li>${CT.esc(st)}</li>`).join('')}</ol>
           ${r.note ? `<p class="note">${CT.esc(r.note)}</p>` : ''}
+          ${expandBlock(id)}
         </section>
         <section class="card">
           <h3>Why it fits your numbers</h3>
@@ -115,6 +116,46 @@
     CT.ui.servings[id] = CT.PORTION_STEPS[ni];
     CT.render();
   };
+  // ---- "Expand": Claude writes the same recipe out in full detail, saved with the recipe.
+  CT.ui.expand = { id: null, busy: false, out: '', ctl: null, error: '' };
+  const expandControl = (id, k) => {
+    const u = CT.ui.expand, saved = CT.state.expanded[id];
+    if (!CT.ai.available()) return saved ? '' : '';
+    if (u.busy && u.id === id) return `<button class="btn ghost sm" data-action="expand-stop">${CT.icon('stop')} Stop</button>`;
+    if (saved) return `<span class="row-gap"><button class="btn ghost sm" data-action="expand-method" data-id="${id}" data-portion="${k}" data-redo="1">${CT.icon('sync')} Redo</button><button class="btn ghost sm" data-action="expand-clear" data-id="${id}">Hide</button></span>`;
+    return `<button class="btn ghost sm" data-action="expand-method" data-id="${id}" data-portion="${k}">${CT.icon('claude')} Expand</button>`;
+  };
+  const expandBlock = (id) => {
+    const u = CT.ui.expand, saved = CT.state.expanded[id];
+    if (u.error && u.id === id) return `<div class="banner bad">${CT.esc(u.error)} <button class="btn ghost xs" data-action="expand-dismiss">Dismiss</button></div>`;
+    if (u.busy && u.id === id) return `<div class="expanded"><p class="eyebrow">Step by step</p><div id="expand-out" class="prose">${CT.esc(u.out) || '<span class="thinking">Writing it out…</span>'}</div></div>`;
+    if (saved) return `<div class="expanded"><p class="eyebrow">Step by step${saved.portion && saved.portion !== 1 ? ` · for ×${saved.portion}` : ''}</p><div class="prose">${CT.prose(saved.text)}</div></div>`;
+    if (!CT.ai.available()) return '';
+    return `<p class="hint">Expand asks Claude to write this out in full detail: prep order, heat, timings and what to look for. It writes from what it knows about the dish, since the page cannot browse the web.</p>`;
+  };
+  CT.actions['expand-method'] = async (d) => {
+    const r = CT.recipe(d.id); if (!r) return;
+    const u = CT.ui.expand;
+    u.id = d.id; u.busy = true; u.out = ''; u.error = ''; u.ctl = new AbortController();
+    if (d.redo) delete CT.state.expanded[d.id];
+    CT.render();
+    const onText = ({ text }) => { u.out = text; const el = CT.$('#expand-out'); if (el) el.textContent = text; };
+    try {
+      const { text } = await CT.ai.expandMethod(r, Number(d.portion) || 1, { onText, signal: u.ctl.signal, cache: d.redo ? { gcTime: 86400000, refresh: true } : undefined });
+      CT.state.expanded[d.id] = { text, at: CT.today(), portion: Number(d.portion) || 1 };
+      CT.save();
+    } catch (e) {
+      if (e && e.text) { CT.state.expanded[d.id] = { text: e.text, at: CT.today(), portion: Number(d.portion) || 1 }; CT.save(); }
+      else if (e && e.code !== 'cancelled') u.error = CT.ai.errorCopy(e);
+      console.warn('expand', e);
+    }
+    u.busy = false; u.ctl = null; u.out = '';
+    CT.render();
+  };
+  CT.actions['expand-stop'] = () => { const u = CT.ui.expand; if (u.ctl) u.ctl.abort(); };
+  CT.actions['expand-clear'] = (d) => { delete CT.state.expanded[d.id]; CT.save(); CT.render(); };
+  CT.actions['expand-dismiss'] = () => { CT.ui.expand.error = ''; CT.render(); };
+
   CT.actions['serv-inc'] = (d) => stepPortion(d.id, 1);
   CT.actions['serv-dec'] = (d) => stepPortion(d.id, -1);
   CT.actions['fav-toggle'] = (d) => { const f = CT.state.favorites, i = f.indexOf(d.id); if (i >= 0) f.splice(i, 1); else f.push(d.id); CT.save(); CT.render(); };

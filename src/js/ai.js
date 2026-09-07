@@ -91,6 +91,36 @@ Rules: one serving; grams for every ingredient; use an "id" from the catalogue w
     return CT.recipeFromAI(obj);
   },
 
+  // A detailed walkthrough of one recipe. Deliberately built from the recipe alone rather than the
+  // full profile context, so the answer is stable and the five-minute cache can actually hit.
+  async expandMethod(r, portion, opts = {}) {
+    const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
+    const k = portion || 1;
+    const ing = r.ings.map((i) => `${k === 1 ? i.disp : (CT.fmt(i.g * k) + ' g')} ${i.en}${i.opt ? ' (optional)' : ''}`).join('; ');
+    const prompt = `You are the built-in cooking coach of CookThis, writing for someone who cooks fast, simple food and wants to follow this exact recipe without guessing. They cook in an Italian kitchen with metric measures.
+
+RECIPE: ${r.name}${r.it ? ` (${r.it})` : ''}
+PORTION: ${k === 1 ? 'one serving' : k + ' servings worth, quantities below are already scaled'}
+EQUIPMENT AVAILABLE: ${r.needs.length ? r.needs.join(', ') : 'no cooking equipment needed'}
+INGREDIENTS: ${ing}
+SHORT METHOD AS WRITTEN: ${r.steps.map((s, i) => `${i + 1}. ${s}`).join(' ')}
+
+TASK: Rewrite the method as a detailed walkthrough of this same dish. Keep the same ingredients and the same result: do not invent a different recipe and do not add ingredients beyond salt, pepper or a herb already listed. Cover, in numbered steps: what to get out and prepare before the heat goes on; how each thing is cut and to what size; the heat level and the pan; exact timings with the sign to look for rather than only the clock (what it should look, sound or smell like); how to tell when the protein or the pasta is done; what to do during the waiting; and how to finish and plate it. End with two short lines: one titled "Easy to get wrong" naming the single most common mistake in this dish, and one titled "Keeps" saying how to store and reheat leftovers. Plain text, no markdown headings or bold, under 400 words.`;
+    return sample(prompt, { cache: { gcTime: 24 * 3600 * 1000 }, onText: opts.onText, signal: opts.signal, modelTier: 'default' });
+  },
+
+  /* Autocomplete for the "log what you ate" box. Runs on a typing pause, on the quick tier, with a
+     tight prompt and the default answer cache, so repeating a food costs nothing. */
+  async suggestFoods(text, opts = {}) {
+    const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
+    const q = String(text || '').trim().slice(0, 80);
+    const prompt = `Someone is logging what they ate into a food diary, in an Italian context, and has typed: "${q}".
+Reply with ONLY a JSON array of up to 4 objects, most likely first, each a plausible completion of what they mean, with the nutrition of ONE realistic portion as eaten:
+[{"name": "Pizza margherita, whole", "portion": "1 pizza, about 300 g", "kcal": 850, "p": 35, "c": 105, "fib": 6, "fat": 30, "sf": 12, "sug": 9, "na": 1800}]
+Rules: name is short and specific, in the language they typed; portion names a realistic serving with grams or a household measure; numbers are grams for the whole portion, sodium in mg; if they already named a size or quantity, honour it; prefer Italian dishes and supermarket products when the text is Italian. No prose, no markdown.`;
+    return sample.json(prompt, { modelTier: 'quick', signal: opts.signal });
+  },
+
   async analyzeMeal(text, images, opts = {}) {
     const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
     const prompt = `${this.RULES}\n\n${this.context()}\n\nTASK: The person ate something off-plan and describes it${images && images.length ? ' and attached a photo of the plate' : ''}: "${text || 'see photo'}". Estimate the nutrition of the portion as eaten and judge it against their targets and blood work.
