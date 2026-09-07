@@ -23,6 +23,7 @@ const jsFiles = [
   'js/store.js',
   'js/planner.js',
   'js/ai.js',
+  'js/ai-tools.js',
   'js/views-setup.js',
   'js/views-today.js',
   'js/views-recipes.js',
@@ -31,7 +32,11 @@ const jsFiles = [
   'js/views-more.js',
   'js/app.js',
 ];
-const js = jsFiles.map((f) => `// ==== ${f}\n${read(`${SRC}/${f}`)}`).join('\n\n');
+// Every file is wrapped so that a throw while loading one cannot abort the ones after it. The app
+// then degrades instead of going blank, and the console names the file that failed. Files talk to
+// each other through the CT namespace, never through bare top-level bindings, so the extra block
+// scope changes nothing.
+const js = jsFiles.map((f) => `// ==== ${f}\ntry {\n${read(`${SRC}/${f}`)}\n} catch (ctLoadError) { console.error('CookThis: ${f} failed to load', ctLoadError); }`).join('\n\n');
 
 const config = JSON.parse(read('config.json'));
 // personal.json holds real medical values and is never committed (see .gitignore). Only the

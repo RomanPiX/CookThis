@@ -74,7 +74,20 @@
   CT.actions.reload = () => location.reload();
 
   // ---- Event delegation
+  // Forms are driven from the click, not from the browser's own submit: the artifact viewer frames
+  // the page in a sandbox that blocks form submission, so a native submit event never arrives there.
+  const runForm = (form, e) => {
+    if (typeof form.reportValidity === 'function' && !form.reportValidity()) return;
+    const fn = (CT.submits || {})[form.dataset.submit];
+    if (!fn) return;
+    try { fn(form, e); } catch (err) { console.error(err); CT.toast('That did not go through. Try again.', 'bad'); }
+  };
   document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (btn && btn.type === 'submit') {
+      const form = btn.closest('form[data-submit]');
+      if (form) { e.preventDefault(); runForm(form, e); return; }
+    }
     const a = e.target.closest('[data-action]'); if (!a) return;
     const fn = CT.actions[a.dataset.action]; if (!fn) return;
     e.preventDefault();
@@ -82,8 +95,20 @@
   });
   document.addEventListener('change', (e) => { const el = e.target.closest('[data-change]'); if (!el) return; const fn = CT.changes[el.dataset.change]; if (fn) fn(el.dataset, el, e); });
   document.addEventListener('input', (e) => { const el = e.target.closest('[data-input]'); if (!el) return; const fn = (CT.inputs || {})[el.dataset.input]; if (fn) fn(el.dataset, el, e); });
-  document.addEventListener('submit', (e) => { const f = e.target.closest('[data-submit]'); if (!f) return; e.preventDefault(); const fn = (CT.submits || {})[f.dataset.submit]; if (fn) fn(f, e); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { const cm = CT.$('#cookmode'); if (cm && !cm.hidden) CT.actions['cook-close'](); } });
+  document.addEventListener('submit', (e) => { const f = e.target.closest('[data-submit]'); if (!f) return; e.preventDefault(); runForm(f, e); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { const cm = CT.$('#cookmode'); if (cm && !cm.hidden) CT.actions['cook-close'](); return; }
+    if (e.key !== 'Enter') return;
+    const el = e.target;
+    if (!el || !el.closest) return;
+    const form = el.closest('form[data-submit]'); if (!form) return;
+    // Enter sends from a single-line field; in a textarea it needs Ctrl or Cmd, so newlines still work.
+    const isText = el.tagName === 'TEXTAREA';
+    if (isText ? (e.ctrlKey || e.metaKey) : (el.tagName === 'INPUT' && !/checkbox|radio|file/.test(el.type) && !e.shiftKey)) {
+      e.preventDefault();
+      runForm(form, e);
+    }
+  });
 
   // ---- Boot
   const boot = async () => {

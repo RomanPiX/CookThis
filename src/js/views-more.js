@@ -14,7 +14,7 @@
   // ---- Claude
   CT.ui.ai = { tab: 'ask', busy: false, ctl: null, out: '', draft: null, analysis: null, error: '', photo: null, about: '' };
   const TABS = [['ask', 'Ask'], ['create', 'Create a recipe'], ['analyze', 'Analyse a meal'], ['review', 'Weekly review'], ['labs', 'Explain my results']];
-  const SUGGEST = ['What can I order at a pizzeria tonight that fits my numbers?', 'Why is my LDL so high if I am not overweight?', 'Give me a 5-minute lunch from what is on my shopping list.', 'Is coffee OK with my liver values?', 'How do I make a sandwich that is not salame and still tastes of something?'];
+  const SUGGEST = ["Swap tomorrow's dinner for something with chicken", "Make tonight's dinner without olives", 'I want pasta twice this week, sort out the plan', 'What can I order at a pizzeria tonight that fits my numbers?', 'Why is my LDL so high if I am not overweight?', 'Is coffee OK with my liver values?'];
 
   CT.views.claude = ({ tab, query }) => {
     const u = CT.ui.ai;
@@ -30,7 +30,7 @@
     }
     const panel = u.tab === 'ask' ? askPanel() : u.tab === 'create' ? createPanel() : u.tab === 'analyze' ? analyzePanel() : u.tab === 'review' ? textPanel('review', 'Review my week', 'A frank look at the last seven days: what worked, what to fix, one idea for next week.') : textPanel('labs', 'Explain my blood test', 'Plain-language reading of your latest results, how they connect, and what to ask the doctor.');
     return `<section class="claude">
-      <div class="page-head"><div><p class="eyebrow">Claude</p><h1>Your dietician, on call.</h1><p class="lede">Uses your own Claude account. Every request knows your profile, results, preferences and what you have eaten this week.</p></div></div>
+      <div class="page-head"><div><p class="eyebrow">Claude</p><h1>Your dietician, on call.</h1><p class="lede">Uses your own Claude account. It knows your profile, results, preferences and what you have eaten, and it can change the plan for you: ask for a swap or a tweak and the shopping list follows.</p></div></div>
       <div class="tabs" role="tablist">${TABS.map(([k, l]) => `<a class="tab ${u.tab === k ? 'on' : ''}" href="#/claude/${k}" role="tab" aria-selected="${u.tab === k}">${l}</a>`).join('')}</div>
       ${u.error ? `<div class="banner bad">${CT.esc(u.error)} <button class="btn ghost xs" data-action="ai-dismiss">Dismiss</button></div>` : ''}
       ${panel}
@@ -47,6 +47,8 @@
         <textarea name="q" rows="2" placeholder="Type a question…" ${u.busy ? 'disabled' : ''}>${CT.esc(u.about ? `About “${u.about}”: ` : '')}</textarea>
         ${u.busy ? `<button type="button" class="btn ghost" data-action="ai-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary" type="submit">${CT.icon('send')} Send</button>`}
       </form>
+      ${(CT.ui.planEdits || []).length ? `<div class="banner edits">${CT.icon('plan')} <span>Claude changed ${CT.ui.planEdits.length} meal${CT.ui.planEdits.length > 1 ? 's' : ''}: ${CT.ui.planEdits.map((x) => `${CT.esc(x.newName)} <small>(${CT.SLOTS[x.slot].en.toLowerCase()}, ${CT.relDay(x.date).toLowerCase()})</small>`).join(' · ')}. The shopping list follows.</span>
+        <button class="btn sm ghost" data-action="ai-undo-plan">Undo</button><button class="btn sm primary" data-action="ai-keep-plan">Keep</button></div>` : ''}
       ${chat.length ? `<button class="btn ghost xs" data-action="ai-clear">Clear conversation</button>` : ''}
     </div>`;
   };

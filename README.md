@@ -11,7 +11,7 @@ No backend, no build tooling beyond Node. One codebase, two outputs:
 
 | Output | Where it runs | Claude features | Data |
 | --- | --- | --- | --- |
-| `dist/artifact.html` | Published as a claude.ai Artifact with the `sample` and `db` capabilities | Yes (uses your Claude account): ask the dietician, invent recipes, analyse a meal or a plate photo, weekly review, explain results | Synced across your devices through the artifact's database |
+| `dist/artifact.html` | Published as a claude.ai Artifact with the `sample` and `db` capabilities | Yes (uses your Claude account): ask the dietician, **change the plan by asking**, invent recipes, analyse a meal or a plate photo, weekly review, explain results | Synced across your devices through the artifact's database |
 | `docs/index.html` (+ `sw.js`, manifest, icons) | Any static host, e.g. GitHub Pages; installable as a PWA on Android and desktop; works offline | No (shows a link to the claude.ai version) | Stored in the browser; export/import a backup to move it |
 
 Nothing personal is committed. A local `personal.json` (gitignored) holds the lab seed values and the
@@ -35,6 +35,9 @@ Source lives in `src/`:
 - `js/planner.js` — candidate filtering, scoring, day assembly, weekly rhythm (fish ×2, purine-rich ×1, red meat ×1)
 - `js/store.js` — state, localStorage, optional db sync
 - `js/ai.js` — Claude features through `claude.use("sample")`
+- `js/ai-tools.js` — the page functions Claude may call in the chat: read the plan and a recipe,
+  search recipes, put a recipe in a slot, save an adapted recipe and plan it, read the shopping list.
+  The two writers record what they changed so the chat can offer an undo.
 - `js/palettes.js` — the five colour palettes (light + dark token sets) and the brand mark
 - `js/views-*.js`, `js/app.js`, `styles.css`, `markup.html` — UI
 

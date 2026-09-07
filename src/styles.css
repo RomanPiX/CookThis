@@ -451,3 +451,7 @@ body.cooking { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 @media print { .rail, .tabbar, .topbar, .head-actions, .btn { display: none !important; } .view { padding: 0; } }
+
+.banner.edits { align-items: flex-start; background: var(--accent-soft); color: var(--ink); margin: 12px 0 0; }
+.banner.edits > span { flex: 1 1 220px; }
+.banner.edits small { color: var(--muted); }
