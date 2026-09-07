@@ -98,6 +98,7 @@
     r.itSteps = Array.isArray(tr.steps) && tr.steps.length ? tr.steps : (Array.isArray(r.stepsIt) ? r.stepsIt : null);
     r.itNote = tr.note || r.noteIt || '';
     r.animalG = r.ings.reduce((a, i) => a + (ANIMAL_TAGS.has(i.tag) ? i.g : 0), 0);
+    r.bready = r.ings.some((i) => i.tag === 'bread' && i.g >= 30);
     CT.computeBenefits(r);
     r._prepped = true;
     return r;

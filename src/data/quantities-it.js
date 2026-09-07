@@ -25,7 +25,7 @@ CT.QTY_IT = {
   '1 small zucchini': '1 zucchina piccola', '1 eggplant': '1 melanzana',
   '1 potato': '1 patata', '1 small potato': '1 patata piccola', '1 large potato': '1 patata grande',
   '2 potatoes': '2 patate', '1 sweet potato': '1 patata dolce',
-  '½ head': '½ testa', '1 head': '1 testa', '1 bulb': '1 bulbo', '1 pack pre-cut': '1 confezione già a pezzi',
+  '½ head': '½ testa', '1 head': '1 testa', '1 bulb': '1 bulbo', '½ bulb': '½ finocchio', '½ orange': '½ arancia', '1 pack pre-cut': '1 confezione già a pezzi',
   '5 mushrooms': '5 funghi', '6 mushrooms': '6 funghi', '8 mushrooms': '8 funghi',
   // fruit
   '1 lemon': '1 limone', '½ lemon': '½ limone', '½ lemon, juice': '½ limone, il succo', '½ lemon, zest and juice': '½ limone, scorza e succo',

@@ -29,6 +29,8 @@ python -m http.server 8765 --directory docs   # then open http://localhost:8765
 Source lives in `src/`:
 
 - `data/ingredients.js` — 113 ingredients with per-100 g nutrition, €/kg, Italian names, allergen flags, purine load, omega-3
+- `data/recipes-cold.js` — cene fredde: dinners you assemble in three to five minutes with no heat.
+  Deliberately not all sandwiches, since bread is a main source of sodium in an Italian day.
 - `data/recipes-it-*.js` — the Italian method text and notes for every recipe, keyed by id. Recipe
   names live on each recipe as `it`. The app shows recipes in Italian by default, offline, with
   English as the fallback and as a switch under Settings, Appearance.
@@ -37,7 +39,8 @@ Source lives in `src/`:
   `CT.ITALIAN` set in `content.js`, and the "Italian first" preference weights the planner towards them.
 - `data/content.js` — meal slots, preference groups, health focus texts, lab panel, tips, swap guide, achievements
 - `js/nutrition.js` — totals, targets (Mifflin-St Jeor), benefit scoring
-- `js/planner.js` — candidate filtering, scoring, day assembly, weekly rhythm (fish ×2, purine-rich ×1,
+- `js/planner.js` — candidate filtering (including a per-meal hands-on limit, where a slot can be set
+  to assemble-only), scoring, day assembly, weekly rhythm (fish ×2, purine-rich ×1,
   red meat ×1), and portion fitting. Every meal carries a portion multiplier, ×1 by default: you set
   it per meal, or turn on "Size portions to my calorie target" in Settings and the planner fits each
   plate so the day adds up. Today flags a day that falls short and offers a one-tap fit.

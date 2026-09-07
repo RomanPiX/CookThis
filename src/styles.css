@@ -513,3 +513,8 @@ body.cooking { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 @media print { .rail, .tabbar, .topbar, .head-actions, .btn { display: none !important; } .view { padding: 0; } }
+
+.slot-times { display: grid; gap: 12px; }
+.slot-time { display: grid; gap: 5px; }
+.slot-time .eyebrow { margin: 0; }
+.slot-time .seg { align-self: start; }

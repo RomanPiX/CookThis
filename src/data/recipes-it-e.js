@@ -1,0 +1,16 @@
+/* Italian method text, part five: le cene fredde. */
+CT.IT = CT.IT || {};
+Object.assign(CT.IT, {
+  cena_tonno_fagioli: { steps: ['Sgocciola il tonno, sciacqua i fagioli, taglia i pomodorini a metà.', 'Tutto in una ciotola con olio, limone, sale e pepe. Mescola una volta.', 'Una fetta di pane a fianco, non un panino.'], note: 'Tutta la cena è una ciotola e una forchetta. Fagioli e tonno insieme danno 30 g di proteine senza accendere niente.' },
+  cena_caprese_ceci: { steps: ['Sciacqua i ceci, taglia i pomodorini a metà, spezza la mozzarella con le mani.', 'Condisci con olio, sale, pepe e origano, poi strappa sopra il basilico.', 'Pane a fianco.'] },
+  cena_farro_mozzarella: { steps: ['Versa il farro direttamente dalla busta in una ciotola. Freddo va benissimo.', 'Unisci la mozzarella a dadini, i pomodorini a metà e la rucola.', 'Olio, sale, pepe, basilico. Fatto.'], note: 'Il farro precotto è la cosa più utile da tenere in dispensa per una cena da tre minuti.' },
+  cena_ricotta_pomodoro: { steps: ['Metti la ricotta nel piatto e appiattiscila con il dorso del cucchiaio.', 'Pomodoro a fette intorno, olive, olio, sale, pepe e origano.', 'Pane a fianco per raccogliere tutto.'] },
+  cena_sgombro_cannellini: { steps: ['Sgocciola lo sgombro e sciacqua i fagioli.', 'Sfalda il pesce sopra i fagioli, aggiungi pomodorini e rucola.', 'Limone, olio e molto pepe. Il pane non serve.'], note: 'Tre minuti e 2 g di omega-3, che è poi il senso di tutta la dieta. Ricco di purine: circa una volta a settimana.' },
+  cena_fiocchi_pomodorini: { steps: ['Versa i fiocchi di latte in una ciotola.', 'Pomodorini a metà, olive, cetriolo, olio, pepe e origano.', 'Pane a fianco.'] },
+  cena_ceci_tonno_finocchi: { steps: ['Affetta il finocchio sottile. Sciacqua i ceci e sgocciola il tonno.', 'Condisci con limone, olio, sale e pepe.', 'Spicchi d’arancia sopra, se ne hai una.'], note: 'Finocchio e agrumi aiutano entrambi sull’acido urico, e da lavare c’è solo la ciotola.' },
+  cena_tonno_mais_cannellini: { steps: ['Sgocciola tutto quello che viene da una scatoletta.', 'In una ciotola con rucola e pomodorini.', 'Olio, limone, pepe, mescola.'] },
+  cena_piadina_ricotta: { steps: ['Spalma la ricotta sulla piadina appena aperta, senza scaldarla.', 'Rucola e pomodoro a fette, olio, sale, pepe.', 'Arrotola e taglia a metà. Una mela dopo, se hai ancora fame.'] },
+  cena_yogurt_ceci_menta: { steps: ['Taglia il cetriolo a dadini e sciacqua i ceci.', 'Mescolali nello yogurt con menta, limone, olio, sale e un pizzico di cumino.', 'Pane a fianco.'], note: 'I latticini magri sono tra i pochi alimenti che abbassano l’acido urico, e questo è il modo più pigro di mangiarne un vasetto in versione salata.' },
+  cena_hummus_piatto: { steps: ['Metti l’hummus nel piatto, fai una fossetta al centro e versaci l’olio.', 'Taglia carota, cetriolo e peperone a bastoncini tutto intorno.', 'Pita spezzata a pezzi. Si mangia con le mani.'] },
+  cena_salmone_finocchi: { steps: ['Affetta il finocchio sottile, pela l’arancia a vivo e affettala tenendo il succo.', 'Adagia sopra il salmone e completa con le noci.', 'Olio, il succo d’arancia e molto pepe. Niente sale: lo porta già il salmone.'], note: 'Salato, quindi circa una volta a settimana. Buon apporto di omega-3 e zero cottura.' },
+});

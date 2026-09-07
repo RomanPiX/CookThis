@@ -16,7 +16,7 @@ CT.RECIPES.push(
   },
   {
     id: 'insalata_riso', name: 'Rice salad with tuna, corn & mozzarella', it: 'Insalata di riso', slots: ['L', 'D'], time: 10, active: 10, tags: ['italian', 'nocook', 'salad', 'batch'], needs: [],
-    ing: [['rice_brown', 200, '1½ pouch portions'], ['tuna', 80, '1½ small cans, drained'], ['corn', 60, '3 tbsp'], ['cherry_tom', 100, '6 cherry tomatoes'], ['mozz_light', 60, '½ ball'], ['olives', 20, '8 olives'], ['evoo', 10, '1 tbsp'], ['basil', 5, 'a few leaves', 1]],
+    ing: [['rice_brown', 200, '1½ pouch portions'], ['tuna', 80, '1½ small cans, drained'], ['corn', 60, '3 tbsp'], ['cherry_tom', 100, '6 cherry tomatoes'], ['mozz_light', 60, '½ ball'], ['olives', 20, '8 olives', 1], ['evoo', 10, '1 tbsp'], ['basil', 5, 'a few leaves', 1]],
     steps: ['Heat the rice for a minute, or use it cold straight from the pouch.', 'Dice the mozzarella and tomatoes, drain the tuna and corn.', 'Mix everything with the oil, salt and pepper. Better after an hour in the fridge, and it keeps two days.'],
     note: 'The Italian summer lunchbox. Make a double batch and tomorrow is handled.'
   },

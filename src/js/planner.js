@@ -5,16 +5,26 @@
   const SEASON = { cherries_bowl: [5, 6, 7] };
   const WEIGHTS = [0.45, 0.25, 0.18, 0.12];
 
+  /* How long a given meal may take. A slot can be set to "assemble only", which means no heat at
+     all and about five minutes: the answer to not wanting to cook twice a day. */
+  CT.slotLimit = (slot) => {
+    const p = CT.state.prefs, v = (p.slotTime || {})[slot];
+    if (p.lazy) return { max: 10, noCook: true, micro: true };
+    if (v === 'nocook') return { max: 6, noCook: true, micro: false };
+    return { max: Number(v) || Number(p.maxActive) || 15, noCook: false, micro: true };
+  };
+
   CT.candidates = (slot, date) => {
     const p = CT.state.prefs, today = CT.today();
-    const maxActive = p.lazy ? 10 : Number(p.maxActive) || 15;
+    const lim = CT.slotLimit(slot);
+    const maxActive = lim.max;
     const month = CT.parseISO(date).getMonth() + 1;
     return CT.recipes().filter((r) => {
       if (!r.slots.includes(slot)) return false;
       if (slot === 'S' && r.nutri.kcal > 320) return false;
       if (slot !== 'S' && r.nutri.kcal < 250) return false;
       if (r.mins > maxActive) return false;
-      if (p.lazy && !(r.tags.includes('nocook') || r.tags.includes('micro'))) return false;
+      if (lim.noCook && !(r.tags.includes('nocook') || (lim.micro && r.tags.includes('micro')))) return false;
       if (!r.needs.every((n) => n === 'kettle' || p.equipment[n])) return false;
       if (r.allergens.some((a) => p.allergens.includes(a))) return false;
       if (p.diet === 'veg' && !r.veg) return false;
@@ -30,7 +40,7 @@
   // What happened around this date: recency of each recipe and weekly counts of capped categories.
   CT.planContext = (date) => {
     const today = CT.today();
-    const ctx = { lastUsed: {}, fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0 };
+    const ctx = { lastUsed: {}, fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0, bready: 0 };
     for (let i = 1; i <= 6; i++) {
       const plan = CT.state.plans[CT.addDays(date, -i)];
       if (!plan) continue;
@@ -55,12 +65,13 @@
         if (r.eggs) ctx.eggs++;
         if (!r.italian) ctx.nonItalian++;
         if (r.mainProtein === 'chicken') ctx.chicken++;
+        if (r.bready) ctx.bready++;
       }
     }
     return ctx;
   };
 
-  const dayAcc = () => ({ ids: new Set(), proteins: new Set(), fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0, legume: false, pasta: false, sandwich: false });
+  const dayAcc = () => ({ ids: new Set(), proteins: new Set(), fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0, bready: 0, legume: false, pasta: false, sandwich: false });
   const addToDay = (day, r) => {
     day.ids.add(r.id);
     if (r.mainProtein) day.proteins.add(r.mainProtein);
@@ -68,6 +79,7 @@
     if (r.tags.includes('occasional')) day.occasional++; if (r.eggs) day.eggs++;
     if (!r.italian) day.nonItalian++;
     if (r.mainProtein === 'chicken') day.chicken++;
+    if (r.bready) day.bready++;
     if (r.legume) day.legume = true; if (r.tags.includes('pasta')) day.pasta = true; if (r.tags.includes('sandwich')) day.sandwich = true;
   };
 
@@ -80,8 +92,10 @@
     if (s.favorites.includes(r.id)) sc += 1.5;
     const rt = s.ratings[r.id];
     if (rt >= 4) sc += 1; if (rt && rt <= 2) sc -= 3;
+    // How recently this exact recipe was eaten, 6 for yesterday down to 1 for six days ago. Scaling
+    // it keeps a small pool rotating instead of settling on one favourite.
     const rec = ctx.lastUsed[r.id] || 0;
-    if (rec >= 4) sc -= 5; else if (rec > 0) sc -= 2;
+    sc -= rec * 1.6;
     if (day.ids.has(r.id)) sc -= 8;
     if (r.mainProtein && day.proteins.has(r.mainProtein)) sc -= (r.mainProtein === 'chicken' && (Number(p.chickenPerWeek) || 0) >= 8) ? 0 : 3;
     if (r.fish) { const f = ctx.fish + day.fish; sc += f < 2 ? 5 : f >= 3 ? -1.5 : 0; }
@@ -98,6 +112,8 @@
     if (r.tags.includes('occasional') && ctx.occasional + day.occasional >= 1) sc -= 20;
     if (r.tags.includes('pasta') && day.pasta) sc -= 10;
     if (r.tags.includes('sandwich') && day.sandwich) sc -= 2;
+    // Bread is the quiet source of sodium in an Italian day, so it should not be in every meal.
+    if (r.bready) { const b = ctx.bready + day.bready; if (b >= 7) sc -= 6; else if (b >= 5) sc -= 2.5; }
     if (p.cuisine !== 'any') {
       // "Italian first": the rest of the world still appears, but rarely and never twice in a day.
       // Where a slot has few Italian options, the preference softens rather than starving the slot.

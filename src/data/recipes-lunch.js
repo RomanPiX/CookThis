@@ -45,7 +45,7 @@ CT.RECIPES.push(
     steps: ['Boil the pasta (10 min).', 'In a pan warm oil, garlic and rosemary 1 min; add chickpeas and passata, simmer 6 min; mash a few chickpeas to thicken.', 'Toss with the pasta and a ladle of pasta water. Parmigiano on top.'],
   },
   {
-    id: 'bresaola_rocket_plate', name: 'Bresaola, rocket & parmigiano plate with lemon', it: 'Bresaola con rucola, grana e limone', slots: ['L'], time: 5, active: 5, tags: ['nocook', 'quick5', 'occasional'], needs: [],
+    id: 'bresaola_rocket_plate', name: 'Bresaola, rocket & parmigiano plate with lemon', it: 'Bresaola con rucola, grana e limone', slots: ['L', 'D'], time: 5, active: 5, tags: ['nocook', 'quick5', 'occasional'], needs: [],
     ing: [['bresaola', 50, '6 slices'], ['rocket', 60, '3 handfuls'], ['parm', 8, 'a few shavings'], ['lemon', 15, '½ lemon, juice'], ['evoo', 8, '2 tsp'], ['bread_ww', 60, '2 slices'], ['cherry_tom', 100, '6 cherry tomatoes']],
     steps: ['Lay the bresaola on a plate, pile rocket and tomatoes on top.', 'Dress with lemon, oil, pepper and the parmigiano shavings.', 'Bread on the side.'],
     note: 'The one cured meat that fits: very lean, but salty. The planner allows it about once a week.'
@@ -73,7 +73,7 @@ CT.RECIPES.push(
   },
   {
     id: 'farro_tuna_salad', name: 'Farro salad with tuna, tomatoes & olives', it: 'Insalata di farro con tonno', slots: ['L', 'D'], time: 8, active: 8, tags: ['nocook', 'salad', 'batch'], needs: [],
-    ing: [['farro_pre', 150, '1 pouch portion'], ['tomato', 150, '1 large tomato'], ['cucumber', 80, '⅓ cucumber'], ['tuna', 80, '1½ small cans, drained'], ['olives', 15, '6 olives'], ['evoo', 10, '1 tbsp'], ['basil', 5, 'a few leaves', 1]],
+    ing: [['farro_pre', 150, '1 pouch portion'], ['tomato', 150, '1 large tomato'], ['cucumber', 80, '⅓ cucumber'], ['tuna', 80, '1½ small cans, drained'], ['olives', 15, '6 olives', 1], ['evoo', 10, '1 tbsp'], ['basil', 5, 'a few leaves', 1]],
     steps: ['Use precooked farro straight from the pouch (or 1 min in the microwave).', 'Dice the vegetables and mix everything with oil, salt and pepper.'],
   },
   {

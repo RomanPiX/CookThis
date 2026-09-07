@@ -532,6 +532,11 @@ body.cooking { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 @media print { .rail, .tabbar, .topbar, .head-actions, .btn { display: none !important; } .view { padding: 0; } }
 
+.slot-times { display: grid; gap: 12px; }
+.slot-time { display: grid; gap: 5px; }
+.slot-time .eyebrow { margin: 0; }
+.slot-time .seg { align-self: start; }
+
 </style>
 </head>
 <body>
@@ -552,7 +557,7 @@ body.cooking { overflow: hidden; }
 </div>
 
 <script>
-window.CT_CONFIG={"appName":"CookThis","build":"202609072211"};
+window.CT_CONFIG={"appName":"CookThis","build":"202609072233"};
 // ==== data/ingredients.js
 try {
 /* CookThis ingredient table.
@@ -840,7 +845,7 @@ CT.RECIPES.push(
     steps: ['Boil the pasta (10 min).', 'In a pan warm oil, garlic and rosemary 1 min; add chickpeas and passata, simmer 6 min; mash a few chickpeas to thicken.', 'Toss with the pasta and a ladle of pasta water. Parmigiano on top.'],
   },
   {
-    id: 'bresaola_rocket_plate', name: 'Bresaola, rocket & parmigiano plate with lemon', it: 'Bresaola con rucola, grana e limone', slots: ['L'], time: 5, active: 5, tags: ['nocook', 'quick5', 'occasional'], needs: [],
+    id: 'bresaola_rocket_plate', name: 'Bresaola, rocket & parmigiano plate with lemon', it: 'Bresaola con rucola, grana e limone', slots: ['L', 'D'], time: 5, active: 5, tags: ['nocook', 'quick5', 'occasional'], needs: [],
     ing: [['bresaola', 50, '6 slices'], ['rocket', 60, '3 handfuls'], ['parm', 8, 'a few shavings'], ['lemon', 15, '½ lemon, juice'], ['evoo', 8, '2 tsp'], ['bread_ww', 60, '2 slices'], ['cherry_tom', 100, '6 cherry tomatoes']],
     steps: ['Lay the bresaola on a plate, pile rocket and tomatoes on top.', 'Dress with lemon, oil, pepper and the parmigiano shavings.', 'Bread on the side.'],
     note: 'The one cured meat that fits: very lean, but salty. The planner allows it about once a week.'
@@ -868,7 +873,7 @@ CT.RECIPES.push(
   },
   {
     id: 'farro_tuna_salad', name: 'Farro salad with tuna, tomatoes & olives', it: 'Insalata di farro con tonno', slots: ['L', 'D'], time: 8, active: 8, tags: ['nocook', 'salad', 'batch'], needs: [],
-    ing: [['farro_pre', 150, '1 pouch portion'], ['tomato', 150, '1 large tomato'], ['cucumber', 80, '⅓ cucumber'], ['tuna', 80, '1½ small cans, drained'], ['olives', 15, '6 olives'], ['evoo', 10, '1 tbsp'], ['basil', 5, 'a few leaves', 1]],
+    ing: [['farro_pre', 150, '1 pouch portion'], ['tomato', 150, '1 large tomato'], ['cucumber', 80, '⅓ cucumber'], ['tuna', 80, '1½ small cans, drained'], ['olives', 15, '6 olives', 1], ['evoo', 10, '1 tbsp'], ['basil', 5, 'a few leaves', 1]],
     steps: ['Use precooked farro straight from the pouch (or 1 min in the microwave).', 'Dice the vegetables and mix everything with oil, salt and pepper.'],
   },
   {
@@ -1137,7 +1142,7 @@ CT.RECIPES.push(
   },
   {
     id: 'insalata_riso', name: 'Rice salad with tuna, corn & mozzarella', it: 'Insalata di riso', slots: ['L', 'D'], time: 10, active: 10, tags: ['italian', 'nocook', 'salad', 'batch'], needs: [],
-    ing: [['rice_brown', 200, '1½ pouch portions'], ['tuna', 80, '1½ small cans, drained'], ['corn', 60, '3 tbsp'], ['cherry_tom', 100, '6 cherry tomatoes'], ['mozz_light', 60, '½ ball'], ['olives', 20, '8 olives'], ['evoo', 10, '1 tbsp'], ['basil', 5, 'a few leaves', 1]],
+    ing: [['rice_brown', 200, '1½ pouch portions'], ['tuna', 80, '1½ small cans, drained'], ['corn', 60, '3 tbsp'], ['cherry_tom', 100, '6 cherry tomatoes'], ['mozz_light', 60, '½ ball'], ['olives', 20, '8 olives', 1], ['evoo', 10, '1 tbsp'], ['basil', 5, 'a few leaves', 1]],
     steps: ['Heat the rice for a minute, or use it cold straight from the pouch.', 'Dice the mozzarella and tomatoes, drain the tuna and corn.', 'Mix everything with the oil, salt and pepper. Better after an hour in the fridge, and it keeps two days.'],
     note: 'The Italian summer lunchbox. Make a double batch and tomorrow is handled.'
   },
@@ -1344,6 +1349,84 @@ CT.RECIPES.push(
 
 } catch (ctLoadError) { console.error('CookThis: data/recipes-chicken.js failed to load', ctLoadError); }
 
+// ==== data/recipes-cold.js
+try {
+/* Cene fredde: dinners you assemble, never cook. Three to five minutes, no pan, no oven.
+   Deliberately not all sandwiches. Bread appears in about half of them, and never as the whole
+   meal, because bread is one of the biggest sources of sodium in an Italian day. The protein is
+   canned fish, legumes or fresh light cheese, and every plate carries raw vegetables. */
+CT.RECIPES = CT.RECIPES || [];
+CT.RECIPES.push(
+  {
+    id: 'cena_tonno_fagioli', name: 'Tuna & cannellini plate, three minutes', it: 'Tonno e fagioli express', slots: ['D', 'L'], time: 4, active: 4, tags: ['italian', 'nocook', 'quick5', 'cold'], needs: [],
+    ing: [['tuna', 100, '2 small cans, drained'], ['cannellini', 150, '½ can, rinsed'], ['cherry_tom', 120, '8 cherry tomatoes'], ['onion', 25, '¼ red onion', 1], ['evoo', 10, '1 tbsp'], ['lemon', 15, '½ lemon, juice'], ['parsley', 5, 'a small bunch', 1], ['bread_ww', 40, '1 slice']],
+    steps: ['Drain the tuna, rinse the beans, halve the tomatoes.', 'Everything in a bowl with oil, lemon, salt and pepper. Stir once.', 'One slice of bread on the side, not a sandwich.'],
+    note: 'The whole dinner is a bowl and a fork. Beans and tuna together give 30 g of protein without touching a pan.'
+  },
+  {
+    id: 'cena_caprese_ceci', name: 'Chickpea caprese', it: 'Caprese di ceci', slots: ['D', 'L'], time: 4, active: 4, tags: ['italian', 'nocook', 'quick5', 'cold'], needs: [],
+    ing: [['chickpeas', 150, '½ can, rinsed'], ['mozz_light', 60, '½ ball'], ['cherry_tom', 150, '10 cherry tomatoes'], ['basil', 5, 'a few leaves'], ['evoo', 10, '1 tbsp'], ['oregano', 1, 'a pinch', 1], ['bread_ww', 40, '1 slice']],
+    steps: ['Rinse the chickpeas, halve the tomatoes, tear the mozzarella.', 'Toss with oil, salt, pepper and oregano, tear the basil over.', 'Bread on the side.'],
+  },
+  {
+    id: 'cena_farro_mozzarella', name: 'Ready farro with mozzarella, tomatoes & rocket', it: 'Farro pronto con mozzarella, pomodorini e rucola', slots: ['D', 'L'], time: 4, active: 4, tags: ['italian', 'nocook', 'quick5', 'cold'], needs: [],
+    ing: [['farro_pre', 150, '1 pouch portion'], ['mozz_light', 60, '½ ball'], ['cherry_tom', 120, '8 cherry tomatoes'], ['rocket', 40, '2 handfuls'], ['evoo', 10, '1 tbsp'], ['basil', 3, 'a few leaves', 1]],
+    steps: ['Tip the farro straight from the pouch into a bowl. Cold is fine.', 'Add the diced mozzarella, halved tomatoes and rocket.', 'Oil, salt, pepper, basil. Done.'],
+    note: 'Precooked farro is the single most useful thing to keep in the cupboard for a three-minute dinner.'
+  },
+  {
+    id: 'cena_ricotta_pomodoro', name: 'Ricotta, tomato & olive plate', it: 'Piatto di ricotta, pomodoro e olive', slots: ['D'], time: 3, active: 3, tags: ['italian', 'nocook', 'quick5', 'cold'], needs: [],
+    ing: [['ricotta_light', 120], ['tomato', 200, '2 tomatoes'], ['olives', 15, '6 olives', 1], ['bread_ww', 60, '2 slices'], ['evoo', 8, '2 tsp'], ['oregano', 1, 'a pinch'], ['rocket', 30, '1 handful', 1]],
+    steps: ['Spoon the ricotta onto a plate and flatten it with the back of the spoon.', 'Sliced tomato around it, olives, oil, salt, pepper, oregano.', 'Bread on the side to break into it.'],
+  },
+  {
+    id: 'cena_sgombro_cannellini', name: 'Mackerel & white beans with lemon', it: 'Sgombro e cannellini al limone', slots: ['D', 'L'], time: 3, active: 3, tags: ['italian', 'nocook', 'quick5', 'cold', 'purine-high'], needs: [],
+    ing: [['mackerel', 90, '1 can, drained'], ['cannellini', 150, '½ can, rinsed'], ['cherry_tom', 100, '6 cherry tomatoes'], ['rocket', 40, '2 handfuls'], ['lemon', 15, '½ lemon, juice'], ['evoo', 8, '2 tsp']],
+    steps: ['Drain the mackerel, rinse the beans.', 'Flake the fish over the beans, add tomatoes and rocket.', 'Lemon, oil, plenty of pepper. No bread needed.'],
+    note: 'Three minutes and 2 g of omega-3, which is the point of the whole diet. Purine-rich, so about once a week.'
+  },
+  {
+    id: 'cena_fiocchi_pomodorini', name: 'Cottage cheese with tomatoes & olives', it: 'Fiocchi di latte con pomodorini e olive', slots: ['D'], time: 3, active: 3, tags: ['italian', 'nocook', 'quick5', 'cold'], needs: [],
+    ing: [['cottage', 150], ['cherry_tom', 150, '10 cherry tomatoes'], ['olives', 15, '6 olives', 1], ['bread_ww', 50, '1 thick slice'], ['evoo', 8, '2 tsp'], ['oregano', 1, 'a pinch', 1], ['cucumber', 80, '⅓ cucumber', 1]],
+    steps: ['Tip the cottage cheese into a bowl.', 'Halved tomatoes, olives, cucumber, oil, pepper, oregano.', 'Bread on the side.'],
+  },
+  {
+    id: 'cena_ceci_tonno_finocchi', name: 'Chickpea, tuna & fennel salad', it: 'Insalata di ceci, tonno e finocchi', slots: ['D', 'L'], time: 5, active: 5, tags: ['italian', 'nocook', 'quick5', 'cold'], needs: [],
+    ing: [['chickpeas', 150, '½ can, rinsed'], ['tuna', 80, '1½ small cans, drained'], ['fennel', 150, '½ bulb'], ['lemon', 15, '½ lemon, juice'], ['evoo', 10, '1 tbsp'], ['parsley', 5, 'a small bunch', 1], ['orange', 100, '½ orange', 1]],
+    steps: ['Slice the fennel thin. Rinse the chickpeas, drain the tuna.', 'Toss with lemon, oil, salt and pepper.', 'Orange segments on top if you have one.'],
+    note: 'Fennel and citrus both help on uric acid, and there is nothing to wash up but a bowl.'
+  },
+  {
+    id: 'cena_tonno_mais_cannellini', name: 'Tuna, corn & bean bowl', it: 'Insalata di tonno, mais e cannellini', slots: ['D', 'L'], time: 4, active: 4, tags: ['italian', 'nocook', 'quick5', 'cold'], needs: [],
+    ing: [['tuna', 80, '1½ small cans, drained'], ['corn', 60, '3 tbsp'], ['cannellini', 150, '½ can, rinsed'], ['rocket', 40, '2 handfuls'], ['cherry_tom', 100, '6 cherry tomatoes'], ['evoo', 10, '1 tbsp'], ['lemon', 10, 'a squeeze']],
+    steps: ['Drain everything that comes in a tin.', 'Into a bowl with the rocket and tomatoes.', 'Oil, lemon, pepper, mix.'],
+  },
+  {
+    id: 'cena_piadina_ricotta', name: 'Cold piadina roll with ricotta & rocket', it: 'Piadina arrotolata con ricotta e rucola', slots: ['D', 'L'], time: 3, active: 3, tags: ['italian', 'nocook', 'quick5', 'cold', 'wrap'], needs: [],
+    ing: [['piadina_ww', 70, '1 piadina'], ['ricotta_light', 80], ['rocket', 40, '2 handfuls'], ['tomato', 100, '1 tomato'], ['evoo', 5, '1 tsp'], ['pepper_black', 0.5, 'to taste'], ['apple', 150, '1 small apple', 1]],
+    steps: ['Spread the ricotta over the piadina straight from the packet, no warming.', 'Rocket and sliced tomato, oil, salt, pepper.', 'Roll it and cut it in half. Apple after if you are still hungry.'],
+  },
+  {
+    id: 'cena_yogurt_ceci_menta', name: 'Yogurt, chickpea & cucumber bowl with mint', it: 'Ciotola di yogurt, ceci e cetriolo alla menta', slots: ['D', 'L'], time: 4, active: 4, tags: ['nocook', 'quick5', 'cold'], needs: [],
+    ing: [['yogurt_greek', 150], ['chickpeas', 150, '½ can, rinsed'], ['cucumber', 120, '½ cucumber'], ['mint', 3, 'a few leaves'], ['evoo', 8, '2 tsp'], ['lemon', 10, 'a squeeze'], ['bread_ww', 40, '1 slice'], ['cumin', 1, '½ tsp', 1]],
+    steps: ['Dice the cucumber, rinse the chickpeas.', 'Stir into the yogurt with mint, lemon, oil, salt and a pinch of cumin.', 'Bread on the side.'],
+    note: 'Low-fat dairy is one of the few foods shown to lower uric acid, and this is the laziest way to eat a pot of it savoury.'
+  },
+  {
+    id: 'cena_hummus_piatto', name: 'Hummus plate with raw vegetables & pita', it: 'Piatto di hummus con verdure crude e pita', slots: ['D', 'L'], time: 4, active: 4, tags: ['nocook', 'quick5', 'cold', 'vegan'], needs: [],
+    ing: [['hummus', 100, '5 tbsp'], ['pita_ww', 60, '1 pita'], ['carrot', 80, '1 carrot'], ['cucumber', 100, '⅓ cucumber'], ['pepper', 80, '½ pepper'], ['lemon', 10, 'a squeeze'], ['olives', 15, '6 olives', 1]],
+    steps: ['Spoon the hummus onto a plate, make a well, pour oil into it.', 'Cut carrot, cucumber and pepper into sticks all around.', 'Pita torn into pieces. Eat with your hands.'],
+  },
+  {
+    id: 'cena_salmone_finocchi', name: 'Smoked salmon with fennel & orange', it: 'Salmone affumicato con finocchi e arance', slots: ['D'], time: 5, active: 5, tags: ['italian', 'nocook', 'quick5', 'cold', 'occasional'], needs: [],
+    ing: [['salmon_smoked', 50, '2 slices'], ['fennel', 150, '½ bulb'], ['orange', 150, '1 orange'], ['walnuts', 10, '10 g (3 halves)'], ['evoo', 8, '2 tsp'], ['bread_ww', 40, '1 slice'], ['pepper_black', 0.5, 'plenty']],
+    steps: ['Slice the fennel thin, peel and slice the orange, keeping the juice.', 'Lay the salmon over them, walnuts on top.', 'Oil, the orange juice, lots of pepper. No salt: the salmon brings it.'],
+    note: 'Salty, so about once a week. Good omega-3 and no cooking at all.'
+  }
+);
+
+} catch (ctLoadError) { console.error('CookThis: data/recipes-cold.js failed to load', ctLoadError); }
+
 // ==== data/quantities-it.js
 try {
 /* The household quantities that sit in the left column of an ingredient list. They are written in
@@ -1373,7 +1456,7 @@ CT.QTY_IT = {
   '1 small zucchini': '1 zucchina piccola', '1 eggplant': '1 melanzana',
   '1 potato': '1 patata', '1 small potato': '1 patata piccola', '1 large potato': '1 patata grande',
   '2 potatoes': '2 patate', '1 sweet potato': '1 patata dolce',
-  '½ head': '½ testa', '1 head': '1 testa', '1 bulb': '1 bulbo', '1 pack pre-cut': '1 confezione già a pezzi',
+  '½ head': '½ testa', '1 head': '1 testa', '1 bulb': '1 bulbo', '½ bulb': '½ finocchio', '½ orange': '½ arancia', '1 pack pre-cut': '1 confezione già a pezzi',
   '5 mushrooms': '5 funghi', '6 mushrooms': '6 funghi', '8 mushrooms': '8 funghi',
   // fruit
   '1 lemon': '1 limone', '½ lemon': '½ limone', '½ lemon, juice': '½ limone, il succo', '½ lemon, zest and juice': '½ limone, scorza e succo',
@@ -1578,6 +1661,27 @@ Object.assign(CT.IT, {
 });
 
 } catch (ctLoadError) { console.error('CookThis: data/recipes-it-d.js failed to load', ctLoadError); }
+
+// ==== data/recipes-it-e.js
+try {
+/* Italian method text, part five: le cene fredde. */
+CT.IT = CT.IT || {};
+Object.assign(CT.IT, {
+  cena_tonno_fagioli: { steps: ['Sgocciola il tonno, sciacqua i fagioli, taglia i pomodorini a metà.', 'Tutto in una ciotola con olio, limone, sale e pepe. Mescola una volta.', 'Una fetta di pane a fianco, non un panino.'], note: 'Tutta la cena è una ciotola e una forchetta. Fagioli e tonno insieme danno 30 g di proteine senza accendere niente.' },
+  cena_caprese_ceci: { steps: ['Sciacqua i ceci, taglia i pomodorini a metà, spezza la mozzarella con le mani.', 'Condisci con olio, sale, pepe e origano, poi strappa sopra il basilico.', 'Pane a fianco.'] },
+  cena_farro_mozzarella: { steps: ['Versa il farro direttamente dalla busta in una ciotola. Freddo va benissimo.', 'Unisci la mozzarella a dadini, i pomodorini a metà e la rucola.', 'Olio, sale, pepe, basilico. Fatto.'], note: 'Il farro precotto è la cosa più utile da tenere in dispensa per una cena da tre minuti.' },
+  cena_ricotta_pomodoro: { steps: ['Metti la ricotta nel piatto e appiattiscila con il dorso del cucchiaio.', 'Pomodoro a fette intorno, olive, olio, sale, pepe e origano.', 'Pane a fianco per raccogliere tutto.'] },
+  cena_sgombro_cannellini: { steps: ['Sgocciola lo sgombro e sciacqua i fagioli.', 'Sfalda il pesce sopra i fagioli, aggiungi pomodorini e rucola.', 'Limone, olio e molto pepe. Il pane non serve.'], note: 'Tre minuti e 2 g di omega-3, che è poi il senso di tutta la dieta. Ricco di purine: circa una volta a settimana.' },
+  cena_fiocchi_pomodorini: { steps: ['Versa i fiocchi di latte in una ciotola.', 'Pomodorini a metà, olive, cetriolo, olio, pepe e origano.', 'Pane a fianco.'] },
+  cena_ceci_tonno_finocchi: { steps: ['Affetta il finocchio sottile. Sciacqua i ceci e sgocciola il tonno.', 'Condisci con limone, olio, sale e pepe.', 'Spicchi d’arancia sopra, se ne hai una.'], note: 'Finocchio e agrumi aiutano entrambi sull’acido urico, e da lavare c’è solo la ciotola.' },
+  cena_tonno_mais_cannellini: { steps: ['Sgocciola tutto quello che viene da una scatoletta.', 'In una ciotola con rucola e pomodorini.', 'Olio, limone, pepe, mescola.'] },
+  cena_piadina_ricotta: { steps: ['Spalma la ricotta sulla piadina appena aperta, senza scaldarla.', 'Rucola e pomodoro a fette, olio, sale, pepe.', 'Arrotola e taglia a metà. Una mela dopo, se hai ancora fame.'] },
+  cena_yogurt_ceci_menta: { steps: ['Taglia il cetriolo a dadini e sciacqua i ceci.', 'Mescolali nello yogurt con menta, limone, olio, sale e un pizzico di cumino.', 'Pane a fianco.'], note: 'I latticini magri sono tra i pochi alimenti che abbassano l’acido urico, e questo è il modo più pigro di mangiarne un vasetto in versione salata.' },
+  cena_hummus_piatto: { steps: ['Metti l’hummus nel piatto, fai una fossetta al centro e versaci l’olio.', 'Taglia carota, cetriolo e peperone a bastoncini tutto intorno.', 'Pita spezzata a pezzi. Si mangia con le mani.'] },
+  cena_salmone_finocchi: { steps: ['Affetta il finocchio sottile, pela l’arancia a vivo e affettala tenendo il succo.', 'Adagia sopra il salmone e completa con le noci.', 'Olio, il succo d’arancia e molto pepe. Niente sale: lo porta già il salmone.'], note: 'Salato, quindi circa una volta a settimana. Buon apporto di omega-3 e zero cottura.' },
+});
+
+} catch (ctLoadError) { console.error('CookThis: data/recipes-it-e.js failed to load', ctLoadError); }
 
 // ==== data/content.js
 try {
@@ -2170,6 +2274,7 @@ try {
     r.itSteps = Array.isArray(tr.steps) && tr.steps.length ? tr.steps : (Array.isArray(r.stepsIt) ? r.stepsIt : null);
     r.itNote = tr.note || r.noteIt || '';
     r.animalG = r.ings.reduce((a, i) => a + (ANIMAL_TAGS.has(i.tag) ? i.g : 0), 0);
+    r.bready = r.ings.some((i) => i.tag === 'bread' && i.g >= 30);
     CT.computeBenefits(r);
     r._prepped = true;
     return r;
@@ -2250,7 +2355,7 @@ try {
     startDate: CT.today(),
     profile: { name: '', sex: 'm', age: 32, height: 178, weight: 80, activity: 'light', goal: 'lose' },
     focus: { ldl: true, tg: true, liver: true, uric: true, glucose: true, thyroid: true },
-    prefs: { likes: {}, allergens: [], diet: 'omni', maxActive: 15, meals: { B: true, L: true, D: true, S: true }, equipment: { stove: true, oven: true, microwave: true, blender: true }, budget: 'normal', lazy: false, cuisine: 'italian', chickenPerWeek: 0, autoPortion: false },
+    prefs: { likes: {}, allergens: [], diet: 'omni', maxActive: 15, meals: { B: true, L: true, D: true, S: true }, equipment: { stove: true, oven: true, microwave: true, blender: true }, budget: 'normal', lazy: false, cuisine: 'italian', chickenPerWeek: 0, autoPortion: false, slotTime: { B: 15, L: 15, D: 'nocook', S: 10 } },
     settings: { theme: 'auto', palette: CT.DEFAULT_PALETTE, recipeLang: 'it' },
     favorites: [], ratings: {}, expanded: {},
     labs: [JSON.parse(JSON.stringify(CT.INITIAL_LABS))],
@@ -2437,16 +2542,26 @@ try {
   const SEASON = { cherries_bowl: [5, 6, 7] };
   const WEIGHTS = [0.45, 0.25, 0.18, 0.12];
 
+  /* How long a given meal may take. A slot can be set to "assemble only", which means no heat at
+     all and about five minutes: the answer to not wanting to cook twice a day. */
+  CT.slotLimit = (slot) => {
+    const p = CT.state.prefs, v = (p.slotTime || {})[slot];
+    if (p.lazy) return { max: 10, noCook: true, micro: true };
+    if (v === 'nocook') return { max: 6, noCook: true, micro: false };
+    return { max: Number(v) || Number(p.maxActive) || 15, noCook: false, micro: true };
+  };
+
   CT.candidates = (slot, date) => {
     const p = CT.state.prefs, today = CT.today();
-    const maxActive = p.lazy ? 10 : Number(p.maxActive) || 15;
+    const lim = CT.slotLimit(slot);
+    const maxActive = lim.max;
     const month = CT.parseISO(date).getMonth() + 1;
     return CT.recipes().filter((r) => {
       if (!r.slots.includes(slot)) return false;
       if (slot === 'S' && r.nutri.kcal > 320) return false;
       if (slot !== 'S' && r.nutri.kcal < 250) return false;
       if (r.mins > maxActive) return false;
-      if (p.lazy && !(r.tags.includes('nocook') || r.tags.includes('micro'))) return false;
+      if (lim.noCook && !(r.tags.includes('nocook') || (lim.micro && r.tags.includes('micro')))) return false;
       if (!r.needs.every((n) => n === 'kettle' || p.equipment[n])) return false;
       if (r.allergens.some((a) => p.allergens.includes(a))) return false;
       if (p.diet === 'veg' && !r.veg) return false;
@@ -2462,7 +2577,7 @@ try {
   // What happened around this date: recency of each recipe and weekly counts of capped categories.
   CT.planContext = (date) => {
     const today = CT.today();
-    const ctx = { lastUsed: {}, fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0 };
+    const ctx = { lastUsed: {}, fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0, bready: 0 };
     for (let i = 1; i <= 6; i++) {
       const plan = CT.state.plans[CT.addDays(date, -i)];
       if (!plan) continue;
@@ -2487,12 +2602,13 @@ try {
         if (r.eggs) ctx.eggs++;
         if (!r.italian) ctx.nonItalian++;
         if (r.mainProtein === 'chicken') ctx.chicken++;
+        if (r.bready) ctx.bready++;
       }
     }
     return ctx;
   };
 
-  const dayAcc = () => ({ ids: new Set(), proteins: new Set(), fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0, legume: false, pasta: false, sandwich: false });
+  const dayAcc = () => ({ ids: new Set(), proteins: new Set(), fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, chicken: 0, bready: 0, legume: false, pasta: false, sandwich: false });
   const addToDay = (day, r) => {
     day.ids.add(r.id);
     if (r.mainProtein) day.proteins.add(r.mainProtein);
@@ -2500,6 +2616,7 @@ try {
     if (r.tags.includes('occasional')) day.occasional++; if (r.eggs) day.eggs++;
     if (!r.italian) day.nonItalian++;
     if (r.mainProtein === 'chicken') day.chicken++;
+    if (r.bready) day.bready++;
     if (r.legume) day.legume = true; if (r.tags.includes('pasta')) day.pasta = true; if (r.tags.includes('sandwich')) day.sandwich = true;
   };
 
@@ -2512,8 +2629,10 @@ try {
     if (s.favorites.includes(r.id)) sc += 1.5;
     const rt = s.ratings[r.id];
     if (rt >= 4) sc += 1; if (rt && rt <= 2) sc -= 3;
+    // How recently this exact recipe was eaten, 6 for yesterday down to 1 for six days ago. Scaling
+    // it keeps a small pool rotating instead of settling on one favourite.
     const rec = ctx.lastUsed[r.id] || 0;
-    if (rec >= 4) sc -= 5; else if (rec > 0) sc -= 2;
+    sc -= rec * 1.6;
     if (day.ids.has(r.id)) sc -= 8;
     if (r.mainProtein && day.proteins.has(r.mainProtein)) sc -= (r.mainProtein === 'chicken' && (Number(p.chickenPerWeek) || 0) >= 8) ? 0 : 3;
     if (r.fish) { const f = ctx.fish + day.fish; sc += f < 2 ? 5 : f >= 3 ? -1.5 : 0; }
@@ -2530,6 +2649,8 @@ try {
     if (r.tags.includes('occasional') && ctx.occasional + day.occasional >= 1) sc -= 20;
     if (r.tags.includes('pasta') && day.pasta) sc -= 10;
     if (r.tags.includes('sandwich') && day.sandwich) sc -= 2;
+    // Bread is the quiet source of sodium in an Italian day, so it should not be in every meal.
+    if (r.bready) { const b = ctx.bready + day.bready; if (b >= 7) sc -= 6; else if (b >= 5) sc -= 2.5; }
     if (p.cuisine !== 'any') {
       // "Italian first": the rest of the world still appears, but rarely and never twice in a day.
       // Where a slot has few Italian options, the preference softens rather than starving the slot.
@@ -3166,7 +3287,7 @@ CT.setPath = (path, value) => {
   for (let i = 0; i < keys.length - 1; i++) { if (o[keys[i]] == null) o[keys[i]] = {}; o = o[keys[i]]; }
   o[keys[keys.length - 1]] = value;
 };
-const coerce = (v, type) => type === 'number' ? (v === '' ? '' : Number(v)) : type === 'bool' ? (v === true || v === 'true') : type === 'budget' ? ((v === true || v === 'true') ? 'low' : 'normal') : v;
+const coerce = (v, type) => type === 'number' ? (v === '' ? '' : Number(v)) : type === 'slotTime' ? (v === 'nocook' ? 'nocook' : Number(v)) : type === 'bool' ? (v === true || v === 'true') : type === 'budget' ? ((v === true || v === 'true') ? 'low' : 'normal') : v;
 CT.actions.set = (d) => { CT.setPath(d.path, coerce(d.value, d.type)); CT.save(d.part || 'main'); CT.markPrefsDirty(d.path); CT.render(); };
 CT.actions.toggle = (d) => { CT.setPath(d.path, !CT.getPath(d.path)); CT.save(d.part || 'main'); CT.markPrefsDirty(d.path); CT.render(); };
 CT.actions['toggle-in'] = (d) => { const arr = CT.getPath(d.path) || []; const i = arr.indexOf(d.value); if (i >= 0) arr.splice(i, 1); else arr.push(d.value); CT.setPath(d.path, arr); CT.save(); CT.markPrefsDirty(d.path); CT.render(); };
@@ -3229,7 +3350,9 @@ CT.forms = {
       <div class="field span2"><span>Cooking style</span>${seg('prefs.cuisine', [['italian', 'Italian first'], ['any', 'Anything goes']], p.cuisine || 'italian')}<small class="muted">Italian first keeps the week mostly Italian, with the occasional dish from elsewhere.</small></div>
       <label class="switch-row span2"><span><strong>Size portions to my calorie target</strong><small>Off by default: every meal is the recipe as written, ×1, and you adjust with the − and + on the meal card. On, the planner scales each plate so the day adds up to your target.</small></span><input type="checkbox" data-change="path" data-path="prefs.autoPortion" data-type="bool" data-rerender="1" ${p.autoPortion ? 'checked' : ''}></label>
       <div class="field span2"><span>Chicken meals per week</span>${seg('prefs.chickenPerWeek', [[0, 'No preference'], [3, '3'], [5, '5'], [7, '7 (one a day)'], [10, '10']], p.chickenPerWeek || 0, 'number')}<small class="muted">The planner aims for this many pan-cooked chicken meals, while still keeping two fish meals and legumes through the week.</small></div>
-      <div class="field span2"><span>Maximum hands-on time per meal</span>${seg('prefs.maxActive', [[10, '10 min'], [15, '15 min'], [20, '20 min'], [30, '30 min']], p.maxActive, 'number')}<small class="muted">Oven or simmering time does not count: the planner looks at the minutes you actually spend.</small></div>
+      <div class="field span2"><span>Hands-on time, per meal</span>
+        <div class="slot-times">${CT.SLOT_ORDER.filter((k) => p.meals[k]).map((k) => `<div class="slot-time"><span class="eyebrow">${CT.SLOTS[k].it} · ${CT.SLOTS[k].en}</span>${seg('prefs.slotTime.' + k, [['nocook', 'Assemble only'], [5, '5 min'], [10, '10 min'], [15, '15 min'], [20, '20 min'], [30, '30 min']], (p.slotTime || {})[k] || p.maxActive)}</div>`).join('')}</div>
+        <small class="muted">Oven or simmering time does not count: this is the minutes you actually spend. "Assemble only" means no heat at all, about five minutes, a plate you put together.</small></div>
       <div class="field span2"><span>Meals to plan</span><div class="chips">${CT.SLOT_ORDER.map((k) => `<button type="button" class="chip ${p.meals[k] ? 'on' : ''}" data-action="toggle" data-path="prefs.meals.${k}">${CT.SLOTS[k].en} <em>${CT.SLOTS[k].it}</em></button>`).join('')}</div></div>
       <label class="switch-row span2"><span><strong>Lazy mode</strong><small>Only no-cook or microwave meals, 10 minutes tops. For the days when the stove is not happening.</small></span><input type="checkbox" data-change="path" data-path="prefs.lazy" data-type="bool" data-rerender="1" ${p.lazy ? 'checked' : ''}></label>
       <label class="switch-row span2"><span><strong>Tight budget</strong><small>Skip anything over about €3.20 a plate (salmon, shrimp, beef).</small></span><input type="checkbox" data-change="path" data-path="prefs.budget" data-type="budget" data-rerender="1" ${p.budget === 'low' ? 'checked' : ''}></label>
