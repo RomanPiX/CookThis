@@ -552,7 +552,7 @@ body.cooking { overflow: hidden; }
 </div>
 
 <script>
-window.CT_CONFIG={"appName":"CookThis","build":"202609072148"};
+window.CT_CONFIG={"appName":"CookThis","build":"202609072151"};
 // ==== data/ingredients.js
 try {
 /* CookThis ingredient table.
@@ -1664,6 +1664,20 @@ CT.$$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 CT.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 CT.fmt = (n, d = 0) => (n == null || isNaN(n)) ? '–' : Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
 CT.eur = (n) => '€' + CT.fmt(n, 2);
+/* Ingredient naming. Italian leads by default, because the list is read in an Italian supermarket;
+   English follows in small type as the check. Either way, a missing translation falls back rather
+   than leaving a blank, which matters for ingredients Claude invents on the fly. */
+CT.ingNames = (i) => {
+  const it = (i.it || '').trim(), en = (i.en || '').trim();
+  const italianFirst = ((CT.state && CT.state.settings) || {}).ingredientLang !== 'en';
+  if (italianFirst) return { primary: it || en, secondary: it && en && it !== en ? en : '' };
+  return { primary: en || it, secondary: en && it && it !== en ? it : '' };
+};
+// Inline: "pane integrale <em>Wholegrain bread</em>"
+CT.ingLabel = (i) => { const n = CT.ingNames(i); return CT.esc(n.primary) + (n.secondary ? ` <em class="it">${CT.esc(n.secondary)}</em>` : ''); };
+// For copying and sharing: "pane integrale (Wholegrain bread)"
+CT.ingText = (i) => { const n = CT.ingNames(i); return n.primary + (n.secondary ? ` (${n.secondary})` : ''); };
+
 // Plain text from Claude into safe paragraphs.
 CT.prose = (t) => CT.esc(t).split(/\n{2,}/).map((x) => '<p>' + x.replace(/\n/g, '<br>') + '</p>').join('');
 CT.clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -1980,7 +1994,7 @@ try {
     profile: { name: '', sex: 'm', age: 32, height: 178, weight: 80, activity: 'light', goal: 'lose' },
     focus: { ldl: true, tg: true, liver: true, uric: true, glucose: true, thyroid: true },
     prefs: { likes: {}, allergens: [], diet: 'omni', maxActive: 15, meals: { B: true, L: true, D: true, S: true }, equipment: { stove: true, oven: true, microwave: true, blender: true }, budget: 'normal', lazy: false, cuisine: 'italian', chickenPerWeek: 0, autoPortion: false },
-    settings: { theme: 'auto', palette: CT.DEFAULT_PALETTE },
+    settings: { theme: 'auto', palette: CT.DEFAULT_PALETTE, ingredientLang: 'it' },
     favorites: [], ratings: {}, expanded: {},
     labs: [JSON.parse(JSON.stringify(CT.INITIAL_LABS))],
     nextCheckup: (window.CT_CONFIG || {}).nextCheckup || '',
@@ -2590,7 +2604,7 @@ STREAKS: cooking streak ${st.cookStreak} days, ${st.slipFreeDays} days without c
 {"name": "Recipe name", "it": "Nome italiano", "slots": ["L"], "time": 15, "active": 10, "needs": ["stove"], "tags": ["one-pan"],
  "ingredients": [ {"id": "chicken", "g": 130, "disp": "1 small breast"}, {"name": "Fennel", "it": "finocchio", "g": 150, "disp": "1 bulb", "aisle": "Produce", "per100": {"kcal": 31, "p": 1.2, "c": 7, "fib": 3.1, "fat": 0.2, "sf": 0, "sug": 4, "na": 52}, "price": 3, "flags": "", "pur": 0, "o3": 0} ],
  "steps": ["Step one.", "Step two (5 min)."], "note": "One sentence on why it suits this person's blood work."}
-Rules: one serving; grams for every ingredient; use an "id" from the catalogue whenever the ingredient exists there (then omit per100); for anything else give realistic per-100 g values. slots use B/L/D/S. needs may include stove, oven, microwave, blender. flags letters: F fish, S shellfish, E egg, D dairy, G gluten, N nuts, Y soy, Z sesame, M meat, R red meat. Keep hands-on time at or under the person's limit, ingredients cheap and available in an Italian supermarket, saturated fat low, fibre high.`,
+Rules: one serving; grams for every ingredient; use an "id" from the catalogue whenever the ingredient exists there (then omit per100); for anything else give realistic per-100 g values AND an "it" field with the Italian name of that ingredient, since ingredients are shown in Italian. slots use B/L/D/S. needs may include stove, oven, microwave, blender. flags letters: F fish, S shellfish, E egg, D dairy, G gluten, N nuts, Y soy, Z sesame, M meat, R red meat. Keep hands-on time at or under the person's limit, ingredients cheap and available in an Italian supermarket, saturated fat low, fibre high.`,
 
   async chat(turns, opts = {}) {
     const sample = await this.get(); if (!sample) throw { code: 'not_granted' };
@@ -3370,7 +3384,7 @@ try {
       <div class="recipe-grid">
         <section class="card">
           <div class="row-between"><h3>Ingredients</h3><div class="stepper" aria-label="Portion size"><button class="btn ghost xs icon-only" data-action="serv-dec" data-id="${id}" aria-label="Smaller portion">${CT.icon('minus')}</button><span>${k === 1 ? '1 serving' : '×' + k + ' portion'}</span><button class="btn ghost xs icon-only" data-action="serv-inc" data-id="${id}" aria-label="Bigger portion">${CT.icon('plus')}</button></div></div>
-          <ul class="ing-list">${r.ings.map((i) => `<li class="${i.opt ? 'opt' : ''}"><span class="ing-qty">${k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? `${CT.fmt(i.g * k)} ml` : `${CT.fmt(i.g * k)} g`)}</span><span class="ing-name">${CT.esc(i.en)}${i.it ? ` <em class="it">${CT.esc(i.it)}</em>` : ''}${i.opt ? ' <small class="muted">optional</small>' : ''}</span></li>`).join('')}</ul>
+          <ul class="ing-list">${r.ings.map((i) => `<li class="${i.opt ? 'opt' : ''}"><span class="ing-qty">${k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? `${CT.fmt(i.g * k)} ml` : `${CT.fmt(i.g * k)} g`)}</span><span class="ing-name">${CT.ingLabel(i)}${i.opt ? ' <small class="muted">optional</small>' : ''}</span></li>`).join('')}</ul>
         </section>
         <section class="card">
           <div class="row-between"><h3>Method</h3>${expandControl(id, k)}</div>
@@ -3483,7 +3497,7 @@ try {
       <div class="cook-progress">${r.steps.map((_, k) => `<span class="${k < c.i ? 'done' : k === c.i ? 'now' : ''}"></span>`).join('')}</div>
       ${last ? `<div class="cook-step"><p class="eyebrow">Done</p><h2>Plate up.</h2><p class="muted">Sit down. Eat slowly. Drink a glass of water.</p></div>` : `<div class="cook-step"><p class="eyebrow">Step ${c.i + 1} of ${total}</p><h2>${CT.esc(step)}</h2></div>`}
       ${!last && (secs || c.timer) ? `<div class="cook-timer ${c.timer ? 'running' : ''}"><span class="time">${fmtTime(c.timer ? c.remaining : secs)}</span>${c.timer ? `<button class="btn ghost sm" data-action="timer-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary sm" data-action="timer-start" data-secs="${secs}">${CT.icon('play')} Start timer</button>`}</div>` : ''}
-      <div class="cook-ings"><details><summary>Ingredients${c.k !== 1 ? ` <span class="chip tiny">×${c.k} portion</span>` : ''}</summary><ul>${r.ings.map((i) => `<li><strong>${c.k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? CT.fmt(i.g * c.k) + ' ml' : CT.fmt(i.g * c.k) + ' g')}</strong> ${CT.esc(i.en)}</li>`).join('')}</ul></details></div>
+      <div class="cook-ings"><details><summary>Ingredients${c.k !== 1 ? ` <span class="chip tiny">×${c.k} portion</span>` : ''}</summary><ul>${r.ings.map((i) => `<li><strong>${c.k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? CT.fmt(i.g * c.k) + ' ml' : CT.fmt(i.g * c.k) + ' g')}</strong> ${CT.esc(CT.ingNames(i).primary)}</li>`).join('')}</ul></details></div>
       <footer class="cook-nav">
         <button class="btn ghost" data-action="cook-prev" ${c.i === 0 ? 'disabled' : ''}>${CT.icon('back')} Back</button>
         ${last ? `<button class="btn primary big" data-action="cook-finish" data-id="${r.id}">${CT.icon('check')} I made it</button>` : `<button class="btn primary big" data-action="cook-next">Next ${CT.icon('chev')}</button>`}
@@ -3595,9 +3609,9 @@ try {
       <div class="page-head"><div><p class="eyebrow">Shopping list</p><h1>What to buy.</h1><p class="lede">${meals.length} meals still to cook · ${items.length - pantry.length} items · roughly <strong>${CT.eur(cost)}</strong></p></div>
         <div class="head-actions"><button class="btn ghost sm" data-action="shop-copy">${CT.icon('copy')} Copy</button>${navigator.share ? `<button class="btn ghost sm" data-action="shop-share">${CT.icon('share')} Share</button>` : ''}<button class="btn ghost sm" data-action="shop-clear">Clear ticks</button></div></div>
       <div class="chips">${SCOPES.map(([v, l]) => `<a class="chip ${sc === v ? 'on' : ''}" href="#/shop/${v}">${l}</a>`).join('')}</div>
-      <p class="hint">Meals already marked as cooked are left out. Italian names in grey for the supermarket. ${nChecked ? `${nChecked} ticked.` : ''}</p>
-      <div class="shop-groups">${groups.map(([a, list]) => `<div class="shop-group"><h3>${a}</h3><ul class="shop-list">${list.map((it) => { const on = !!checked[sc + '|' + it.key]; return `<li class="${on ? 'on' : ''}"><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${on ? 'checked' : ''}><span class="shop-name">${CT.esc(it.en)}${it.it ? ` <em class="it">${CT.esc(it.it)}</em>` : ''}</span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`; }).join('')}</ul></div>`).join('')}
-      ${pantry.length ? `<details class="shop-group pantry"><summary>Pantry check (${pantry.length}) — you probably have these</summary><ul class="shop-list">${pantry.map((it) => `<li><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${checked[sc + '|' + it.key] ? 'checked' : ''}><span class="shop-name">${CT.esc(it.en)} <em class="it">${CT.esc(it.it)}</em></span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`).join('')}</ul></details>` : ''}
+      <p class="hint">Meals already marked as cooked are left out. ${((CT.state.settings || {}).ingredientLang === 'en') ? 'Italian names in grey for the supermarket.' : 'English in grey underneath, in case a name is unfamiliar.'} ${nChecked ? `${nChecked} ticked.` : ''}</p>
+      <div class="shop-groups">${groups.map(([a, list]) => `<div class="shop-group"><h3>${a}</h3><ul class="shop-list">${list.map((it) => { const on = !!checked[sc + '|' + it.key]; return `<li class="${on ? 'on' : ''}"><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${on ? 'checked' : ''}><span class="shop-name">${CT.ingLabel(it)}</span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`; }).join('')}</ul></div>`).join('')}
+      ${pantry.length ? `<details class="shop-group pantry"><summary>Pantry check (${pantry.length}) — you probably have these</summary><ul class="shop-list">${pantry.map((it) => `<li><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${checked[sc + '|' + it.key] ? 'checked' : ''}><span class="shop-name">${CT.ingLabel(it)}</span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`).join('')}</ul></details>` : ''}
       </div>
     </section>`;
   };
@@ -3606,8 +3620,8 @@ try {
   const shopText = () => {
     const sc = CT.ui.shop.scope; const { items, cost } = CT.shoppingList(scopeDates(sc));
     const lines = [`CookThis · shopping list (${SCOPES.find((s) => s[0] === sc)[1].toLowerCase()}) · about ${CT.eur(cost)}`, ''];
-    for (const a of CT.AISLES) { const l = items.filter((i) => i.aisle === a && !i.pantry); if (!l.length) continue; lines.push(a.toUpperCase()); for (const it of l) lines.push(`☐ ${it.en}${it.it ? ` (${it.it})` : ''} — ${CT.qtyText(it)}`); lines.push(''); }
-    const p = items.filter((i) => i.pantry); if (p.length) { lines.push('PANTRY CHECK'); for (const it of p) lines.push(`☐ ${it.en} (${it.it})`); }
+    for (const a of CT.AISLES) { const l = items.filter((i) => i.aisle === a && !i.pantry); if (!l.length) continue; lines.push(a.toUpperCase()); for (const it of l) lines.push(`☐ ${CT.ingText(it)} — ${CT.qtyText(it)}`); lines.push(''); }
+    const p = items.filter((i) => i.pantry); if (p.length) { lines.push('PANTRY CHECK'); for (const it of p) lines.push(`☐ ${CT.ingText(it)}`); }
     return lines.join('\n');
   };
   CT.actions['shop-copy'] = async () => { try { await navigator.clipboard.writeText(shopText()); CT.toast('List copied.', 'good'); } catch (e) { CT.dialog(`<h3>Copy your list</h3><textarea class="export" readonly>${CT.esc(shopText())}</textarea><div class="dlg-actions"><button class="btn primary" data-action="dlg-cancel">Done</button></div>`); } };
@@ -3796,7 +3810,7 @@ try {
       <p class="eyebrow">Draft recipe</p><h3>${CT.esc(p.name)}</h3>${p.it ? `<p class="it muted">${CT.esc(p.it)}</p>` : ''}
       <div class="rmeta-row">${CT.metaLine(p)}<span class="meta">${p.slots.map((s) => CT.SLOTS[s].en).join(', ')}</span></div>
       ${CT.benefitBadges(p)}
-      <div class="two-col"><div><h4>Ingredients</h4><ul class="ing-list small">${p.ings.map((i) => `<li><span class="ing-qty">${CT.esc(i.disp)}</span><span class="ing-name">${CT.esc(i.en)}${i.it ? ` <em class="it">${CT.esc(i.it)}</em>` : ''}</span></li>`).join('')}</ul></div><div><h4>Method</h4><ol class="steps small">${p.steps.map((s) => `<li>${CT.esc(s)}</li>`).join('')}</ol></div></div>
+      <div class="two-col"><div><h4>Ingredients</h4><ul class="ing-list small">${p.ings.map((i) => `<li><span class="ing-qty">${CT.esc(i.disp)}</span><span class="ing-name">${CT.ingLabel(i)}</span></li>`).join('')}</ul></div><div><h4>Method</h4><ol class="steps small">${p.steps.map((s) => `<li>${CT.esc(s)}</li>`).join('')}</ol></div></div>
       ${p.note ? `<p class="note">${CT.esc(p.note)}</p>` : ''}
       <p class="muted small">Per serving: ${CT.fmt(p.nutri.kcal)} kcal · ${CT.fmt(p.nutri.p)} g protein · ${CT.fmt(p.nutri.fib)} g fibre · ${CT.fmt(p.nutri.sf, 1)} g saturated fat · ${CT.fmt(p.nutri.na)} mg sodium · ${CT.eur(p.cost)}</p>
       <div class="row-gap wrap"><button class="btn primary" data-action="ai-save-recipe">${CT.icon('check')} Save to my recipes</button><button class="btn ghost" data-action="ai-save-recipe" data-today="1">Save and plan for today</button><button class="btn ghost" data-action="ai-discard">Discard</button></div>
@@ -3903,6 +3917,7 @@ try {
       <div class="card"><h3>Kitchen & time</h3>${CT.forms.kitchen()}</div>
       <div class="card"><h3>Appearance</h3>
         <div class="field"><span>Theme</span>${CT.seg('settings.theme', [['auto', 'Follow system'], ['light', 'Light'], ['dark', 'Dark']], s.settings.theme)}</div>
+        <div class="field"><span>Ingredient names</span>${CT.seg('settings.ingredientLang', [['it', 'Italiano'], ['en', 'English']], s.settings.ingredientLang || 'it')}<small class="muted">Which language leads on the shopping list and in recipes. The other follows in small type.</small></div>
         <div class="field"><span>Palette</span><div class="palettes">${Object.entries(CT.PALETTES).map(([id, p]) => {
           const t = CT.isDark() ? p.dark : p.light;
           const on = (s.settings.palette || CT.DEFAULT_PALETTE) === id;

@@ -75,9 +75,9 @@
       <div class="page-head"><div><p class="eyebrow">Shopping list</p><h1>What to buy.</h1><p class="lede">${meals.length} meals still to cook · ${items.length - pantry.length} items · roughly <strong>${CT.eur(cost)}</strong></p></div>
         <div class="head-actions"><button class="btn ghost sm" data-action="shop-copy">${CT.icon('copy')} Copy</button>${navigator.share ? `<button class="btn ghost sm" data-action="shop-share">${CT.icon('share')} Share</button>` : ''}<button class="btn ghost sm" data-action="shop-clear">Clear ticks</button></div></div>
       <div class="chips">${SCOPES.map(([v, l]) => `<a class="chip ${sc === v ? 'on' : ''}" href="#/shop/${v}">${l}</a>`).join('')}</div>
-      <p class="hint">Meals already marked as cooked are left out. Italian names in grey for the supermarket. ${nChecked ? `${nChecked} ticked.` : ''}</p>
-      <div class="shop-groups">${groups.map(([a, list]) => `<div class="shop-group"><h3>${a}</h3><ul class="shop-list">${list.map((it) => { const on = !!checked[sc + '|' + it.key]; return `<li class="${on ? 'on' : ''}"><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${on ? 'checked' : ''}><span class="shop-name">${CT.esc(it.en)}${it.it ? ` <em class="it">${CT.esc(it.it)}</em>` : ''}</span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`; }).join('')}</ul></div>`).join('')}
-      ${pantry.length ? `<details class="shop-group pantry"><summary>Pantry check (${pantry.length}) — you probably have these</summary><ul class="shop-list">${pantry.map((it) => `<li><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${checked[sc + '|' + it.key] ? 'checked' : ''}><span class="shop-name">${CT.esc(it.en)} <em class="it">${CT.esc(it.it)}</em></span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`).join('')}</ul></details>` : ''}
+      <p class="hint">Meals already marked as cooked are left out. ${((CT.state.settings || {}).ingredientLang === 'en') ? 'Italian names in grey for the supermarket.' : 'English in grey underneath, in case a name is unfamiliar.'} ${nChecked ? `${nChecked} ticked.` : ''}</p>
+      <div class="shop-groups">${groups.map(([a, list]) => `<div class="shop-group"><h3>${a}</h3><ul class="shop-list">${list.map((it) => { const on = !!checked[sc + '|' + it.key]; return `<li class="${on ? 'on' : ''}"><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${on ? 'checked' : ''}><span class="shop-name">${CT.ingLabel(it)}</span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`; }).join('')}</ul></div>`).join('')}
+      ${pantry.length ? `<details class="shop-group pantry"><summary>Pantry check (${pantry.length}) — you probably have these</summary><ul class="shop-list">${pantry.map((it) => `<li><label><input type="checkbox" data-change="shop-check" data-key="${CT.esc(it.key)}" ${checked[sc + '|' + it.key] ? 'checked' : ''}><span class="shop-name">${CT.ingLabel(it)}</span><span class="shop-qty">${CT.qtyText(it)}</span></label></li>`).join('')}</ul></details>` : ''}
       </div>
     </section>`;
   };
@@ -86,8 +86,8 @@
   const shopText = () => {
     const sc = CT.ui.shop.scope; const { items, cost } = CT.shoppingList(scopeDates(sc));
     const lines = [`CookThis · shopping list (${SCOPES.find((s) => s[0] === sc)[1].toLowerCase()}) · about ${CT.eur(cost)}`, ''];
-    for (const a of CT.AISLES) { const l = items.filter((i) => i.aisle === a && !i.pantry); if (!l.length) continue; lines.push(a.toUpperCase()); for (const it of l) lines.push(`☐ ${it.en}${it.it ? ` (${it.it})` : ''} — ${CT.qtyText(it)}`); lines.push(''); }
-    const p = items.filter((i) => i.pantry); if (p.length) { lines.push('PANTRY CHECK'); for (const it of p) lines.push(`☐ ${it.en} (${it.it})`); }
+    for (const a of CT.AISLES) { const l = items.filter((i) => i.aisle === a && !i.pantry); if (!l.length) continue; lines.push(a.toUpperCase()); for (const it of l) lines.push(`☐ ${CT.ingText(it)} — ${CT.qtyText(it)}`); lines.push(''); }
+    const p = items.filter((i) => i.pantry); if (p.length) { lines.push('PANTRY CHECK'); for (const it of p) lines.push(`☐ ${CT.ingText(it)}`); }
     return lines.join('\n');
   };
   CT.actions['shop-copy'] = async () => { try { await navigator.clipboard.writeText(shopText()); CT.toast('List copied.', 'good'); } catch (e) { CT.dialog(`<h3>Copy your list</h3><textarea class="export" readonly>${CT.esc(shopText())}</textarea><div class="dlg-actions"><button class="btn primary" data-action="dlg-cancel">Done</button></div>`); } };

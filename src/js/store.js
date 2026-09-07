@@ -10,7 +10,7 @@
     profile: { name: '', sex: 'm', age: 32, height: 178, weight: 80, activity: 'light', goal: 'lose' },
     focus: { ldl: true, tg: true, liver: true, uric: true, glucose: true, thyroid: true },
     prefs: { likes: {}, allergens: [], diet: 'omni', maxActive: 15, meals: { B: true, L: true, D: true, S: true }, equipment: { stove: true, oven: true, microwave: true, blender: true }, budget: 'normal', lazy: false, cuisine: 'italian', chickenPerWeek: 0, autoPortion: false },
-    settings: { theme: 'auto', palette: CT.DEFAULT_PALETTE },
+    settings: { theme: 'auto', palette: CT.DEFAULT_PALETTE, ingredientLang: 'it' },
     favorites: [], ratings: {}, expanded: {},
     labs: [JSON.parse(JSON.stringify(CT.INITIAL_LABS))],
     nextCheckup: (window.CT_CONFIG || {}).nextCheckup || '',

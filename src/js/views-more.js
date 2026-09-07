@@ -73,7 +73,7 @@
       <p class="eyebrow">Draft recipe</p><h3>${CT.esc(p.name)}</h3>${p.it ? `<p class="it muted">${CT.esc(p.it)}</p>` : ''}
       <div class="rmeta-row">${CT.metaLine(p)}<span class="meta">${p.slots.map((s) => CT.SLOTS[s].en).join(', ')}</span></div>
       ${CT.benefitBadges(p)}
-      <div class="two-col"><div><h4>Ingredients</h4><ul class="ing-list small">${p.ings.map((i) => `<li><span class="ing-qty">${CT.esc(i.disp)}</span><span class="ing-name">${CT.esc(i.en)}${i.it ? ` <em class="it">${CT.esc(i.it)}</em>` : ''}</span></li>`).join('')}</ul></div><div><h4>Method</h4><ol class="steps small">${p.steps.map((s) => `<li>${CT.esc(s)}</li>`).join('')}</ol></div></div>
+      <div class="two-col"><div><h4>Ingredients</h4><ul class="ing-list small">${p.ings.map((i) => `<li><span class="ing-qty">${CT.esc(i.disp)}</span><span class="ing-name">${CT.ingLabel(i)}</span></li>`).join('')}</ul></div><div><h4>Method</h4><ol class="steps small">${p.steps.map((s) => `<li>${CT.esc(s)}</li>`).join('')}</ol></div></div>
       ${p.note ? `<p class="note">${CT.esc(p.note)}</p>` : ''}
       <p class="muted small">Per serving: ${CT.fmt(p.nutri.kcal)} kcal · ${CT.fmt(p.nutri.p)} g protein · ${CT.fmt(p.nutri.fib)} g fibre · ${CT.fmt(p.nutri.sf, 1)} g saturated fat · ${CT.fmt(p.nutri.na)} mg sodium · ${CT.eur(p.cost)}</p>
       <div class="row-gap wrap"><button class="btn primary" data-action="ai-save-recipe">${CT.icon('check')} Save to my recipes</button><button class="btn ghost" data-action="ai-save-recipe" data-today="1">Save and plan for today</button><button class="btn ghost" data-action="ai-discard">Discard</button></div>
@@ -180,6 +180,7 @@
       <div class="card"><h3>Kitchen & time</h3>${CT.forms.kitchen()}</div>
       <div class="card"><h3>Appearance</h3>
         <div class="field"><span>Theme</span>${CT.seg('settings.theme', [['auto', 'Follow system'], ['light', 'Light'], ['dark', 'Dark']], s.settings.theme)}</div>
+        <div class="field"><span>Ingredient names</span>${CT.seg('settings.ingredientLang', [['it', 'Italiano'], ['en', 'English']], s.settings.ingredientLang || 'it')}<small class="muted">Which language leads on the shopping list and in recipes. The other follows in small type.</small></div>
         <div class="field"><span>Palette</span><div class="palettes">${Object.entries(CT.PALETTES).map(([id, p]) => {
           const t = CT.isDark() ? p.dark : p.light;
           const on = (s.settings.palette || CT.DEFAULT_PALETTE) === id;
