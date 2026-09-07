@@ -17,7 +17,14 @@ CT.actions.set = (d) => { CT.setPath(d.path, coerce(d.value, d.type)); CT.save(d
 CT.actions.toggle = (d) => { CT.setPath(d.path, !CT.getPath(d.path)); CT.save(d.part || 'main'); CT.markPrefsDirty(d.path); CT.render(); };
 CT.actions['toggle-in'] = (d) => { const arr = CT.getPath(d.path) || []; const i = arr.indexOf(d.value); if (i >= 0) arr.splice(i, 1); else arr.push(d.value); CT.setPath(d.path, arr); CT.save(); CT.markPrefsDirty(d.path); CT.render(); };
 CT.changes.path = (d, el) => { CT.setPath(d.path, coerce(el.type === 'checkbox' ? el.checked : el.value, d.type)); CT.save(d.part || 'main'); CT.markPrefsDirty(d.path); if (d.rerender) CT.render(); };
-CT.markPrefsDirty = (path) => { if (/^prefs\./.test(path) && CT.state.setupDone) CT.ui.prefsDirty = true; };
+CT.markPrefsDirty = (path) => {
+  if (path === 'prefs.autoPortion') {
+    // Apply the new rule to the week already planned, rather than only to the next re-plan.
+    if (CT.autoPortion()) { for (let i = 0; i < 7; i++) CT.refitDay(CT.addDays(CT.today(), i)); CT.save('plans'); }
+    else CT.normalisePortions();
+  }
+  if (/^prefs\./.test(path) && CT.state.setupDone) CT.ui.prefsDirty = true;
+};
 
 const seg = (path, options, current, type) => `<div class="seg" role="group">${options.map(([v, label]) => `<button type="button" class="seg-btn ${String(current) === String(v) ? 'active' : ''}" data-action="set" data-path="${path}" data-value="${v}" ${type ? `data-type="${type}"` : ''} aria-pressed="${String(current) === String(v)}">${CT.esc(label)}</button>`).join('')}</div>`;
 CT.seg = seg;
@@ -66,6 +73,7 @@ CT.forms = {
     return `<div class="form-grid">
       <div class="field span2"><span>What you have</span><div class="chips">${CT.EQUIPMENT.map(([id, label]) => `<button type="button" class="chip ${p.equipment[id] ? 'on' : ''}" data-action="toggle" data-path="prefs.equipment.${id}">${label}</button>`).join('')}</div></div>
       <div class="field span2"><span>Cooking style</span>${seg('prefs.cuisine', [['italian', 'Italian first'], ['any', 'Anything goes']], p.cuisine || 'italian')}<small class="muted">Italian first keeps the week mostly Italian, with the occasional dish from elsewhere.</small></div>
+      <label class="switch-row span2"><span><strong>Size portions to my calorie target</strong><small>Off by default: every meal is the recipe as written, ×1, and you adjust with the − and + on the meal card. On, the planner scales each plate so the day adds up to your target.</small></span><input type="checkbox" data-change="path" data-path="prefs.autoPortion" data-type="bool" data-rerender="1" ${p.autoPortion ? 'checked' : ''}></label>
       <div class="field span2"><span>Chicken meals per week</span>${seg('prefs.chickenPerWeek', [[0, 'No preference'], [3, '3'], [5, '5'], [7, '7 (one a day)'], [10, '10']], p.chickenPerWeek || 0, 'number')}<small class="muted">The planner aims for this many pan-cooked chicken meals, while still keeping two fish meals and legumes through the week.</small></div>
       <div class="field span2"><span>Maximum hands-on time per meal</span>${seg('prefs.maxActive', [[10, '10 min'], [15, '15 min'], [20, '20 min'], [30, '30 min']], p.maxActive, 'number')}<small class="muted">Oven or simmering time does not count: the planner looks at the minutes you actually spend.</small></div>
       <div class="field span2"><span>Meals to plan</span><div class="chips">${CT.SLOT_ORDER.map((k) => `<button type="button" class="chip ${p.meals[k] ? 'on' : ''}" data-action="toggle" data-path="prefs.meals.${k}">${CT.SLOTS[k].en} <em>${CT.SLOTS[k].it}</em></button>`).join('')}</div></div>

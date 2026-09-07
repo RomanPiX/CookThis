@@ -113,6 +113,7 @@
   // ---- Boot
   const boot = async () => {
     CT.load();
+    CT.normalisePortions();
     CT.applyTheme();
     CT._day = CT.today();
     const hasClaude = !!(window.claude && typeof window.claude.use === 'function');

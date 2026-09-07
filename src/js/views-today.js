@@ -8,7 +8,7 @@
     return `<div class="badges">${items.map(([k, v]) => `<span class="badge b-${k}" title="Good for ${CT.BENEFIT_LABEL[k]}">${CT.BENEFIT_LABEL[k]}${v >= 3 ? ' ++' : ''}</span>`).join('')}${r.purine >= 3 ? '<span class="badge warn">purine-rich</span>' : ''}${r.tags.includes('occasional') ? '<span class="badge warn">salty treat</span>' : ''}</div>`;
   };
 
-  CT.metaLine = (r, m) => { const k = m || 1; return `<span class="meta">${CT.icon('clock')} ${r.active} min${r.time > r.active ? ` <small>(${r.time} total)</small>` : ''}</span><span class="meta">${CT.fmt(r.nutri.kcal * k)} kcal</span><span class="meta">${CT.eur(r.cost * k)}</span>${k !== 1 ? `<span class="meta portion" title="Portion size, set so the day reaches your calorie target">×${k} portion</span>` : ''}`; };
+  CT.metaLine = (r, m) => { const k = m || 1; return `<span class="meta">${CT.icon('clock')} ${r.active} min${r.time > r.active ? ` <small>(${r.time} total)</small>` : ''}</span><span class="meta">${CT.fmt(r.nutri.kcal * k)} kcal</span><span class="meta">${CT.eur(r.cost * k)}</span>${k !== 1 ? `<span class="meta portion" title="Portion size">×${k} portion</span>` : ''}`; };
 
   const slotCard = (date, slot, s) => {
     const r = CT.recipe(s.id);
@@ -93,6 +93,7 @@
           <div class="card">
             <div class="row-between"><h3>Today vs your targets</h3><span class="muted small">${doneCount}/${slots.length} eaten</span></div>
             ${CT.targetBars(dn.planned, T)}
+            ${!CT.autoPortion() && dn.planned.kcal < T.kcal * 0.85 ? `<div class="banner short">This day comes to ${CT.fmt(dn.planned.kcal)} of ${CT.fmt(T.kcal)} kcal at normal portions. <button class="btn sm primary" data-action="fit-day" data-date="${date}">Fit portions</button></div>` : ''}
             <p class="hint">Bars show what is planned plus anything you logged. Saturated fat, sugar and sodium are ceilings; the rest are floors.</p>
           </div>
           <div class="card water">
@@ -139,6 +140,7 @@
       <div class="pick-list">${choices.map(({ r }) => `<button class="pick ${cur && cur.id === r.id ? 'current' : ''}" data-action="pick-set" data-date="${d.date}" data-slot="${d.slot}" data-id="${r.id}"><span class="pick-name">${CT.esc(r.name)}</span><span class="pick-meta">${r.active} min · ${CT.fmt(r.nutri.kcal)} kcal · ${CT.eur(r.cost)}</span>${CT.benefitBadges(r, 2)}</button>`).join('')}</div>`, { wide: true });
   };
   CT.actions['pick-set'] = (d) => { CT.setSlot(d.date, d.slot, d.id); CT.closeDialog(); CT.render(); };
+  CT.actions['fit-day'] = (d) => { CT.refitDay(d.date, true); CT.save('plans'); CT.toast('Portions sized to your target for today.', 'good'); CT.render(); };
   CT.actions['regen-day'] = (d) => { CT.generateDay(d.date, { keepLocked: true, keepDone: true }); CT.save('plans'); CT.toast('Re-planned. Locked and cooked meals kept.'); CT.render(); };
   CT.actions['regen-week'] = () => { CT.generateWeek(CT.today(), 7, { keepLocked: true, keepDone: true }); CT.ui.prefsDirty = false; CT.toast('Week re-planned.'); CT.render(); };
   CT.actions['dismiss-dirty'] = () => { CT.ui.prefsDirty = false; CT.render(); };

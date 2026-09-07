@@ -169,7 +169,10 @@
   };
 
   // Recompute portions for a day after a meal changed, leaving hand-set ones alone.
-  CT.refitDay = (date) => {
+  CT.autoPortion = () => !!(CT.state.prefs && CT.state.prefs.autoPortion);
+
+  // `force` runs the fit even when automatic sizing is off, for the "Fit portions" button.
+  CT.refitDay = (date, force) => {
     const plan = CT.state.plans[date]; if (!plan) return;
     const chosen = {}, fixed = {};
     for (const s of CT.enabledSlots()) {
@@ -177,8 +180,28 @@
       chosen[s] = r;
       if (p.manual || p.done) fixed[s] = p.mult || 1;
     }
+    if (!force && !CT.autoPortion()) {
+      // Portions stay as the recipe is written; only what you set by hand keeps its size.
+      for (const s in chosen) if (fixed[s] == null) plan[s].mult = 1;
+      return;
+    }
     const mult = CT.fitPortions(chosen, fixed);
     for (const s in mult) plan[s].mult = mult[s];
+  };
+
+  // Applied at startup so the setting also governs a week that was planned earlier.
+  CT.normalisePortions = () => {
+    if (CT.autoPortion()) return false;
+    let changed = false;
+    for (const date in CT.state.plans) {
+      const plan = CT.state.plans[date];
+      for (const s of CT.SLOT_ORDER) {
+        const p = plan[s];
+        if (p && !p.manual && (p.mult || 1) !== 1) { p.mult = 1; changed = true; }
+      }
+    }
+    if (changed) CT.save('plans');
+    return changed;
   };
 
   CT.setPortion = (date, slot, mult) => {
@@ -215,11 +238,20 @@
       }
       const fixedMult = {};
       for (const s of slots) if (locked[s] && locked[s].mult) fixedMult[s] = locked[s].mult;
-      const mult = CT.fitPortions(chosen, fixedMult);
+      let mult;
+      if (CT.autoPortion()) {
+        mult = CT.fitPortions(chosen, fixedMult);
+      } else {
+        // Portions as written. The day is then judged on the plates themselves, so the planner
+        // leans towards fuller ones without being able to stretch them.
+        mult = {};
+        for (const s of slots) if (chosen[s]) mult[s] = fixedMult[s] != null ? fixedMult[s] : 1;
+      }
       const n = CT.sumNutriScaled(chosen, mult);
       let pen = 0;
       const dev = Math.abs(n.kcal - T.kcal) / T.kcal;
-      if (dev > 0.06) pen += (dev - 0.06) * 90;
+      const devFree = CT.autoPortion() ? 0.06 : 0.15;
+      if (dev > devFree) pen += (dev - devFree) * (CT.autoPortion() ? 90 : 35);
       // Prefer plates that land near their natural size over ones stretched or shrunk hard.
       for (const s of slots) if (mult[s]) pen += Math.abs(Math.log(mult[s])) * 6;
       pen += Math.max(0, n.sf - T.sf) * 2.5;

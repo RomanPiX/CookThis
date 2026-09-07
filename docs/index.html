@@ -487,6 +487,8 @@ body.cooking { overflow: hidden; }
 .suggest-name { font-weight: 600; }
 .suggest-meta { font-size: 12.5px; color: var(--muted); }
 
+.banner.short { background: var(--warn-soft); color: var(--ink); margin: 10px 0 0; font-size: 13.5px; }
+
 </style>
 </head>
 <body>
@@ -507,7 +509,7 @@ body.cooking { overflow: hidden; }
 </div>
 
 <script>
-window.CT_CONFIG={"appName":"CookThis","build":"202609072126"};
+window.CT_CONFIG={"appName":"CookThis","build":"202609072136"};
 // ==== data/ingredients.js
 try {
 /* CookThis ingredient table.
@@ -1910,7 +1912,7 @@ try {
     startDate: CT.today(),
     profile: { name: '', sex: 'm', age: 32, height: 178, weight: 80, activity: 'light', goal: 'lose' },
     focus: { ldl: true, tg: true, liver: true, uric: true, glucose: true, thyroid: true },
-    prefs: { likes: {}, allergens: [], diet: 'omni', maxActive: 15, meals: { B: true, L: true, D: true, S: true }, equipment: { stove: true, oven: true, microwave: true, blender: true }, budget: 'normal', lazy: false, cuisine: 'italian', chickenPerWeek: 0 },
+    prefs: { likes: {}, allergens: [], diet: 'omni', maxActive: 15, meals: { B: true, L: true, D: true, S: true }, equipment: { stove: true, oven: true, microwave: true, blender: true }, budget: 'normal', lazy: false, cuisine: 'italian', chickenPerWeek: 0, autoPortion: false },
     settings: { theme: 'auto', palette: CT.DEFAULT_PALETTE },
     favorites: [], ratings: {}, expanded: {},
     labs: [JSON.parse(JSON.stringify(CT.INITIAL_LABS))],
@@ -2259,7 +2261,10 @@ try {
   };
 
   // Recompute portions for a day after a meal changed, leaving hand-set ones alone.
-  CT.refitDay = (date) => {
+  CT.autoPortion = () => !!(CT.state.prefs && CT.state.prefs.autoPortion);
+
+  // `force` runs the fit even when automatic sizing is off, for the "Fit portions" button.
+  CT.refitDay = (date, force) => {
     const plan = CT.state.plans[date]; if (!plan) return;
     const chosen = {}, fixed = {};
     for (const s of CT.enabledSlots()) {
@@ -2267,8 +2272,28 @@ try {
       chosen[s] = r;
       if (p.manual || p.done) fixed[s] = p.mult || 1;
     }
+    if (!force && !CT.autoPortion()) {
+      // Portions stay as the recipe is written; only what you set by hand keeps its size.
+      for (const s in chosen) if (fixed[s] == null) plan[s].mult = 1;
+      return;
+    }
     const mult = CT.fitPortions(chosen, fixed);
     for (const s in mult) plan[s].mult = mult[s];
+  };
+
+  // Applied at startup so the setting also governs a week that was planned earlier.
+  CT.normalisePortions = () => {
+    if (CT.autoPortion()) return false;
+    let changed = false;
+    for (const date in CT.state.plans) {
+      const plan = CT.state.plans[date];
+      for (const s of CT.SLOT_ORDER) {
+        const p = plan[s];
+        if (p && !p.manual && (p.mult || 1) !== 1) { p.mult = 1; changed = true; }
+      }
+    }
+    if (changed) CT.save('plans');
+    return changed;
   };
 
   CT.setPortion = (date, slot, mult) => {
@@ -2305,11 +2330,20 @@ try {
       }
       const fixedMult = {};
       for (const s of slots) if (locked[s] && locked[s].mult) fixedMult[s] = locked[s].mult;
-      const mult = CT.fitPortions(chosen, fixedMult);
+      let mult;
+      if (CT.autoPortion()) {
+        mult = CT.fitPortions(chosen, fixedMult);
+      } else {
+        // Portions as written. The day is then judged on the plates themselves, so the planner
+        // leans towards fuller ones without being able to stretch them.
+        mult = {};
+        for (const s of slots) if (chosen[s]) mult[s] = fixedMult[s] != null ? fixedMult[s] : 1;
+      }
       const n = CT.sumNutriScaled(chosen, mult);
       let pen = 0;
       const dev = Math.abs(n.kcal - T.kcal) / T.kcal;
-      if (dev > 0.06) pen += (dev - 0.06) * 90;
+      const devFree = CT.autoPortion() ? 0.06 : 0.15;
+      if (dev > devFree) pen += (dev - devFree) * (CT.autoPortion() ? 90 : 35);
       // Prefer plates that land near their natural size over ones stretched or shrunk hard.
       for (const s of slots) if (mult[s]) pen += Math.abs(Math.log(mult[s])) * 6;
       pen += Math.max(0, n.sf - T.sf) * 2.5;
@@ -2443,7 +2477,7 @@ CT.ai = {
 YOU CAN EDIT THE PLAN. The tools let you read the planned week and change what is planned. The shopping list is generated from the plan, so every change you make updates it automatically. Use them whenever the person asks for a different meal, a variation of one, or a fix to the week:
 - To put an existing recipe in a slot: find_recipes, then set_meal.
 - To adjust a recipe (drop an ingredient they dislike, swap the fish, halve it, make it vegetarian): get_recipe for the original, then save_recipe_and_plan with the modified version. Keep the parts that worked, change only what was asked, and give the variant a name that says what changed.
-Portions: a recipe is one standard serving, and each planned meal carries a portion multiplier so the day reaches the calorie target. The app sets these itself, so do not pass a portion unless the person asks for a bigger or smaller plate. The kcal in get_plan already includes the portion.
+Portions: a recipe is one standard serving. Planned meals stay at one serving unless the person has turned on automatic sizing or set a portion by hand, so do not pass a portion unless they ask for a bigger or smaller plate. The kcal in get_plan already includes whatever portion is set.
 Cuisine: they want the week to be mostly Italian. Prefer Italian dishes and Italian names, and reach outside Italy only when they ask for it.
 Change only what was asked, one slot at a time, and never touch a meal already marked as cooked. After using tools, say in one or two sentences what you changed and that the shopping list now reflects it. If a request is ambiguous (which day? which meal?), ask first instead of guessing.`,
 
@@ -2797,7 +2831,14 @@ CT.actions.set = (d) => { CT.setPath(d.path, coerce(d.value, d.type)); CT.save(d
 CT.actions.toggle = (d) => { CT.setPath(d.path, !CT.getPath(d.path)); CT.save(d.part || 'main'); CT.markPrefsDirty(d.path); CT.render(); };
 CT.actions['toggle-in'] = (d) => { const arr = CT.getPath(d.path) || []; const i = arr.indexOf(d.value); if (i >= 0) arr.splice(i, 1); else arr.push(d.value); CT.setPath(d.path, arr); CT.save(); CT.markPrefsDirty(d.path); CT.render(); };
 CT.changes.path = (d, el) => { CT.setPath(d.path, coerce(el.type === 'checkbox' ? el.checked : el.value, d.type)); CT.save(d.part || 'main'); CT.markPrefsDirty(d.path); if (d.rerender) CT.render(); };
-CT.markPrefsDirty = (path) => { if (/^prefs\./.test(path) && CT.state.setupDone) CT.ui.prefsDirty = true; };
+CT.markPrefsDirty = (path) => {
+  if (path === 'prefs.autoPortion') {
+    // Apply the new rule to the week already planned, rather than only to the next re-plan.
+    if (CT.autoPortion()) { for (let i = 0; i < 7; i++) CT.refitDay(CT.addDays(CT.today(), i)); CT.save('plans'); }
+    else CT.normalisePortions();
+  }
+  if (/^prefs\./.test(path) && CT.state.setupDone) CT.ui.prefsDirty = true;
+};
 
 const seg = (path, options, current, type) => `<div class="seg" role="group">${options.map(([v, label]) => `<button type="button" class="seg-btn ${String(current) === String(v) ? 'active' : ''}" data-action="set" data-path="${path}" data-value="${v}" ${type ? `data-type="${type}"` : ''} aria-pressed="${String(current) === String(v)}">${CT.esc(label)}</button>`).join('')}</div>`;
 CT.seg = seg;
@@ -2846,6 +2887,7 @@ CT.forms = {
     return `<div class="form-grid">
       <div class="field span2"><span>What you have</span><div class="chips">${CT.EQUIPMENT.map(([id, label]) => `<button type="button" class="chip ${p.equipment[id] ? 'on' : ''}" data-action="toggle" data-path="prefs.equipment.${id}">${label}</button>`).join('')}</div></div>
       <div class="field span2"><span>Cooking style</span>${seg('prefs.cuisine', [['italian', 'Italian first'], ['any', 'Anything goes']], p.cuisine || 'italian')}<small class="muted">Italian first keeps the week mostly Italian, with the occasional dish from elsewhere.</small></div>
+      <label class="switch-row span2"><span><strong>Size portions to my calorie target</strong><small>Off by default: every meal is the recipe as written, ×1, and you adjust with the − and + on the meal card. On, the planner scales each plate so the day adds up to your target.</small></span><input type="checkbox" data-change="path" data-path="prefs.autoPortion" data-type="bool" data-rerender="1" ${p.autoPortion ? 'checked' : ''}></label>
       <div class="field span2"><span>Chicken meals per week</span>${seg('prefs.chickenPerWeek', [[0, 'No preference'], [3, '3'], [5, '5'], [7, '7 (one a day)'], [10, '10']], p.chickenPerWeek || 0, 'number')}<small class="muted">The planner aims for this many pan-cooked chicken meals, while still keeping two fish meals and legumes through the week.</small></div>
       <div class="field span2"><span>Maximum hands-on time per meal</span>${seg('prefs.maxActive', [[10, '10 min'], [15, '15 min'], [20, '20 min'], [30, '30 min']], p.maxActive, 'number')}<small class="muted">Oven or simmering time does not count: the planner looks at the minutes you actually spend.</small></div>
       <div class="field span2"><span>Meals to plan</span><div class="chips">${CT.SLOT_ORDER.map((k) => `<button type="button" class="chip ${p.meals[k] ? 'on' : ''}" data-action="toggle" data-path="prefs.meals.${k}">${CT.SLOTS[k].en} <em>${CT.SLOTS[k].it}</em></button>`).join('')}</div></div>
@@ -2943,7 +2985,7 @@ try {
     return `<div class="badges">${items.map(([k, v]) => `<span class="badge b-${k}" title="Good for ${CT.BENEFIT_LABEL[k]}">${CT.BENEFIT_LABEL[k]}${v >= 3 ? ' ++' : ''}</span>`).join('')}${r.purine >= 3 ? '<span class="badge warn">purine-rich</span>' : ''}${r.tags.includes('occasional') ? '<span class="badge warn">salty treat</span>' : ''}</div>`;
   };
 
-  CT.metaLine = (r, m) => { const k = m || 1; return `<span class="meta">${CT.icon('clock')} ${r.active} min${r.time > r.active ? ` <small>(${r.time} total)</small>` : ''}</span><span class="meta">${CT.fmt(r.nutri.kcal * k)} kcal</span><span class="meta">${CT.eur(r.cost * k)}</span>${k !== 1 ? `<span class="meta portion" title="Portion size, set so the day reaches your calorie target">×${k} portion</span>` : ''}`; };
+  CT.metaLine = (r, m) => { const k = m || 1; return `<span class="meta">${CT.icon('clock')} ${r.active} min${r.time > r.active ? ` <small>(${r.time} total)</small>` : ''}</span><span class="meta">${CT.fmt(r.nutri.kcal * k)} kcal</span><span class="meta">${CT.eur(r.cost * k)}</span>${k !== 1 ? `<span class="meta portion" title="Portion size">×${k} portion</span>` : ''}`; };
 
   const slotCard = (date, slot, s) => {
     const r = CT.recipe(s.id);
@@ -3028,6 +3070,7 @@ try {
           <div class="card">
             <div class="row-between"><h3>Today vs your targets</h3><span class="muted small">${doneCount}/${slots.length} eaten</span></div>
             ${CT.targetBars(dn.planned, T)}
+            ${!CT.autoPortion() && dn.planned.kcal < T.kcal * 0.85 ? `<div class="banner short">This day comes to ${CT.fmt(dn.planned.kcal)} of ${CT.fmt(T.kcal)} kcal at normal portions. <button class="btn sm primary" data-action="fit-day" data-date="${date}">Fit portions</button></div>` : ''}
             <p class="hint">Bars show what is planned plus anything you logged. Saturated fat, sugar and sodium are ceilings; the rest are floors.</p>
           </div>
           <div class="card water">
@@ -3074,6 +3117,7 @@ try {
       <div class="pick-list">${choices.map(({ r }) => `<button class="pick ${cur && cur.id === r.id ? 'current' : ''}" data-action="pick-set" data-date="${d.date}" data-slot="${d.slot}" data-id="${r.id}"><span class="pick-name">${CT.esc(r.name)}</span><span class="pick-meta">${r.active} min · ${CT.fmt(r.nutri.kcal)} kcal · ${CT.eur(r.cost)}</span>${CT.benefitBadges(r, 2)}</button>`).join('')}</div>`, { wide: true });
   };
   CT.actions['pick-set'] = (d) => { CT.setSlot(d.date, d.slot, d.id); CT.closeDialog(); CT.render(); };
+  CT.actions['fit-day'] = (d) => { CT.refitDay(d.date, true); CT.save('plans'); CT.toast('Portions sized to your target for today.', 'good'); CT.render(); };
   CT.actions['regen-day'] = (d) => { CT.generateDay(d.date, { keepLocked: true, keepDone: true }); CT.save('plans'); CT.toast('Re-planned. Locked and cooked meals kept.'); CT.render(); };
   CT.actions['regen-week'] = () => { CT.generateWeek(CT.today(), 7, { keepLocked: true, keepDone: true }); CT.ui.prefsDirty = false; CT.toast('Week re-planned.'); CT.render(); };
   CT.actions['dismiss-dirty'] = () => { CT.ui.prefsDirty = false; CT.render(); };
@@ -3947,6 +3991,7 @@ try {
   // ---- Boot
   const boot = async () => {
     CT.load();
+    CT.normalisePortions();
     CT.applyTheme();
     CT._day = CT.today();
     const hasClaude = !!(window.claude && typeof window.claude.use === 'function');

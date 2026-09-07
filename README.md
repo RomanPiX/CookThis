@@ -35,8 +35,9 @@ Source lives in `src/`:
 - `data/content.js` — meal slots, preference groups, health focus texts, lab panel, tips, swap guide, achievements
 - `js/nutrition.js` — totals, targets (Mifflin-St Jeor), benefit scoring
 - `js/planner.js` — candidate filtering, scoring, day assembly, weekly rhythm (fish ×2, purine-rich ×1,
-  red meat ×1), and portion fitting: each planned meal carries a multiplier so the day reaches the
-  calorie target, since three standard plates cannot feed a 2000+ kcal day on their own.
+  red meat ×1), and portion fitting. Every meal carries a portion multiplier, ×1 by default: you set
+  it per meal, or turn on "Size portions to my calorie target" in Settings and the planner fits each
+  plate so the day adds up. Today flags a day that falls short and offers a one-tap fit.
 - `js/store.js` — state, localStorage, optional db sync
 - `js/ai.js` — Claude features through `claude.use("sample")`
 - Claude also writes a detailed walkthrough of any recipe on demand (Expand, saved per recipe) and
