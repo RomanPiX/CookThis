@@ -1,57 +1,58 @@
-# Generates PNG app icons with System.Drawing (Windows PowerShell 5.1).
+# Generates the PNG app icons: a margherita on black. Run after changing the mark in
+# src/js/palettes.js so the app, the tab and the home screen all show the same drawing.
 Add-Type -AssemblyName System.Drawing
 $out = Join-Path $PSScriptRoot 'icons'
+
+function New-Brush([string]$hex) {
+  return New-Object System.Drawing.SolidBrush ([System.Drawing.ColorTranslator]::FromHtml($hex))
+}
 
 function Draw-Icon([int]$size, [string]$file, [bool]$maskable) {
   $bmp = New-Object System.Drawing.Bitmap $size, $size
   $g = [System.Drawing.Graphics]::FromImage($bmp)
   $g.SmoothingMode = 'AntiAlias'
   $g.Clear([System.Drawing.Color]::Transparent)
-  $green = [System.Drawing.ColorTranslator]::FromHtml('#16557E')
-  $cream = [System.Drawing.ColorTranslator]::FromHtml('#FFFFFF')
-  $lemon = [System.Drawing.ColorTranslator]::FromHtml('#DE9433')
-  $s = $size / 128.0
 
-  # Background: rounded square (or full square when maskable; content shrunk into safe zone)
-  $bg = New-Object System.Drawing.SolidBrush $green
+  $black = New-Brush '#0C0C0D'
+  $crust = New-Brush '#E0B268'
+  $sauce = New-Brush '#C0392B'
+  $cheese = New-Brush '#F5E9D2'
+  $basil = New-Brush '#3E7D3A'
+
+  # Background. A maskable icon is a full square with the pizza pulled into the safe zone.
   if ($maskable) {
-    $g.FillRectangle($bg, 0, 0, $size, $size)
-    $s = $s * 0.8
-    $g.TranslateTransform($size * 0.1, $size * 0.1)
+    $g.FillRectangle($black, 0, 0, $size, $size)
   } else {
-    $r = 28 * $s
+    $r = $size * 0.11
     $path = New-Object System.Drawing.Drawing2D.GraphicsPath
     $path.AddArc(0, 0, 2*$r, 2*$r, 180, 90)
     $path.AddArc($size - 2*$r, 0, 2*$r, 2*$r, 270, 90)
     $path.AddArc($size - 2*$r, $size - 2*$r, 2*$r, 2*$r, 0, 90)
     $path.AddArc(0, $size - 2*$r, 2*$r, 2*$r, 90, 90)
     $path.CloseFigure()
-    $g.FillPath($bg, $path)
+    $g.FillPath($black, $path)
   }
 
-  # Bowl: bottom half of a circle centred (64,68) r=36, plus a rim
-  $creamBrush = New-Object System.Drawing.SolidBrush $cream
-  $g.FillPie($creamBrush, [single](28*$s), [single](32*$s), [single](72*$s), [single](72*$s), 0, 180)
-  $rim = New-Object System.Drawing.Drawing2D.GraphicsPath
-  $rr = 4.5 * $s
-  $rim.AddArc([single](22*$s), [single](63*$s), 2*$rr, 2*$rr, 90, 180)
-  $rim.AddArc([single](106*$s - 2*$rr), [single](63*$s), 2*$rr, 2*$rr, 270, 180)
-  $rim.CloseFigure()
-  $g.FillPath($creamBrush, $rim)
+  $s = $size / 128.0
+  if ($maskable) { $s = $s * 0.78; $g.TranslateTransform($size * 0.11, $size * 0.11) }
 
-  # Steam: three lemon curves
-  $pen = New-Object System.Drawing.Pen $lemon, ([single](5*$s))
-  $pen.StartCap = 'Round'; $pen.EndCap = 'Round'
-  foreach ($x in @(46, 64, 82)) {
-    $y0 = if ($x -eq 64) { 54 } else { 52 }
-    $p1 = New-Object System.Drawing.PointF ([single]($x*$s)), ([single]($y0*$s))
-    $p2 = New-Object System.Drawing.PointF ([single]($x*$s)), ([single](($y0-7)*$s))
-    $p3 = New-Object System.Drawing.PointF ([single](($x+7)*$s)), ([single](($y0-7)*$s))
-    $p4 = New-Object System.Drawing.PointF ([single](($x+7)*$s)), ([single](($y0-14)*$s))
-    $p5 = New-Object System.Drawing.PointF ([single](($x+7)*$s)), ([single](($y0-21)*$s))
-    $p6 = New-Object System.Drawing.PointF ([single]($x*$s)), ([single](($y0-21)*$s))
-    $p7 = New-Object System.Drawing.PointF ([single]($x*$s)), ([single](($y0-28)*$s))
-    $g.DrawBeziers($pen, [System.Drawing.PointF[]]@($p1, $p2, $p3, $p4, $p5, $p6, $p7))
+  function Circle($brush, [double]$cx, [double]$cy, [double]$rad) {
+    $g.FillEllipse($brush, [single](($cx - $rad) * $s), [single](($cy - $rad) * $s), [single](2*$rad*$s), [single](2*$rad*$s))
+  }
+
+  Circle $crust 64 64 47
+  Circle $sauce 64 64 39
+  Circle $cheese 49 52 9
+  Circle $cheese 79 49 7
+  Circle $cheese 52 81 8
+  Circle $cheese 80 76 9
+  # Basil leaves: small ovals, drawn rotated around their own centre.
+  foreach ($leaf in @(@(64, 64, 6, 4, -25), @(41, 68, 5, 3.4, 20), @(70, 93, 5, 3.4, -10))) {
+    $state = $g.Save()
+    $g.TranslateTransform([single]($leaf[0] * $s), [single]($leaf[1] * $s))
+    $g.RotateTransform([single]$leaf[4])
+    $g.FillEllipse($basil, [single](-$leaf[2] * $s), [single](-$leaf[3] * $s), [single](2 * $leaf[2] * $s), [single](2 * $leaf[3] * $s))
+    $g.Restore($state)
   }
 
   $bmp.Save((Join-Path $out $file), [System.Drawing.Imaging.ImageFormat]::Png)

@@ -49,7 +49,7 @@ const configJs = `window.CT_CONFIG=${JSON.stringify({ ...config, ...personal, bu
 const configJsPublic = `window.CT_CONFIG=${JSON.stringify({ ...config, build: version })};`;
 
 const fontLink = `<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">`;
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,700;1,6..96,400&family=Archivo:wght@400;500;600;700&display=swap">`;
 
 // ---- Artifact fragment (no doctype/html/head/body; title + style first)
 const fragment = `<title>CookThis</title>
@@ -72,7 +72,7 @@ const full = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#16557E">
+<meta name="theme-color" content="#0C0C0D">
 <meta name="description" content="CookThis: a fast, lazy-cook-friendly meal planner tuned to your blood work.">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">

@@ -2,6 +2,23 @@
    complete swap rather than a tint. The accent hue is always distinct from good / warn / bad,
    so a status colour never reads as branding (or the other way round). */
 CT.PALETTES = {
+  carbone: {
+    name: 'Carbone', hint: 'Charcoal, tomato and pine, like the box it comes in',
+    light: {
+      bg: '#FBF9F4', card: '#FFFFFF', soft: '#F1EDE3', ink: '#14120F', muted: '#6B6459', line: '#DCD5C7',
+      accent: '#B3341F', 'accent-ink': '#FFF8F1', 'accent-soft': '#F7E2DA', 'accent-strong': '#8C2515',
+      accent2: '#1F4D3D', 'accent2-soft': '#DFEBE4', 'accent2-ink': '#14382C',
+      bad: '#A32316', 'bad-soft': '#F7DFDB', warn: '#98720F', 'warn-soft': '#F6EBCE', good: '#2C6B45', 'good-soft': '#DEEBE0', info: '#2B5F7A', 'info-soft': '#DDE9EF',
+      shadow: '0 18px 40px rgba(20, 18, 15, .22)',
+    },
+    dark: {
+      bg: '#0C0C0D', card: '#151415', soft: '#1E1D1E', ink: '#F2EDE4', muted: '#9A938A', line: '#2E2C2A',
+      accent: '#E0563B', 'accent-ink': '#14100E', 'accent-soft': '#33201B', 'accent-strong': '#F07C63',
+      accent2: '#7FB08F', 'accent2-soft': '#1B2A21', 'accent2-ink': '#BEDCC6',
+      bad: '#E4796A', 'bad-soft': '#35201D', warn: '#D9AA4E', 'warn-soft': '#322914', good: '#74B98C', 'good-soft': '#172E1F', info: '#7BAECB', 'info-soft': '#16262E',
+      shadow: '0 18px 40px rgba(0, 0, 0, .55)',
+    },
+  },
   mediterraneo: {
     name: 'Mediterraneo', hint: 'Deep sea blue, saffron, cool paper',
     light: {
@@ -88,11 +105,18 @@ CT.PALETTES = {
     },
   },
 };
-CT.DEFAULT_PALETTE = 'mediterraneo';
+CT.DEFAULT_PALETTE = 'carbone';
 
-// The bowl-of-steam mark, drawn from the live palette rather than baked colours.
+/* A margherita on black. Fixed colours rather than palette tokens: this is the identity, and it
+   should look the same in the app, on the tab and on the home screen whatever palette is chosen. */
 CT.brandmark = (size) => `<svg class="brandmark" viewBox="0 0 128 128" width="${size}" height="${size}" aria-hidden="true">
-  <rect class="bm-bg" width="128" height="128" rx="28"/>
-  <path class="bm-bowl" d="M28 68A36 36 0 0 0 100 68Z"/>
-  <rect class="bm-bowl" x="22" y="63" width="84" height="9" rx="4.5"/>
-  <path class="bm-steam" d="M46 52c0-7 7-7 7-14s-7-7-7-14M64 54c0-7 7-7 7-14s-7-7-7-14M82 52c0-7 7-7 7-14s-7-7-7-14"/></svg>`;
+  <rect width="128" height="128" rx="14" fill="#0C0C0D"/>
+  <circle cx="64" cy="64" r="47" fill="#E0B268"/>
+  <circle cx="64" cy="64" r="39" fill="#C0392B"/>
+  <circle cx="49" cy="52" r="9" fill="#F5E9D2"/>
+  <circle cx="79" cy="49" r="7" fill="#F5E9D2"/>
+  <circle cx="52" cy="81" r="8" fill="#F5E9D2"/>
+  <circle cx="80" cy="76" r="9" fill="#F5E9D2"/>
+  <ellipse cx="64" cy="64" rx="6" ry="4" fill="#3E7D3A" transform="rotate(-25 64 64)"/>
+  <ellipse cx="41" cy="68" rx="5" ry="3.4" fill="#3E7D3A" transform="rotate(20 41 68)"/>
+  <ellipse cx="70" cy="93" rx="5" ry="3.4" fill="#3E7D3A" transform="rotate(-10 70 93)"/></svg>`;

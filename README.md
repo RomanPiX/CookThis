@@ -48,13 +48,18 @@ Source lives in `src/`:
 - `js/palettes.js` — the five colour palettes (light + dark token sets) and the brand mark
 - `js/views-*.js`, `js/app.js`, `styles.css`, `markup.html` — UI
 
-Colour: `styles.css` holds the default palette (Mediterraneo) so the first paint is right; picking
-another in Settings writes the same custom properties inline on `:root` from `js/palettes.js`. Brand
-accents are always a different hue from the good / warning / bad colours, so status never reads as
-branding. Adding a palette means adding one entry with a full `light` and `dark` token set.
+Design: a printed kitchen sheet rather than a dashboard. Flat surfaces, hairline and dotted rules
+instead of floating rounded cards, squared corners, Bodoni Moda for display against Archivo for the
+interface, and colour spent almost entirely on status. Phone first: controls are sized for a thumb
+and the desktop media query tightens them, never the other way round.
 
-Icons: `pwa/make-icons.ps1` regenerates the PNGs with System.Drawing. They are baked to the default
-palette, so change the three colours at the top of that script if you change the default.
+Colour: `styles.css` holds the default palette (Carbone) so the first paint is right; picking another
+in Settings writes the same custom properties inline on `:root` from `js/palettes.js`. Brand accents
+are always a different hue from the good / warning / bad colours, so status never reads as branding.
+Adding a palette means adding one entry with a full `light` and `dark` token set.
+
+Icons: the mark is a margherita on black, drawn in `js/palettes.js` for the app and by
+`pwa/make-icons.ps1` for the PNGs. Change both together.
 
 ## Deploy the PWA to GitHub Pages
 

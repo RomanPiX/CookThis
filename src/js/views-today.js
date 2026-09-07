@@ -16,14 +16,14 @@
     const isToday = date === CT.today();
     const m = s.mult || 1;
     return `<article class="slot-card ${s.done ? 'done' : ''}">
-      <header class="slot-head"><span class="eyebrow">${CT.SLOTS[slot].it} <span class="sep">·</span> ${CT.SLOTS[slot].en}</span>${CT.metaLine(r, m)}</header>
+      <header class="slot-head"><span class="eyebrow">${CT.SLOTS[slot].it} <span class="sep">·</span> ${CT.SLOTS[slot].en}</span><span class="slot-meta">${CT.metaLine(r, m)}</span></header>
       <a class="slot-title" href="#/recipe/${r.id}?portion=${m}">${CT.esc(r.name)}</a>
       ${r.why.length ? `<p class="slot-why muted">${r.why.slice(0, 3).join(' · ')}</p>` : ''}
-      ${CT.benefitBadges(r)}
+      ${CT.benefitBadges(r, 2)}
       <footer class="slot-actions">
-        <button class="btn ${s.done ? 'done' : 'primary'} sm" data-action="toggle-done" data-date="${date}" data-slot="${slot}">${CT.icon('check')} ${s.done ? 'Cooked' : (isToday ? 'Cooked it' : 'Mark cooked')}</button>
-        <button class="btn ghost sm" data-action="swap-slot" data-date="${date}" data-slot="${slot}" title="Swap for another">${CT.icon('shuffle')} Swap</button>
-        <button class="btn ghost sm" data-action="pick-slot" data-date="${date}" data-slot="${slot}">Choose…</button>
+        <button class="btn ${s.done ? 'done' : 'primary'} sm cooked-btn" data-action="toggle-done" data-date="${date}" data-slot="${slot}">${CT.icon('check')} ${s.done ? 'Cooked' : (isToday ? 'Cooked it' : 'Mark cooked')}</button>
+        <button class="btn ghost sm" data-action="swap-slot" data-date="${date}" data-slot="${slot}" title="Swap for another" aria-label="Swap">${CT.icon('shuffle')}<span class="lbl">Swap</span></button>
+        <button class="btn ghost sm" data-action="pick-slot" data-date="${date}" data-slot="${slot}" title="Choose another" aria-label="Choose another">${CT.icon('recipes')}<span class="lbl">Choose…</span></button>
         <span class="portion-ctl" title="Portion size">
           <button class="btn ghost sm icon-only" data-action="portion" data-date="${date}" data-slot="${slot}" data-dir="-1" aria-label="Smaller portion">${CT.icon('minus')}</button>
           <span class="portion-val">×${m}</span>
@@ -51,7 +51,9 @@
       if (kind === 'min') st = v >= t ? 'good' : v >= t * 0.7 ? 'warn' : 'low';
       if (kind === 'about') st = Math.abs(v - t) / t <= 0.12 ? 'good' : v > t ? 'warn' : 'low';
       const d = unit === 'g' && t < 10 ? 1 : 0;
-      return `<div class="bar-row"><span class="bar-label">${label}</span><span class="bar-track"><span class="bar-fill ${st}" style="width:${Math.min(100, pct).toFixed(0)}%"></span>${pct > 100 ? `<span class="bar-over" style="width:${Math.min(30, pct - 100).toFixed(0)}%"></span>` : ''}</span><span class="bar-val">${CT.fmt(v, d)}<small>/${kind === 'max' ? '<' : ''}${CT.fmt(t, d)} ${unit}</small></span></div>`;
+      // Going past a ceiling is marked in red; going past a floor is simply good, so it is not.
+      const over = kind !== 'min' && pct > 100;
+      return `<div class="bar-row"><span class="bar-label">${label}</span><span class="bar-track"><span class="bar-fill ${st}" style="width:${Math.min(100, pct).toFixed(0)}%"></span>${over ? `<span class="bar-over" style="width:${Math.min(30, pct - 100).toFixed(0)}%"></span>` : ''}</span><span class="bar-val">${CT.fmt(v, d)}<small>/${kind === 'max' ? '<' : ''}${CT.fmt(t, d)} ${unit}</small></span></div>`;
     }).join('')}</div>`;
   };
 
