@@ -30,7 +30,7 @@
   // What happened around this date: recency of each recipe and weekly counts of capped categories.
   CT.planContext = (date) => {
     const today = CT.today();
-    const ctx = { lastUsed: {}, fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0 };
+    const ctx = { lastUsed: {}, fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0 };
     for (let i = 1; i <= 6; i++) {
       const plan = CT.state.plans[CT.addDays(date, -i)];
       if (!plan) continue;
@@ -53,17 +53,19 @@
         if (r.purine >= 3) ctx.purine3++;
         if (r.tags.includes('occasional')) ctx.occasional++;
         if (r.eggs) ctx.eggs++;
+        if (!r.italian) ctx.nonItalian++;
       }
     }
     return ctx;
   };
 
-  const dayAcc = () => ({ ids: new Set(), proteins: new Set(), fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, legume: false, pasta: false, sandwich: false });
+  const dayAcc = () => ({ ids: new Set(), proteins: new Set(), fish: 0, redmeat: 0, purine3: 0, occasional: 0, eggs: 0, nonItalian: 0, legume: false, pasta: false, sandwich: false });
   const addToDay = (day, r) => {
     day.ids.add(r.id);
     if (r.mainProtein) day.proteins.add(r.mainProtein);
     if (r.fish) day.fish++; if (r.redmeat) day.redmeat++; if (r.purine >= 3) day.purine3++;
     if (r.tags.includes('occasional')) day.occasional++; if (r.eggs) day.eggs++;
+    if (!r.italian) day.nonItalian++;
     if (r.legume) day.legume = true; if (r.tags.includes('pasta')) day.pasta = true; if (r.tags.includes('sandwich')) day.sandwich = true;
   };
 
@@ -87,8 +89,15 @@
     if (r.purine >= 3 && ctx.purine3 + day.purine3 >= 1) sc -= 20;
     if (r.redmeat && ctx.redmeat + day.redmeat >= 1) sc -= 20;
     if (r.tags.includes('occasional') && ctx.occasional + day.occasional >= 1) sc -= 20;
-    if (r.tags.includes('pasta') && day.pasta) sc -= 4;
+    if (r.tags.includes('pasta') && day.pasta) sc -= 10;
     if (r.tags.includes('sandwich') && day.sandwich) sc -= 2;
+    if (p.cuisine !== 'any') {
+      // "Italian first": the rest of the world still appears, but rarely and never twice in a day.
+      // Where a slot has few Italian options, the preference softens rather than starving the slot.
+      if (ctx.scarce && ctx.scarce[slot]) sc += r.italian ? 1.5 : 0;
+      else if (r.italian) sc += 3.5;
+      else sc -= 5 + (ctx.nonItalian || 0) * 2 + day.nonItalian * 9;
+    }
     sc += Math.max(0, 15 - r.mins) * 0.04;
     sc -= Math.max(0, r.cost - 3) * 0.4;
     if (jitter) sc += Math.random() * 2 - 1;
@@ -104,6 +113,65 @@
 
   CT.enabledSlots = () => CT.SLOT_ORDER.filter((s) => CT.state.prefs.meals[s]);
 
+  /* Portions. A recipe is written as one sensible serving, but a day's calorie target depends on
+     the person and on how many meals they eat. With breakfast switched off, three standard plates
+     cannot reach a 2000+ kcal target, so each slot carries a multiplier: the same dish, a bigger or
+     smaller plate. Slots get their share of the target (lunch is the biggest, a snack the smallest),
+     then the remaining gap is closed one quarter-portion at a time. */
+  const PORTION_STEPS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5];
+  CT.PORTION_STEPS = PORTION_STEPS;
+  const nearestStep = (x) => PORTION_STEPS.reduce((a, b) => (Math.abs(b - x) < Math.abs(a - x) ? b : a), PORTION_STEPS[0]);
+
+  CT.fitPortions = (chosen, fixed) => {
+    const T = CT.targets();
+    const active = Object.keys(chosen).filter((s) => chosen[s]);
+    if (!active.length) return {};
+    const shareTot = active.reduce((a, s) => a + (CT.SLOTS[s].share || 0.25), 0);
+    const mult = {};
+    for (const s of active) {
+      if (fixed && fixed[s] != null) { mult[s] = fixed[s]; continue; }
+      const want = T.kcal * ((CT.SLOTS[s].share || 0.25) / shareTot);
+      mult[s] = nearestStep(want / Math.max(80, chosen[s].nutri.kcal));
+    }
+    const total = () => active.reduce((a, s) => a + chosen[s].nutri.kcal * mult[s], 0);
+    for (let i = 0; i < 16; i++) {
+      const t = total();
+      if (Math.abs(t - T.kcal) <= T.kcal * 0.04) break;
+      const up = t < T.kcal;
+      let best = null, bestErr = Math.abs(t - T.kcal);
+      for (const s of active) {
+        if (fixed && fixed[s] != null) continue;
+        const ni = PORTION_STEPS.indexOf(mult[s]) + (up ? 1 : -1);
+        if (ni < 0 || ni >= PORTION_STEPS.length) continue;
+        const err = Math.abs(t + chosen[s].nutri.kcal * (PORTION_STEPS[ni] - mult[s]) - T.kcal);
+        if (err < bestErr - 0.5) { bestErr = err; best = [s, PORTION_STEPS[ni]]; }
+      }
+      if (!best) break;
+      mult[best[0]] = best[1];
+    }
+    return mult;
+  };
+
+  // Recompute portions for a day after a meal changed, leaving hand-set ones alone.
+  CT.refitDay = (date) => {
+    const plan = CT.state.plans[date]; if (!plan) return;
+    const chosen = {}, fixed = {};
+    for (const s of CT.enabledSlots()) {
+      const p = plan[s]; const r = p && CT.recipe(p.id); if (!r) continue;
+      chosen[s] = r;
+      if (p.manual || p.done) fixed[s] = p.mult || 1;
+    }
+    const mult = CT.fitPortions(chosen, fixed);
+    for (const s in mult) plan[s].mult = mult[s];
+  };
+
+  CT.setPortion = (date, slot, mult) => {
+    const plan = CT.state.plans[date]; if (!plan || !plan[slot]) return;
+    plan[slot].mult = CT.clamp(mult, PORTION_STEPS[0], PORTION_STEPS[PORTION_STEPS.length - 1]);
+    plan[slot].manual = true;
+    CT.save('plans');
+  };
+
   CT.generateDay = (date, opts = {}) => {
     const slots = CT.enabledSlots();
     const ctx = CT.planContext(date);
@@ -113,6 +181,8 @@
     if (opts.keepDone) for (const s of slots) if (existing[s] && existing[s].done) locked[s] = existing[s];
     const cands = {};
     for (const s of slots) cands[s] = CT.candidates(s, date);
+    ctx.scarce = {};
+    for (const s of slots) ctx.scarce[s] = cands[s].filter((r) => r.italian).length < 4;
     const T = CT.targets();
     let best = null, bestScore = -Infinity;
     for (let attempt = 0; attempt < 24; attempt++) {
@@ -127,18 +197,23 @@
         const pick = top[weightedIndex(top.length)];
         chosen[s] = pick.r; addToDay(day, pick.r); total += pick.sc;
       }
-      const n = CT.sumNutri(Object.values(chosen));
+      const fixedMult = {};
+      for (const s of slots) if (locked[s] && locked[s].mult) fixedMult[s] = locked[s].mult;
+      const mult = CT.fitPortions(chosen, fixedMult);
+      const n = CT.sumNutriScaled(chosen, mult);
       let pen = 0;
       const dev = Math.abs(n.kcal - T.kcal) / T.kcal;
-      if (dev > 0.12) pen += (dev - 0.12) * 60;
-      pen += Math.max(0, n.sf - T.sf) * 1.2;
+      if (dev > 0.06) pen += (dev - 0.06) * 90;
+      // Prefer plates that land near their natural size over ones stretched or shrunk hard.
+      for (const s of slots) if (mult[s]) pen += Math.abs(Math.log(mult[s])) * 6;
+      pen += Math.max(0, n.sf - T.sf) * 2.5;
       pen += Math.max(0, T.fib - n.fib) * 0.4;
       pen += Math.max(0, n.na - 2300) / 150;
       pen += Math.max(0, T.p * 0.8 - n.p) * 0.25;
       pen += Math.max(0, n.sug - T.sug) * 0.3;
       if (day.purine3 > 1) pen += 15;
       const score = total - pen;
-      if (score > bestScore) { bestScore = score; best = { chosen, day }; }
+      if (score > bestScore) { bestScore = score; best = { chosen, day, mult }; }
     }
     if (!best) return null;
     const plan = {};
@@ -150,7 +225,7 @@
       const alts = cands[s].filter((x) => x.id !== r.id && !best.day.ids.has(x.id))
         .map((x) => ({ x, sc: CT.scoreRecipe(x, s, ctx, dayMinus) })).sort((a, b) => b.sc - a.sc).slice(0, 6).map((a) => a.x.id);
       const prev = existing[s];
-      plan[s] = { id: r.id, alts, done: !!(prev && prev.id === r.id && prev.done), locked: !!locked[s] && !!(prev && prev.locked) };
+      plan[s] = { id: r.id, alts, mult: best.mult[s] || 1, done: !!(prev && prev.id === r.id && prev.done), locked: !!locked[s] && !!(prev && prev.locked) };
     }
     CT.state.plans[date] = plan;
     return plan;
@@ -182,7 +257,8 @@
     if (!s.alts.length) { CT.toast('No other recipe fits this slot with your current filters'); return; }
     const next = s.alts.shift();
     s.alts.push(s.id);
-    s.id = next; s.done = false;
+    s.id = next; s.done = false; s.manual = false;
+    CT.refitDay(date);
     CT.save('plans');
   };
 
@@ -192,7 +268,8 @@
     const prev = plan[slot];
     const alts = (prev ? prev.alts : []).filter((x) => x !== id);
     if (prev && prev.id !== id) alts.unshift(prev.id);
-    plan[slot] = { id, alts: alts.slice(0, 6), done: false, locked: prev ? prev.locked : false };
+    plan[slot] = { id, alts: alts.slice(0, 6), mult: prev && prev.manual ? prev.mult : 1, manual: !!(prev && prev.manual), done: false, locked: prev ? prev.locked : false };
+    CT.refitDay(date);
     CT.save('plans');
   };
 

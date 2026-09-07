@@ -53,7 +53,8 @@
           for (const s of CT.enabledSlots()) {
             const p = plan[s], r = p && CT.recipe(p.id); if (!r) continue;
             meals.push({ date: d, when: CT.relDay(d), slot: CT.SLOTS[s].en, recipeId: r.id, name: r.name,
-              hands_on_min: r.active, kcal: Math.round(r.nutri.kcal), cooked: !!p.done, locked: !!p.locked });
+              hands_on_min: r.active, portion: p.mult || 1, kcal: Math.round(r.nutri.kcal * (p.mult || 1)),
+              cooked: !!p.done, locked: !!p.locked });
           }
         }
         return { today: CT.today(), meals };
@@ -106,8 +107,10 @@
       inputSchema: { type: 'object', properties: {
         date: { type: 'string', description: 'YYYY-MM-DD, "today", "tomorrow" or a weekday name.' },
         slot: { type: 'string', description: 'breakfast, lunch, dinner or snack' },
-        recipeId: { type: 'string' } }, required: ['date', 'slot', 'recipeId'] },
-      execute: ({ date, slot, recipeId }) => {
+        recipeId: { type: 'string' },
+        portion: { type: 'number', description: 'Optional portion multiplier, for example 1.5 for a bigger plate. Leave it out and the app sizes the day to the calorie target itself.' } },
+        required: ['date', 'slot', 'recipeId'] },
+      execute: ({ date, slot, recipeId, portion }) => {
         const d = resolveDate(date), sl = resolveSlot(slot);
         const r = CT.recipe(String(recipeId || ''));
         if (!r) throw new Error('No recipe with id "' + recipeId + '". Call find_recipes first and use an id it returned.');
@@ -115,9 +118,10 @@
         const prev = (CT.state.plans[d] || {})[sl];
         const prevName = prev ? (CT.recipe(prev.id) || {}).name : null;
         CT.setSlot(d, sl, r.id);
+        if (Number(portion) > 0) CT.setPortion(d, sl, Number(portion));
         noteEdit(d, sl, prev ? prev.id : null, r);
         return { ok: true, date: d, slot: CT.SLOTS[sl].en, planned: r.name, replaced: prevName,
-          day_totals: dayTotals(d), shopping_list_updated: true };
+          portion: (CT.state.plans[d][sl] || {}).mult || 1, day_totals: dayTotals(d), shopping_list_updated: true };
       },
     },
     {

@@ -90,6 +90,7 @@
     const prot = r.ings.filter((i) => PROTEIN_TAGS.has(i.tag)).sort((a, b) => b.g * b.per100.p - a.g * a.per100.p)[0];
     r.mainProtein = prot ? prot.tag : null;
     r.mins = r.active || r.time || 10;
+    r.italian = r.tags.includes('italian') || CT.ITALIAN.has(r.id);
     CT.computeBenefits(r);
     r._prepped = true;
     return r;
@@ -129,6 +130,12 @@
   };
 
   CT.sumNutri = (recipesList) => recipesList.reduce((acc, r) => { for (const k in acc) acc[k] += r.nutri[k] || 0; return acc; }, ZERO());
+  // Same, with a portion multiplier per meal slot.
+  CT.sumNutriScaled = (bySlot, mult) => Object.keys(bySlot).reduce((acc, s) => {
+    const r = bySlot[s], m = (mult && mult[s]) || 1;
+    for (const k in acc) acc[k] += (r.nutri[k] || 0) * m;
+    return acc;
+  }, ZERO());
 
   // What is planned / eaten today, including extras logged manually or via Claude.
   CT.dayNutri = (date) => {
@@ -138,8 +145,9 @@
     for (const slot of CT.SLOT_ORDER) {
       const s = plan[slot]; if (!s) continue;
       const r = CT.recipe(s.id); if (!r) continue;
-      for (const k in planned) planned[k] += r.nutri[k] || 0;
-      if (s.done) for (const k in eaten) eaten[k] += r.nutri[k] || 0;
+      const m = s.mult || 1;
+      for (const k in planned) planned[k] += (r.nutri[k] || 0) * m;
+      if (s.done) for (const k in eaten) eaten[k] += (r.nutri[k] || 0) * m;
     }
     for (const x of log.extra || []) {
       for (const k of ['kcal', 'p', 'c', 'fib', 'fat', 'sf', 'sug', 'na']) { eaten[k] += Number(x[k]) || 0; planned[k] += Number(x[k]) || 0; }

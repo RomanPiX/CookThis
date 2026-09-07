@@ -455,3 +455,7 @@ body.cooking { overflow: hidden; }
 .banner.edits { align-items: flex-start; background: var(--accent-soft); color: var(--ink); margin: 12px 0 0; }
 .banner.edits > span { flex: 1 1 220px; }
 .banner.edits small { color: var(--muted); }
+
+.portion-ctl { display: inline-flex; align-items: center; gap: 2px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 4px; }
+.portion-val { font-size: 13px; font-weight: 600; min-width: 30px; text-align: center; }
+.meta.portion { color: var(--accent2-ink); background: var(--accent2-soft); padding: 1px 7px; border-radius: 6px; font-weight: 600; }

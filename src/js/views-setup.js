@@ -63,6 +63,7 @@ CT.forms = {
     const p = CT.state.prefs;
     return `<div class="form-grid">
       <div class="field span2"><span>What you have</span><div class="chips">${CT.EQUIPMENT.map(([id, label]) => `<button type="button" class="chip ${p.equipment[id] ? 'on' : ''}" data-action="toggle" data-path="prefs.equipment.${id}">${label}</button>`).join('')}</div></div>
+      <div class="field span2"><span>Cooking style</span>${seg('prefs.cuisine', [['italian', 'Italian first'], ['any', 'Anything goes']], p.cuisine || 'italian')}<small class="muted">Italian first keeps the week mostly Italian, with the occasional dish from elsewhere.</small></div>
       <div class="field span2"><span>Maximum hands-on time per meal</span>${seg('prefs.maxActive', [[10, '10 min'], [15, '15 min'], [20, '20 min'], [30, '30 min']], p.maxActive, 'number')}<small class="muted">Oven or simmering time does not count: the planner looks at the minutes you actually spend.</small></div>
       <div class="field span2"><span>Meals to plan</span><div class="chips">${CT.SLOT_ORDER.map((k) => `<button type="button" class="chip ${p.meals[k] ? 'on' : ''}" data-action="toggle" data-path="prefs.meals.${k}">${CT.SLOTS[k].en} <em>${CT.SLOTS[k].it}</em></button>`).join('')}</div></div>
       <label class="switch-row span2"><span><strong>Lazy mode</strong><small>Only no-cook or microwave meals, 10 minutes tops. For the days when the stove is not happening.</small></span><input type="checkbox" data-change="path" data-path="prefs.lazy" data-type="bool" data-rerender="1" ${p.lazy ? 'checked' : ''}></label>

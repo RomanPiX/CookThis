@@ -16,6 +16,7 @@ const jsFiles = [
   'data/recipes-lunch.js',
   'data/recipes-dinner.js',
   'data/recipes-snacks.js',
+  'data/recipes-italian.js',
   'data/content.js',
   'js/palettes.js',
   'js/util.js',

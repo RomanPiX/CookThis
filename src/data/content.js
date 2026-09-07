@@ -8,12 +8,12 @@ CT.SLOTS = {
 CT.SLOT_ORDER = ['B', 'L', 'D', 'S'];
 
 CT.FOOD_GROUPS = [
-  { name: 'Fish & seafood', tags: [['tuna', 'Canned tuna'], ['salmon', 'Salmon'], ['mackerel', 'Mackerel'], ['sardines', 'Sardines'], ['codfish', 'White fish (cod, hake)'], ['shrimp', 'Shrimp'], ['smokedsalmon', 'Smoked salmon']] },
+  { name: 'Fish & seafood', tags: [['tuna', 'Canned tuna'], ['salmon', 'Salmon'], ['mackerel', 'Mackerel'], ['sardines', 'Sardines'], ['codfish', 'White fish (cod, hake)'], ['seabass', 'Sea bream & sea bass'], ['shrimp', 'Shrimp'], ['smokedsalmon', 'Smoked salmon']] },
   { name: 'Meat & eggs', tags: [['chicken', 'Chicken'], ['turkey', 'Turkey'], ['beef', 'Lean beef'], ['bresaola', 'Bresaola'], ['eggs', 'Eggs']] },
   { name: 'Legumes & plant protein', tags: [['chickpeas', 'Chickpeas'], ['beans', 'Beans (cannellini, borlotti)'], ['lentils', 'Lentils'], ['peas', 'Peas'], ['hummus', 'Hummus & tahini'], ['soy', 'Tofu, edamame & soy sauce']] },
   { name: 'Dairy', tags: [['yogurt', 'Greek yogurt'], ['milk', 'Milk'], ['ricotta', 'Ricotta'], ['cottage', 'Cottage cheese'], ['mozzarella', 'Mozzarella'], ['parmigiano', 'Parmigiano'], ['cheese', 'Spreadable cheese']] },
-  { name: 'Grains & starches', tags: [['bread', 'Wholegrain bread & wraps'], ['pasta', 'Pasta'], ['rice', 'Brown rice'], ['oats', 'Oats'], ['couscous', 'Couscous'], ['farro', 'Farro & barley'], ['potatoes', 'Potatoes'], ['popcorn', 'Popcorn']] },
-  { name: 'Vegetables', tags: [['tomato', 'Tomatoes'], ['zucchini', 'Zucchini'], ['spinach', 'Spinach'], ['broccoli', 'Broccoli'], ['peppers', 'Peppers'], ['eggplant', 'Eggplant'], ['mushrooms', 'Mushrooms'], ['carrots', 'Carrots'], ['onion', 'Onion'], ['garlic', 'Garlic'], ['rocket', 'Rocket'], ['salad', 'Salad leaves'], ['cucumber', 'Cucumber'], ['avocado', 'Avocado'], ['greenbeans', 'Green beans'], ['cauliflower', 'Cauliflower'], ['pumpkin', 'Pumpkin'], ['corn', 'Sweetcorn'], ['olives', 'Olives & capers'], ['mixedveg', 'Frozen veg mixes'], ['celery', 'Celery']] },
+  { name: 'Grains & starches', tags: [['bread', 'Wholegrain bread & wraps'], ['pasta', 'Pasta'], ['rice', 'Brown rice'], ['oats', 'Oats'], ['couscous', 'Couscous'], ['farro', 'Farro & barley'], ['polenta', 'Polenta'], ['potatoes', 'Potatoes'], ['popcorn', 'Popcorn']] },
+  { name: 'Vegetables', tags: [['tomato', 'Tomatoes'], ['zucchini', 'Zucchini'], ['spinach', 'Spinach'], ['broccoli', 'Broccoli'], ['peppers', 'Peppers'], ['eggplant', 'Eggplant'], ['mushrooms', 'Mushrooms'], ['carrots', 'Carrots'], ['onion', 'Onion'], ['garlic', 'Garlic'], ['rocket', 'Rocket'], ['salad', 'Salad leaves'], ['cucumber', 'Cucumber'], ['avocado', 'Avocado'], ['greenbeans', 'Green beans'], ['cauliflower', 'Cauliflower'], ['pumpkin', 'Pumpkin'], ['corn', 'Sweetcorn'], ['olives', 'Olives & capers'], ['mixedveg', 'Frozen veg mixes'], ['celery', 'Celery'], ['fennel', 'Fennel'], ['radicchio', 'Radicchio']] },
   { name: 'Fruit', tags: [['apple', 'Apples'], ['banana', 'Bananas'], ['berries', 'Berries'], ['orange', 'Oranges'], ['pear', 'Pears'], ['kiwi', 'Kiwi'], ['cherries', 'Cherries'], ['peach', 'Peaches'], ['grapes', 'Grapes'], ['lemon', 'Lemon']] },
   { name: 'Nuts, seeds & treats', tags: [['walnuts', 'Walnuts'], ['almonds', 'Almonds'], ['peanuts', 'Peanuts & peanut butter'], ['seeds', 'Seeds (chia, flax, pumpkin)'], ['chocolate', 'Dark chocolate & cocoa'], ['honey', 'Honey']] },
   { name: 'Flavours', tags: [['chili', 'Chili'], ['curry', 'Curry'], ['basil', 'Basil & pesto'], ['mint', 'Mint'], ['cinnamon', 'Cinnamon'], ['mustard', 'Mustard'], ['oliveoil', 'Olive oil']] },
@@ -23,6 +23,23 @@ CT.ALLERGENS = [['D', 'Dairy / lactose'], ['G', 'Gluten'], ['N', 'Nuts & peanuts
 CT.DIETS = [['omni', 'I eat everything'], ['pesc', 'No meat, but fish is fine'], ['veg', 'Vegetarian']];
 CT.EQUIPMENT = [['stove', 'Stovetop'], ['oven', 'Oven'], ['microwave', 'Microwave'], ['blender', 'Blender']];
 CT.ACTIVITY = [['sedentary', 'Desk job, little exercise', 1.2], ['light', 'Light activity 1-3 days a week', 1.375], ['moderate', 'Exercise 3-5 days a week', 1.55], ['active', 'Hard exercise most days', 1.725]];
+
+/* Which of the older recipes read as Italian. Anything added later carries an 'italian' tag
+   instead. Used by the "Italian first" preference in Settings. */
+CT.ITALIAN = new Set([
+  'ricotta_tomato_toast', 'omelette_tomato_basil', 'crackers_ricotta_orange',
+  'tuna_bean_salad', 'mackerel_toast', 'lentil_egg_bowl', 'pasta_tuna_tomato', 'pasta_ceci',
+  'bresaola_rocket_plate', 'caprese_beans', 'minestrone_quick', 'farro_tuna_salad',
+  'cannellini_crostini', 'ricotta_spinach_wrap',
+  'salmon_tray_veg', 'lemon_chicken_beans', 'cod_livornese', 'frittata_zucchini',
+  'pasta_broccoli_almonds', 'pasta_pomodoro_cannellini', 'sheetpan_chicken_veg',
+  'baked_cod_potato_tomato', 'eggs_purgatory', 'turkey_lemon_peas', 'pasta_zucchini_pea_ricotta',
+  'salmon_spinach_potatoes', 'piadina_pizza', 'sardines_toast', 'mushroom_spinach_omelette',
+  'tuna_pea_pasta_lemon', 'microwave_cod_parcel', 'chicken_pesto_pasta',
+  'apple_walnuts', 'yogurt_berries', 'almonds_orange', 'dark_choc_walnuts', 'cherries_bowl',
+  'banana_almonds', 'cottage_cherry_tomatoes', 'kiwi_pumpkin_seeds', 'roasted_chickpeas',
+  'bruschetta_tomato',
+]);
 
 CT.BENEFIT_LABEL = { ldl: 'Cholesterol', tg: 'Triglycerides', uric: 'Uric acid', liver: 'Liver', glucose: 'Blood sugar', thyroid: 'Thyroid' };
 

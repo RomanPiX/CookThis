@@ -8,22 +8,28 @@
     return `<div class="badges">${items.map(([k, v]) => `<span class="badge b-${k}" title="Good for ${CT.BENEFIT_LABEL[k]}">${CT.BENEFIT_LABEL[k]}${v >= 3 ? ' ++' : ''}</span>`).join('')}${r.purine >= 3 ? '<span class="badge warn">purine-rich</span>' : ''}${r.tags.includes('occasional') ? '<span class="badge warn">salty treat</span>' : ''}</div>`;
   };
 
-  CT.metaLine = (r) => `<span class="meta">${CT.icon('clock')} ${r.active} min${r.time > r.active ? ` <small>(${r.time} total)</small>` : ''}</span><span class="meta">${CT.fmt(r.nutri.kcal)} kcal</span><span class="meta">${CT.eur(r.cost)}</span>`;
+  CT.metaLine = (r, m) => { const k = m || 1; return `<span class="meta">${CT.icon('clock')} ${r.active} min${r.time > r.active ? ` <small>(${r.time} total)</small>` : ''}</span><span class="meta">${CT.fmt(r.nutri.kcal * k)} kcal</span><span class="meta">${CT.eur(r.cost * k)}</span>${k !== 1 ? `<span class="meta portion" title="Portion size, set so the day reaches your calorie target">×${k} portion</span>` : ''}`; };
 
   const slotCard = (date, slot, s) => {
     const r = CT.recipe(s.id);
     if (!r) return '';
     const isToday = date === CT.today();
+    const m = s.mult || 1;
     return `<article class="slot-card ${s.done ? 'done' : ''}">
-      <header class="slot-head"><span class="eyebrow">${CT.SLOTS[slot].it} <span class="sep">·</span> ${CT.SLOTS[slot].en}</span>${CT.metaLine(r)}</header>
-      <a class="slot-title" href="#/recipe/${r.id}">${CT.esc(r.name)}</a>
+      <header class="slot-head"><span class="eyebrow">${CT.SLOTS[slot].it} <span class="sep">·</span> ${CT.SLOTS[slot].en}</span>${CT.metaLine(r, m)}</header>
+      <a class="slot-title" href="#/recipe/${r.id}?portion=${m}">${CT.esc(r.name)}</a>
       ${r.why.length ? `<p class="slot-why muted">${r.why.slice(0, 3).join(' · ')}</p>` : ''}
       ${CT.benefitBadges(r)}
       <footer class="slot-actions">
         <button class="btn ${s.done ? 'done' : 'primary'} sm" data-action="toggle-done" data-date="${date}" data-slot="${slot}">${CT.icon('check')} ${s.done ? 'Cooked' : (isToday ? 'Cooked it' : 'Mark cooked')}</button>
         <button class="btn ghost sm" data-action="swap-slot" data-date="${date}" data-slot="${slot}" title="Swap for another">${CT.icon('shuffle')} Swap</button>
         <button class="btn ghost sm" data-action="pick-slot" data-date="${date}" data-slot="${slot}">Choose…</button>
-        <a class="btn ghost sm icon-only" href="#/recipe/${r.id}" title="Open recipe" aria-label="Open recipe">${CT.icon('chev')}</a>
+        <span class="portion-ctl" title="Portion size">
+          <button class="btn ghost sm icon-only" data-action="portion" data-date="${date}" data-slot="${slot}" data-dir="-1" aria-label="Smaller portion">${CT.icon('minus')}</button>
+          <span class="portion-val">×${m}</span>
+          <button class="btn ghost sm icon-only" data-action="portion" data-date="${date}" data-slot="${slot}" data-dir="1" aria-label="Bigger portion">${CT.icon('plus')}</button>
+        </span>
+        <a class="btn ghost sm icon-only" href="#/recipe/${r.id}?portion=${m}" title="Open recipe" aria-label="Open recipe">${CT.icon('chev')}</a>
       </footer>
     </article>`;
   };
@@ -55,8 +61,9 @@
     const s = CT.state, log = s.log[date] || {};
     const slots = CT.enabledSlots().filter((k) => plan[k]);
     const recipes = slots.map((k) => CT.recipe(plan[k].id)).filter(Boolean);
-    const mins = CT.sum(recipes, (r) => r.active), cost = CT.sum(recipes, (r) => r.cost) + CT.sum(log.extra || [], () => 0);
+    const mins = CT.sum(recipes, (r) => r.active);
     const T = CT.targets(), dn = CT.dayNutri(date);
+    const cost = dn.cost;
     const st = CT.stats();
     const tip = CT.TIPS[Math.floor(CT.daysBetween('2026-01-01', date)) % CT.TIPS.length];
     const water = log.water || 0;
@@ -117,6 +124,14 @@
     CT.render();
   };
   CT.actions['swap-slot'] = (d) => { CT.swapSlot(d.date, d.slot); CT.render(); };
+  CT.actions.portion = (d) => {
+    const plan = CT.state.plans[d.date]; if (!plan || !plan[d.slot]) return;
+    const cur = plan[d.slot].mult || 1;
+    const i = CT.PORTION_STEPS.indexOf(cur);
+    const ni = CT.clamp((i < 0 ? CT.PORTION_STEPS.indexOf(1) : i) + Number(d.dir), 0, CT.PORTION_STEPS.length - 1);
+    CT.setPortion(d.date, d.slot, CT.PORTION_STEPS[ni]);
+    CT.render();
+  };
   CT.actions['pick-slot'] = (d) => {
     const choices = CT.slotChoices(d.date, d.slot).slice(0, 14);
     const cur = (CT.state.plans[d.date] || {})[d.slot];

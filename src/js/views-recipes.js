@@ -65,8 +65,9 @@
     return `<table class="nutri"><tbody>${rows.map(([l, v, u, d]) => `<tr><th>${l}</th><td>${CT.fmt(v, d)} ${u}</td></tr>`).join('')}<tr><th>Purine load</th><td>${['very low', 'low', 'moderate', 'high'][r.purine]}</td></tr><tr><th>Cost</th><td>${CT.eur(r.cost * k)}</td></tr></tbody></table>`;
   };
 
-  CT.views.recipe = ({ id }) => {
+  CT.views.recipe = ({ id, query }) => {
     const r = CT.recipe(id);
+    if (query && query.portion && CT.ui.servings[id] == null) CT.ui.servings[id] = Number(query.portion) || 1;
     if (!r) return `<section><p class="empty">Recipe not found.</p><a class="btn ghost" href="#/recipes">Back to recipes</a></section>`;
     const k = CT.ui.servings[id] || 1, s = CT.state, fav = s.favorites.includes(id), rating = s.ratings[id] || 0;
     const focusRows = Object.keys(CT.FOCUS).map((f) => { const v = r.benefits[f] || 0; return `<div class="fit-row"><span>${CT.FOCUS[f].name}</span><span class="fit-dots ${v < 0 ? 'neg' : ''}">${v < 0 ? 'avoid if strict' : '●'.repeat(v) + '○'.repeat(3 - v)}</span></div>`; }).join('');
@@ -87,7 +88,7 @@
       </div>
       <div class="recipe-grid">
         <section class="card">
-          <div class="row-between"><h3>Ingredients</h3><div class="stepper" aria-label="Servings"><button class="btn ghost xs icon-only" data-action="serv-dec" data-id="${id}" aria-label="Fewer servings">${CT.icon('minus')}</button><span>${k} serving${k > 1 ? 's' : ''}</span><button class="btn ghost xs icon-only" data-action="serv-inc" data-id="${id}" aria-label="More servings">${CT.icon('plus')}</button></div></div>
+          <div class="row-between"><h3>Ingredients</h3><div class="stepper" aria-label="Portion size"><button class="btn ghost xs icon-only" data-action="serv-dec" data-id="${id}" aria-label="Smaller portion">${CT.icon('minus')}</button><span>${k === 1 ? '1 serving' : '×' + k + ' portion'}</span><button class="btn ghost xs icon-only" data-action="serv-inc" data-id="${id}" aria-label="Bigger portion">${CT.icon('plus')}</button></div></div>
           <ul class="ing-list">${r.ings.map((i) => `<li class="${i.opt ? 'opt' : ''}"><span class="ing-qty">${k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? `${CT.fmt(i.g * k)} ml` : `${CT.fmt(i.g * k)} g`)}</span><span class="ing-name">${CT.esc(i.en)}${i.it ? ` <em class="it">${CT.esc(i.it)}</em>` : ''}${i.opt ? ' <small class="muted">optional</small>' : ''}</span></li>`).join('')}</ul>
         </section>
         <section class="card">
@@ -107,8 +108,15 @@
     </article>`;
   };
 
-  CT.actions['serv-inc'] = (d) => { CT.ui.servings[d.id] = Math.min(6, (CT.ui.servings[d.id] || 1) + 1); CT.render(); };
-  CT.actions['serv-dec'] = (d) => { CT.ui.servings[d.id] = Math.max(1, (CT.ui.servings[d.id] || 1) - 1); CT.render(); };
+  const stepPortion = (id, dir) => {
+    const cur = CT.ui.servings[id] || 1;
+    const i = CT.PORTION_STEPS.indexOf(cur);
+    const ni = CT.clamp((i < 0 ? CT.PORTION_STEPS.indexOf(1) : i) + dir, 0, CT.PORTION_STEPS.length - 1);
+    CT.ui.servings[id] = CT.PORTION_STEPS[ni];
+    CT.render();
+  };
+  CT.actions['serv-inc'] = (d) => stepPortion(d.id, 1);
+  CT.actions['serv-dec'] = (d) => stepPortion(d.id, -1);
   CT.actions['fav-toggle'] = (d) => { const f = CT.state.favorites, i = f.indexOf(d.id); if (i >= 0) f.splice(i, 1); else f.push(d.id); CT.save(); CT.render(); };
   CT.actions.rate = (d) => { CT.state.ratings[d.id] = Number(d.n); CT.save(); CT.render(); };
   CT.actions['delete-custom'] = async (d) => {
@@ -153,7 +161,7 @@
       <div class="cook-progress">${r.steps.map((_, k) => `<span class="${k < c.i ? 'done' : k === c.i ? 'now' : ''}"></span>`).join('')}</div>
       ${last ? `<div class="cook-step"><p class="eyebrow">Done</p><h2>Plate up.</h2><p class="muted">Sit down. Eat slowly. Drink a glass of water.</p></div>` : `<div class="cook-step"><p class="eyebrow">Step ${c.i + 1} of ${total}</p><h2>${CT.esc(step)}</h2></div>`}
       ${!last && (secs || c.timer) ? `<div class="cook-timer ${c.timer ? 'running' : ''}"><span class="time">${fmtTime(c.timer ? c.remaining : secs)}</span>${c.timer ? `<button class="btn ghost sm" data-action="timer-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary sm" data-action="timer-start" data-secs="${secs}">${CT.icon('play')} Start timer</button>`}</div>` : ''}
-      <div class="cook-ings"><details><summary>Ingredients</summary><ul>${r.ings.map((i) => `<li><strong>${CT.esc(i.disp)}</strong> ${CT.esc(i.en)}</li>`).join('')}</ul></details></div>
+      <div class="cook-ings"><details><summary>Ingredients${c.k !== 1 ? ` <span class="chip tiny">×${c.k} portion</span>` : ''}</summary><ul>${r.ings.map((i) => `<li><strong>${c.k === 1 ? CT.esc(i.disp) : (CT.LIQUID.has(i.id) ? CT.fmt(i.g * c.k) + ' ml' : CT.fmt(i.g * c.k) + ' g')}</strong> ${CT.esc(i.en)}</li>`).join('')}</ul></details></div>
       <footer class="cook-nav">
         <button class="btn ghost" data-action="cook-prev" ${c.i === 0 ? 'disabled' : ''}>${CT.icon('back')} Back</button>
         ${last ? `<button class="btn primary big" data-action="cook-finish" data-id="${r.id}">${CT.icon('check')} I made it</button>` : `<button class="btn primary big" data-action="cook-next">Next ${CT.icon('chev')}</button>`}
@@ -162,7 +170,7 @@
   };
   const stopTimer = () => { if (CT.cook.timer) { clearInterval(CT.cook.timer); CT.cook.timer = null; } };
   CT.actions['cook-start'] = async (d) => {
-    CT.cook.r = CT.recipe(d.id); CT.cook.i = 0; stopTimer();
+    CT.cook.r = CT.recipe(d.id); CT.cook.i = 0; CT.cook.k = CT.ui.servings[d.id] || 1; stopTimer();
     const el = CT.$('#cookmode'); el.hidden = false; document.body.classList.add('cooking');
     cookRender();
     try { if (navigator.wakeLock) CT.cook.wake = await navigator.wakeLock.request('screen'); } catch (e) { /* not critical */ }

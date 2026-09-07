@@ -134,6 +134,11 @@ CT.ING = {};
   I('stock', 'Low-salt vegetable stock cube', 'dado vegetale a ridotto contenuto di sale', 'Canned & dry', 150, 8, 20, 0, 5, 2, 5, 12000, 15, '', '', 0, 0, 10, 'cube');
   I('coffee', 'Coffee', 'caffè', 'Canned & dry', 0, 0, 0, 0, 0, 0, 0, 0, 20, 'coffee', '', 0, 0, 0, '');
   I('water', 'Water', 'acqua', 'Oils & condiments', 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, 0, 0, '');
+  I('fennel', 'Fennel', 'finocchio', 'Produce', 31, 1.2, 7, 3.1, 0.2, 0, 4, 52, 2.5, 'fennel', '', 0, 0, 300, 'bulb');
+  I('radicchio', 'Radicchio', 'radicchio', 'Produce', 23, 1.4, 4.5, 0.9, 0.2, 0, 0.6, 22, 4, 'radicchio', '', 0, 0, 0, '');
+  I('seabass', 'Sea bream or sea bass fillet', 'filetto di orata o branzino', 'Meat & fish', 97, 18, 0, 0, 2.5, 0.6, 0, 70, 18, 'seabass', 'FIL', 0.6, 2, 180, 'fillet');
+  I('polenta', 'Instant polenta', 'polenta istantanea', 'Bakery & grains', 358, 8, 76, 4, 1.5, 0.3, 0.6, 5, 2.5, 'polenta', '', 0, 0, 0, '');
+  I('sage', 'Sage', 'salvia', 'Spices', 315, 11, 61, 40, 13, 7, 1.7, 11, 20, '', '', 0, 0, 0, '');
 
   // Liquids shown in ml rather than g.
   CT.LIQUID = new Set(['milk_skim', 'water', 'passata', 'evoo', 'soy_sauce', 'balsamic']);

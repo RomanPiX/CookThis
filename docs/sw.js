@@ -1,5 +1,5 @@
 // CookThis service worker: app shell cached for offline use.
-const VERSION = '202609071839';
+const VERSION = '202609071901';
 const SHELL = `cookthis-shell-${VERSION}`;
 const RUNTIME = 'cookthis-runtime';
 const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png'];

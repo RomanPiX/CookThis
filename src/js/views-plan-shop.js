@@ -9,13 +9,14 @@
     const cards = days.map((d) => {
       const plan = CT.state.plans[d];
       const rs = slots.map((s) => plan[s] && CT.recipe(plan[s].id)).filter(Boolean);
-      const kcal = CT.sum(rs, (r) => r.nutri.kcal), mins = CT.sum(rs, (r) => r.active), cost = CT.sum(rs, (r) => r.cost);
+      const dn = CT.dayNutri(d).planned;
+      const kcal = dn.kcal, mins = CT.sum(rs, (r) => r.active), cost = dn.cost;
       weekCost += cost; weekFish += rs.filter((r) => r.fish).length; weekLegume += rs.filter((r) => r.legume).length;
       return `<article class="plan-day ${d === today ? 'is-today' : ''}">
         <header class="row-between"><h3>${CT.relDay(d)} <small class="muted">${CT.fmtDate(d, 'short')}</small></h3><span class="muted small">${CT.fmt(kcal)} kcal · ${mins} min · ${CT.eur(cost)}</span></header>
         ${slots.map((s) => { const p = plan[s]; const r = p && CT.recipe(p.id); if (!r) return ''; return `<div class="plan-row ${p.done ? 'done' : ''}">
           <span class="eyebrow">${CT.SLOTS[s].it}</span>
-          <a href="#/recipe/${r.id}" class="plan-name">${CT.esc(r.name)}</a>
+          <a href="#/recipe/${r.id}?portion=${p.mult || 1}" class="plan-name">${CT.esc(r.name)}${(p.mult || 1) !== 1 ? ` <span class="chip tiny">×${p.mult}</span>` : ''}</a>
           <span class="muted small nowrap">${r.active} min</span>
           <button class="btn ghost xs icon-only ${p.locked ? 'on' : ''}" data-action="lock-slot" data-date="${d}" data-slot="${s}" title="${p.locked ? 'Unlock' : 'Lock so re-planning keeps it'}" aria-pressed="${!!p.locked}">${CT.icon(p.locked ? 'lock' : 'unlock')}</button>
           <button class="btn ghost xs icon-only" data-action="swap-slot" data-date="${d}" data-slot="${s}" title="Swap" ${p.locked ? 'disabled' : ''}>${CT.icon('shuffle')}</button>
@@ -43,12 +44,13 @@
       const plan = CT.ensurePlan(d);
       for (const s of CT.enabledSlots()) {
         const p = plan[s]; const r = p && CT.recipe(p.id); if (!r || p.done) continue;
+        const m = p.mult || 1;
         meals.push(r.name);
         for (const i of r.ings) {
           const key = i.id || 'x:' + i.en.toLowerCase();
           const it = items[key] = items[key] || { key, id: i.id, en: i.en, it: i.it, aisle: i.aisle, g: 0, pack: i.pack, liquid: !!(i.id && CT.LIQUID.has(i.id)), pantry: !!(i.id && CT.PANTRY.has(i.id)), price: i.price, uses: 0 };
-          it.g += i.g; it.uses++;
-          cost += (i.price * i.g) / 1000;
+          it.g += i.g * m; it.uses++;
+          cost += (i.price * i.g * m) / 1000;
         }
       }
     }

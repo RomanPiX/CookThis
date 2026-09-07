@@ -29,10 +29,14 @@ python -m http.server 8765 --directory docs   # then open http://localhost:8765
 Source lives in `src/`:
 
 - `data/ingredients.js` — 113 ingredients with per-100 g nutrition, €/kg, Italian names, allergen flags, purine load, omega-3
-- `data/recipes-*.js` — 83 recipes (ingredients in grams; nutrition, cost and health scores are computed)
+- `data/recipes-*.js` — 100 recipes (ingredients in grams; nutrition, cost and health scores are
+  computed). `recipes-italian.js` holds the Italian classics; older recipes are classified by the
+  `CT.ITALIAN` set in `content.js`, and the "Italian first" preference weights the planner towards them.
 - `data/content.js` — meal slots, preference groups, health focus texts, lab panel, tips, swap guide, achievements
 - `js/nutrition.js` — totals, targets (Mifflin-St Jeor), benefit scoring
-- `js/planner.js` — candidate filtering, scoring, day assembly, weekly rhythm (fish ×2, purine-rich ×1, red meat ×1)
+- `js/planner.js` — candidate filtering, scoring, day assembly, weekly rhythm (fish ×2, purine-rich ×1,
+  red meat ×1), and portion fitting: each planned meal carries a multiplier so the day reaches the
+  calorie target, since three standard plates cannot feed a 2000+ kcal day on their own.
 - `js/store.js` — state, localStorage, optional db sync
 - `js/ai.js` — Claude features through `claude.use("sample")`
 - `js/ai-tools.js` — the page functions Claude may call in the chat: read the plan and a recipe,
