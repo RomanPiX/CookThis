@@ -121,15 +121,14 @@
     if (!CT.ai.available()) return saved ? '' : '';
     if (u.busy && u.id === id) return `<button class="btn ghost sm" data-action="expand-stop">${CT.icon('stop')} Stop</button>`;
     if (saved) return `<span class="row-gap"><button class="btn ghost sm" data-action="expand-method" data-id="${id}" data-portion="${k}" data-redo="1">${CT.icon('sync')} Redo</button><button class="btn ghost sm" data-action="expand-clear" data-id="${id}">Hide</button></span>`;
-    return `<button class="btn ghost sm" data-action="expand-method" data-id="${id}" data-portion="${k}">${CT.icon('claude')} Expand</button>`;
+    return `<button class="btn ghost sm" data-action="expand-method" data-id="${id}" data-portion="${k}" title="Claude writes this recipe out in full detail: prep order, heat, timings and what to look for">${CT.icon('claude')} Expand</button>`;
   };
   const expandBlock = (id) => {
     const u = CT.ui.expand, saved = CT.state.expanded[id];
     if (u.error && u.id === id) return `<div class="banner bad">${CT.esc(u.error)} <button class="btn ghost xs" data-action="expand-dismiss">Dismiss</button></div>`;
     if (u.busy && u.id === id) return `<div class="expanded"><p class="eyebrow">Step by step</p><div id="expand-out" class="prose">${CT.esc(u.out) || '<span class="thinking">Writing it out…</span>'}</div></div>`;
     if (saved) return `<div class="expanded"><p class="eyebrow">Step by step${saved.portion && saved.portion !== 1 ? ` · for ×${saved.portion}` : ''}</p><div class="prose">${CT.prose(saved.text)}</div></div>`;
-    if (!CT.ai.available()) return '';
-    return `<p class="hint">Expand asks Claude to write this out in full detail: prep order, heat, timings and what to look for. It writes from what it knows about the dish, since the page cannot browse the web.</p>`;
+    return '';
   };
   CT.actions['expand-method'] = async (d) => {
     const r = CT.recipe(d.id); if (!r) return;
