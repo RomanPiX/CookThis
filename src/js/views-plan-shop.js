@@ -15,7 +15,7 @@
       return `<article class="plan-day ${d === today ? 'is-today' : ''}">
         <header class="row-between"><h3>${CT.relDay(d)} <small class="muted">${CT.fmtDate(d, 'short')}</small></h3><span class="muted small">${CT.fmt(kcal)} kcal · ${mins} min · ${CT.eur(cost)}</span></header>
         ${slots.map((s) => { const p = plan[s]; const r = p && CT.recipe(p.id); if (!r) return ''; return `<div class="plan-row ${p.done ? 'done' : ''}">
-          <span class="eyebrow">${CT.SLOTS[s].it}</span>
+          <span class="eyebrow">${CT.esc(CT.slotName(s))}</span>
           <a href="#/recipe/${r.id}?portion=${p.mult || 1}" class="plan-name">${CT.esc(CT.rName(r))}${(p.mult || 1) !== 1 ? ` <span class="chip tiny">×${p.mult}</span>` : ''}</a>
           <span class="muted small nowrap">${r.active} min</span>
           <button class="btn ghost xs icon-only ${p.locked ? 'on' : ''}" data-action="lock-slot" data-date="${d}" data-slot="${s}" title="${p.locked ? 'Unlock' : 'Lock so re-planning keeps it'}" aria-pressed="${!!p.locked}">${CT.icon(p.locked ? 'lock' : 'unlock')}</button>

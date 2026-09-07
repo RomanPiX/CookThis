@@ -7,7 +7,7 @@
   CT.tagChips = (r) => `<div class="chips tiny">${r.tags.filter((t) => TAG_LABEL[t]).map((t) => `<span class="chip tiny">${TAG_LABEL[t]}</span>`).join('')}${r.veg && !r.tags.includes('vegan') ? '<span class="chip tiny">vegetarian</span>' : ''}${r.fish ? '<span class="chip tiny">fish</span>' : ''}</div>`;
 
   CT.recipeCard = (r) => `<a class="rcard ${r.custom ? 'custom' : ''}" href="#/recipe/${r.id}">
-    <div class="rcard-top"><span class="eyebrow">${r.slots.map((s) => CT.SLOTS[s].en).join(' · ')}</span><span class="match" title="How well this fits your goals and likes">${CT.matchScore(r)}%</span></div>
+    <div class="rcard-top"><span class="eyebrow">${r.slots.map((s) => CT.esc(CT.slotName(s))).join(' · ')}</span><span class="match" title="How well this fits your goals and likes">${CT.matchScore(r)}%</span></div>
     <h3>${CT.esc(CT.rName(r))}</h3>
     <div class="rmeta">${CT.metaLine(r)}</div>
     ${CT.benefitBadges(r, 2)}
@@ -42,7 +42,7 @@
       <div class="filters">
         <input class="search" type="search" placeholder="Search recipes or ingredients (English or Italian)" value="${CT.esc(u.q)}" data-input="rf-q" aria-label="Search">
         <div class="chips">
-          ${CT.SLOT_ORDER.map((s) => `<button class="chip ${u.slot === s ? 'on' : ''}" data-action="rf-slot" data-slot="${s}">${CT.SLOTS[s].en}</button>`).join('')}
+          ${CT.SLOT_ORDER.map((s) => `<button class="chip ${u.slot === s ? 'on' : ''}" data-action="rf-slot" data-slot="${s}">${CT.esc(CT.slotName(s))}</button>`).join('')}
           <span class="vsep"></span>
           ${f('quick', '≤ 10 min')}${f('nocook', 'No stove')}${f('veg', 'Vegetarian')}${f('fish', 'Fish')}${f('fav', '♥ Favourites')}${f('mine', 'My recipes')}
         </div>
@@ -72,7 +72,7 @@
     const focusRows = Object.keys(CT.FOCUS).map((f) => { const v = r.benefits[f] || 0; return `<div class="fit-row"><span>${CT.FOCUS[f].name}</span><span class="fit-dots ${v < 0 ? 'neg' : ''}">${v < 0 ? 'avoid if strict' : '●'.repeat(v) + '○'.repeat(3 - v)}</span></div>`; }).join('');
     return `<article class="recipe">
       <a class="back" href="#/recipes">${CT.icon('back')} Recipes</a>
-      <p class="eyebrow">${r.slots.map((x) => `${CT.SLOTS[x].it} · ${CT.SLOTS[x].en}`).join(' &nbsp;/&nbsp; ')}${r.custom ? ' &nbsp;·&nbsp; created with Claude' : ''}</p>
+      <p class="eyebrow">${r.slots.map((x) => CT.esc(CT.slotName(x))).join(' &nbsp;/&nbsp; ')}${r.custom ? ' &nbsp;·&nbsp; created with Claude' : ''}</p>
       <h1>${CT.esc(CT.rName(r))}</h1>
       <div class="rmeta-row">${CT.metaLine(r)}<span class="meta">${r.needs.length ? r.needs.join(', ') : 'no cooking equipment'}</span></div>
       ${CT.tagChips(r)}
@@ -172,7 +172,7 @@
     CT.state.plans[date][slot].done = true;
     const log = CT.state.log[date] = CT.state.log[date] || {}; log.cooked = log.cooked || {}; log.cooked[slot] = d.id;
     CT.save('plans', 'log'); CT.checkAchievements();
-    CT.toast(`Logged as today's ${CT.SLOTS[slot].en.toLowerCase()}.`, 'good'); CT.render();
+    CT.toast(`Logged as ${CT.slotName(slot).toLowerCase()}, today.`, 'good'); CT.render();
   };
   CT.actions['add-to-plan'] = (d) => {
     const r = CT.recipe(d.id), today = CT.today();
@@ -180,7 +180,7 @@
     CT.dialog(`<h3>Add “${CT.esc(CT.rName(r))}” to…</h3>
       <form class="form-grid" data-submit="plan-add" data-id="${d.id}">
         <label class="field"><span>Day</span><select name="date">${days.map((x) => `<option value="${x}">${CT.relDay(x)}</option>`).join('')}</select></label>
-        <label class="field"><span>Meal</span><select name="slot">${r.slots.map((s) => `<option value="${s}">${CT.SLOTS[s].en}</option>`).join('')}</select></label>
+        <label class="field"><span>Meal</span><select name="slot">${r.slots.map((s) => `<option value="${s}">${CT.esc(CT.slotName(s))}</option>`).join('')}</select></label>
         <div class="dlg-actions span2"><button type="button" class="btn ghost" data-action="dlg-cancel">Cancel</button><button class="btn primary" type="submit">Add</button></div>
       </form>`);
   };

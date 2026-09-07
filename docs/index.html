@@ -537,6 +537,14 @@ body.cooking { overflow: hidden; }
 .slot-time .eyebrow { margin: 0; }
 .slot-time .seg { align-self: start; }
 
+.slot-time { display: grid; gap: 8px; padding: 12px 0; border-bottom: 1px dotted var(--line); }
+.slot-time-head { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.slot-name { flex: 1 1 140px; font-family: var(--display); font-size: 17px; font-weight: 600; }
+.slot-clock { flex: 0 0 auto; width: auto; }
+.slot-share { display: inline-flex; align-items: center; gap: 6px; }
+.slot-share input { width: 68px; }
+.slot-share small { color: var(--muted); }
+
 </style>
 </head>
 <body>
@@ -557,7 +565,7 @@ body.cooking { overflow: hidden; }
 </div>
 
 <script>
-window.CT_CONFIG={"appName":"CookThis","build":"202609072233"};
+window.CT_CONFIG={"appName":"CookThis","build":"202609072246"};
 // ==== data/ingredients.js
 try {
 /* CookThis ingredient table.
@@ -1687,10 +1695,10 @@ Object.assign(CT.IT, {
 try {
 /* Static content: meal slots, preference groups, health focus, lab panel, tips, swaps, achievements. */
 CT.SLOTS = {
-  B: { en: 'Breakfast', it: 'Colazione', order: 0, share: 0.24 },
-  L: { en: 'Lunch', it: 'Pranzo', order: 1, share: 0.34 },
-  D: { en: 'Dinner', it: 'Cena', order: 2, share: 0.32 },
-  S: { en: 'Snack', it: 'Spuntino', order: 3, share: 0.10 },
+  B: { en: 'Breakfast', it: 'Colazione', order: 0, share: 0.24, time: '08:00' },
+  L: { en: 'Lunch', it: 'Pranzo', order: 1, share: 0.34, time: '13:00' },
+  D: { en: 'Dinner', it: 'Cena', order: 2, share: 0.32, time: '20:00' },
+  S: { en: 'Snack', it: 'Spuntino', order: 3, share: 0.10, time: '16:00' },
 };
 CT.SLOT_ORDER = ['B', 'L', 'D', 'S'];
 
@@ -2003,6 +2011,26 @@ CT.$$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 CT.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 CT.fmt = (n, d = 0) => (n == null || isNaN(n)) ? '–' : Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
 CT.eur = (n) => '€' + CT.fmt(n, 2);
+/* Meal slots. The four keys stay fixed so old plans keep working, but what each one is called,
+   when it happens and how much of the day's calories it carries are the user's to set. A time
+   before 05:00 belongs to the end of the day it was planned for, not the start. */
+CT.slotCfg = (k) => {
+  const base = CT.SLOTS[k] || {};
+  const cfg = ((CT.state && CT.state.prefs && CT.state.prefs.slotCfg) || {})[k] || {};
+  const time = cfg.time || base.time || '12:00';
+  const [h, m] = time.split(':').map(Number);
+  let minutes = (h || 0) * 60 + (m || 0);
+  if (minutes < 300) minutes += 1440;
+  return { key: k, name: cfg.name || '', time, minutes, share: cfg.share != null ? Number(cfg.share) : base.share, base };
+};
+CT.slotName = (k) => {
+  const c = CT.slotCfg(k);
+  if (c.name) return c.name;
+  const b = CT.SLOTS[k] || {};
+  return (CT.recipeLang && CT.recipeLang() === 'it') ? (b.it || b.en || k) : (b.en || k);
+};
+CT.slotTimeLabel = (k) => CT.slotCfg(k).time;
+
 /* Recipe language. Italian is the default: the cooking vocabulary is more precise in Italian and
    the list is read in an Italian shop. Everything falls back to English where a translation is
    missing, which is what happens with recipes Claude has just invented. */
@@ -2355,7 +2383,13 @@ try {
     startDate: CT.today(),
     profile: { name: '', sex: 'm', age: 32, height: 178, weight: 80, activity: 'light', goal: 'lose' },
     focus: { ldl: true, tg: true, liver: true, uric: true, glucose: true, thyroid: true },
-    prefs: { likes: {}, allergens: [], diet: 'omni', maxActive: 15, meals: { B: true, L: true, D: true, S: true }, equipment: { stove: true, oven: true, microwave: true, blender: true }, budget: 'normal', lazy: false, cuisine: 'italian', chickenPerWeek: 0, autoPortion: false, slotTime: { B: 15, L: 15, D: 'nocook', S: 10 } },
+    prefs: { likes: {}, allergens: [], diet: 'omni', maxActive: 15, meals: { B: true, L: true, D: true, S: true }, equipment: { stove: true, oven: true, microwave: true, blender: true }, budget: 'normal', lazy: false, cuisine: 'italian', chickenPerWeek: 0, autoPortion: false, slotTime: { B: 15, L: 15, D: 'nocook', S: 10 },
+      slotCfg: {
+        B: { name: 'Colazione', time: '08:00', share: 0.24 },
+        S: { name: 'Spuntino', time: '16:00', share: 0.15 },
+        L: { name: 'Cena', time: '19:00', share: 0.40 },
+        D: { name: 'Seconda cena', time: '02:00', share: 0.45 },
+      } },
     settings: { theme: 'auto', palette: CT.DEFAULT_PALETTE, recipeLang: 'it' },
     favorites: [], ratings: {}, expanded: {},
     labs: [JSON.parse(JSON.stringify(CT.INITIAL_LABS))],
@@ -2671,7 +2705,8 @@ try {
     return 0;
   };
 
-  CT.enabledSlots = () => CT.SLOT_ORDER.filter((s) => CT.state.prefs.meals[s]);
+  // In clock order, so a 2AM meal sits at the end of its day rather than the start.
+  CT.enabledSlots = () => CT.SLOT_ORDER.filter((s) => CT.state.prefs.meals[s]).sort((a, b) => CT.slotCfg(a).minutes - CT.slotCfg(b).minutes);
 
   /* Portions. A recipe is written as one sensible serving, but a day's calorie target depends on
      the person and on how many meals they eat. With breakfast switched off, three standard plates
@@ -2692,12 +2727,12 @@ try {
     const T = CT.targets();
     const active = Object.keys(chosen).filter((s) => chosen[s]);
     if (!active.length) return {};
-    const shareTot = active.reduce((a, s) => a + (CT.SLOTS[s].share || 0.25), 0);
+    const shareTot = active.reduce((a, s) => a + (CT.slotCfg(s).share || 0.25), 0);
     const mult = {}, steps = {};
     for (const s of active) steps[s] = stepsFor(chosen[s]);
     for (const s of active) {
       if (fixed && fixed[s] != null) { mult[s] = fixed[s]; continue; }
-      const want = T.kcal * ((CT.SLOTS[s].share || 0.25) / shareTot);
+      const want = T.kcal * ((CT.slotCfg(s).share || 0.25) / shareTot);
       const ideal = want / Math.max(80, chosen[s].nutri.kcal);
       mult[s] = steps[s].reduce((a, b) => (Math.abs(b - ideal) < Math.abs(a - ideal) ? b : a), steps[s][0]);
     }
@@ -2956,7 +2991,7 @@ Change only what was asked, one slot at a time, and never touch a meal already m
     const dislikes = Object.entries(s.prefs.likes).filter(([, v]) => v === -1).map(([k]) => k).join(', ') || 'none';
     const allergens = s.prefs.allergens.map((a) => (CT.ALLERGENS.find((x) => x[0] === a) || [])[1]).filter(Boolean).join(', ') || 'none';
     const plan = s.plans[today] || {};
-    const planLines = CT.SLOT_ORDER.filter((k) => plan[k]).map((k) => { const r = CT.recipe(plan[k].id); return r ? `${CT.SLOTS[k].en}: ${CT.rName(r)}${plan[k].done ? ' (eaten)' : ''}` : null; }).filter(Boolean).join('; ') || 'nothing planned yet';
+    const planLines = CT.SLOT_ORDER.filter((k) => plan[k]).map((k) => { const r = CT.recipe(plan[k].id); return r ? `${CT.slotName(k)} at ${CT.slotTimeLabel(k)}: ${CT.rName(r)}${plan[k].done ? ' (eaten)' : ''}` : null; }).filter(Boolean).join('; ') || 'nothing planned yet';
     const recent = [];
     for (let i = 1; i <= 7; i++) {
       const d = CT.addDays(today, -i), l = s.log[d]; if (!l) continue;
@@ -3108,18 +3143,18 @@ try {
       saturated_fat_g: +n.sf.toFixed(1), sugars_g: Math.round(n.sug), sodium_mg: Math.round(n.na),
       omega3_g: +n.o3.toFixed(1), cost_eur: +n.cost.toFixed(2) };
   };
-  const brief = (r) => ({ id: r.id, name: CT.rName(r), meals: r.slots.map((s) => CT.SLOTS[s].en), hands_on_min: r.active,
+  const brief = (r) => ({ id: r.id, name: CT.rName(r), meals: r.slots.map((s) => CT.slotName(s)), hands_on_min: r.active,
     total_min: r.time, kcal: Math.round(r.nutri.kcal), fibre_g: Math.round(r.nutri.fib),
     saturated_fat_g: +r.nutri.sf.toFixed(1), cost_eur: +r.cost.toFixed(2), tags: r.tags });
 
   CT.ui.planEdits = CT.ui.planEdits || [];
   const noteEdit = (date, slot, prevId, r) => {
     CT.ui.planEdits.push({ date, slot, prevId, newId: r.id, newName: CT.rName(r) });
-    CT.toast(CT.SLOTS[slot].en + ' ' + CT.relDay(date).toLowerCase() + ': ' + CT.rName(r), 'good');
+    CT.toast(CT.slotName(slot) + ' ' + CT.relDay(date).toLowerCase() + ': ' + CT.rName(r), 'good');
   };
   const guardCooked = (date, slot) => {
     const s = (CT.state.plans[date] || {})[slot];
-    if (s && s.done) throw new Error('The ' + CT.SLOTS[slot].en.toLowerCase() + ' on ' + date + ' is already marked as cooked, so it must not be replaced. Pick another slot, or ask the person first.');
+    if (s && s.done) throw new Error('The ' + CT.slotName(slot).toLowerCase() + ' on ' + date + ' is already marked as cooked, so it must not be replaced. Pick another slot, or ask the person first.');
   };
 
   CT.aiTools = () => [
@@ -3134,7 +3169,7 @@ try {
           const d = CT.addDays(CT.today(), i), plan = CT.ensurePlan(d);
           for (const s of CT.enabledSlots()) {
             const p = plan[s], r = p && CT.recipe(p.id); if (!r) continue;
-            meals.push({ date: d, when: CT.relDay(d), slot: CT.SLOTS[s].en, recipeId: r.id, name: CT.rName(r),
+            meals.push({ date: d, when: CT.relDay(d), slot: CT.slotName(s), at: CT.slotTimeLabel(s), recipeId: r.id, name: CT.rName(r),
               hands_on_min: r.active, portion: p.mult || 1, kcal: Math.round(r.nutri.kcal * (p.mult || 1)),
               cooked: !!p.done, locked: !!p.locked });
           }
@@ -3202,7 +3237,7 @@ try {
         CT.setSlot(d, sl, r.id);
         if (Number(portion) > 0) CT.setPortion(d, sl, Number(portion));
         noteEdit(d, sl, prev ? prev.id : null, r);
-        return { ok: true, date: d, slot: CT.SLOTS[sl].en, planned: CT.rName(r), replaced: prevName,
+        return { ok: true, date: d, slot: CT.slotName(sl), planned: CT.rName(r), replaced: prevName,
           portion: (CT.state.plans[d][sl] || {}).mult || 1, day_totals: dayTotals(d), shopping_list_updated: true };
       },
     },
@@ -3229,7 +3264,7 @@ try {
           res.replaced = prev ? (CT.recipe(prev.id) || {}).name : null;
           CT.setSlot(d, sl, p.id);
           noteEdit(d, sl, prev ? prev.id : null, p);
-          res.planned = true; res.date = d; res.slot = CT.SLOTS[sl].en;
+          res.planned = true; res.date = d; res.slot = CT.slotName(sl);
           res.day_totals = dayTotals(d); res.shopping_list_updated = true;
         }
         return res;
@@ -3287,7 +3322,7 @@ CT.setPath = (path, value) => {
   for (let i = 0; i < keys.length - 1; i++) { if (o[keys[i]] == null) o[keys[i]] = {}; o = o[keys[i]]; }
   o[keys[keys.length - 1]] = value;
 };
-const coerce = (v, type) => type === 'number' ? (v === '' ? '' : Number(v)) : type === 'slotTime' ? (v === 'nocook' ? 'nocook' : Number(v)) : type === 'bool' ? (v === true || v === 'true') : type === 'budget' ? ((v === true || v === 'true') ? 'low' : 'normal') : v;
+const coerce = (v, type) => type === 'share' ? (Math.max(1, Math.min(90, Number(v) || 25)) / 100) : type === 'number' ? (v === '' ? '' : Number(v)) : type === 'slotTime' ? (v === 'nocook' ? 'nocook' : Number(v)) : type === 'bool' ? (v === true || v === 'true') : type === 'budget' ? ((v === true || v === 'true') ? 'low' : 'normal') : v;
 CT.actions.set = (d) => { CT.setPath(d.path, coerce(d.value, d.type)); CT.save(d.part || 'main'); CT.markPrefsDirty(d.path); CT.render(); };
 CT.actions.toggle = (d) => { CT.setPath(d.path, !CT.getPath(d.path)); CT.save(d.part || 'main'); CT.markPrefsDirty(d.path); CT.render(); };
 CT.actions['toggle-in'] = (d) => { const arr = CT.getPath(d.path) || []; const i = arr.indexOf(d.value); if (i >= 0) arr.splice(i, 1); else arr.push(d.value); CT.setPath(d.path, arr); CT.save(); CT.markPrefsDirty(d.path); CT.render(); };
@@ -3350,10 +3385,18 @@ CT.forms = {
       <div class="field span2"><span>Cooking style</span>${seg('prefs.cuisine', [['italian', 'Italian first'], ['any', 'Anything goes']], p.cuisine || 'italian')}<small class="muted">Italian first keeps the week mostly Italian, with the occasional dish from elsewhere.</small></div>
       <label class="switch-row span2"><span><strong>Size portions to my calorie target</strong><small>Off by default: every meal is the recipe as written, ×1, and you adjust with the − and + on the meal card. On, the planner scales each plate so the day adds up to your target.</small></span><input type="checkbox" data-change="path" data-path="prefs.autoPortion" data-type="bool" data-rerender="1" ${p.autoPortion ? 'checked' : ''}></label>
       <div class="field span2"><span>Chicken meals per week</span>${seg('prefs.chickenPerWeek', [[0, 'No preference'], [3, '3'], [5, '5'], [7, '7 (one a day)'], [10, '10']], p.chickenPerWeek || 0, 'number')}<small class="muted">The planner aims for this many pan-cooked chicken meals, while still keeping two fish meals and legumes through the week.</small></div>
-      <div class="field span2"><span>Hands-on time, per meal</span>
-        <div class="slot-times">${CT.SLOT_ORDER.filter((k) => p.meals[k]).map((k) => `<div class="slot-time"><span class="eyebrow">${CT.SLOTS[k].it} · ${CT.SLOTS[k].en}</span>${seg('prefs.slotTime.' + k, [['nocook', 'Assemble only'], [5, '5 min'], [10, '10 min'], [15, '15 min'], [20, '20 min'], [30, '30 min']], (p.slotTime || {})[k] || p.maxActive)}</div>`).join('')}</div>
-        <small class="muted">Oven or simmering time does not count: this is the minutes you actually spend. "Assemble only" means no heat at all, about five minutes, a plate you put together.</small></div>
-      <div class="field span2"><span>Meals to plan</span><div class="chips">${CT.SLOT_ORDER.map((k) => `<button type="button" class="chip ${p.meals[k] ? 'on' : ''}" data-action="toggle" data-path="prefs.meals.${k}">${CT.SLOTS[k].en} <em>${CT.SLOTS[k].it}</em></button>`).join('')}</div></div>
+      <div class="field span2"><span>Your meals</span>
+        <div class="slot-times">${CT.enabledSlots().map((k) => { const c = CT.slotCfg(k); return `<div class="slot-time">
+          <div class="slot-time-head">
+            <input type="text" class="slot-name" data-change="path" data-path="prefs.slotCfg.${k}.name" value="${CT.esc(CT.slotName(k))}" aria-label="Name of this meal">
+            <input type="time" class="slot-clock" data-change="path" data-path="prefs.slotCfg.${k}.time" data-rerender="1" value="${c.time}" aria-label="Time of this meal">
+            <span class="slot-share"><input type="number" min="5" max="80" step="5" data-change="path" data-path="prefs.slotCfg.${k}.share" data-type="share" data-rerender="1" value="${Math.round((c.share || 0.25) * 100)}" aria-label="Share of the day"><small>% of the day</small></span>
+          </div>
+          ${seg('prefs.slotTime.' + k, [['nocook', 'Assemble only'], [5, '5 min'], [10, '10 min'], [15, '15 min'], [20, '20 min'], [30, '30 min']], (p.slotTime || {})[k] || p.maxActive)}
+        </div>`; }).join('')}</div>
+        <small class="muted">Meals are planned in clock order, and a time before 05:00 belongs to the end of that day. Hands-on time is the minutes you actually spend, so oven and simmering do not count; "Assemble only" means no heat at all. The share decides how big each plate is when portions are sized to your target.</small>
+        <small class="muted">Eating late is the part of a night schedule that works hardest against blood sugar and triglycerides. Moving share from the small-hours meal to the earlier one is the single most useful change you can make here.</small></div>
+      <div class="field span2"><span>Meals to plan</span><div class="chips">${CT.SLOT_ORDER.map((k) => `<button type="button" class="chip ${p.meals[k] ? 'on' : ''}" data-action="toggle" data-path="prefs.meals.${k}">${CT.esc(CT.slotName(k))}</button>`).join('')}</div></div>
       <label class="switch-row span2"><span><strong>Lazy mode</strong><small>Only no-cook or microwave meals, 10 minutes tops. For the days when the stove is not happening.</small></span><input type="checkbox" data-change="path" data-path="prefs.lazy" data-type="bool" data-rerender="1" ${p.lazy ? 'checked' : ''}></label>
       <label class="switch-row span2"><span><strong>Tight budget</strong><small>Skip anything over about €3.20 a plate (salmon, shrimp, beef).</small></span><input type="checkbox" data-change="path" data-path="prefs.budget" data-type="budget" data-rerender="1" ${p.budget === 'low' ? 'checked' : ''}></label>
     </div>`;
@@ -3378,7 +3421,7 @@ const STEPS = [
   { key: 'likes', title: 'What do you actually like?', render: () => CT.forms.likes() },
   { key: 'kitchen', title: 'Your kitchen and your patience', render: () => CT.forms.kitchen() },
   { key: 'ready', title: 'Ready to cook', render: () => {
-    const counts = CT.enabledSlots().map((s) => `${CT.candidates(s, CT.addDays(CT.today(), 1)).length} ${CT.SLOTS[s].en.toLowerCase()}`);
+    const counts = CT.enabledSlots().map((s) => `${CT.candidates(s, CT.addDays(CT.today(), 1)).length} for ${CT.slotName(s).toLowerCase()}`);
     const T = CT.targets();
     return `<div class="ready">
       <p class="lede">With your filters there are <strong>${counts.join(', ')}</strong> recipes to rotate through, and Claude can invent more.</p>
@@ -3456,7 +3499,7 @@ try {
     const isToday = date === CT.today();
     const m = s.mult || 1;
     return `<article class="slot-card ${s.done ? 'done' : ''}">
-      <header class="slot-head"><span class="eyebrow">${CT.SLOTS[slot].it} <span class="sep">·</span> ${CT.SLOTS[slot].en}</span><span class="slot-meta">${CT.metaLine(r, m)}</span></header>
+      <header class="slot-head"><span class="eyebrow">${CT.esc(CT.slotName(slot))} <span class="sep">·</span> ${CT.slotTimeLabel(slot)}</span><span class="slot-meta">${CT.metaLine(r, m)}</span></header>
       <a class="slot-title" href="#/recipe/${r.id}?portion=${m}">${CT.esc(CT.rName(r))}</a>
       ${r.why.length ? `<p class="slot-why muted">${r.why.slice(0, 3).join(' · ')}</p>` : ''}
       ${CT.benefitBadges(r, 2)}
@@ -3578,7 +3621,7 @@ try {
   CT.actions['pick-slot'] = (d) => {
     const choices = CT.slotChoices(d.date, d.slot).slice(0, 14);
     const cur = (CT.state.plans[d.date] || {})[d.slot];
-    CT.dialog(`<h3>${CT.SLOTS[d.slot].en} · ${CT.relDay(d.date)}</h3><p class="muted small">Sorted by how well each fits your goals and likes today.</p>
+    CT.dialog(`<h3>${CT.esc(CT.slotName(d.slot))} · ${CT.relDay(d.date)}</h3><p class="muted small">Sorted by how well each fits your goals and likes today.</p>
       <div class="pick-list">${choices.map(({ r }) => `<button class="pick ${cur && cur.id === r.id ? 'current' : ''}" data-action="pick-set" data-date="${d.date}" data-slot="${d.slot}" data-id="${r.id}"><span class="pick-name">${CT.esc(CT.rName(r))}</span><span class="pick-meta">${r.active} min · ${CT.fmt(r.nutri.kcal)} kcal · ${CT.eur(r.cost)}</span>${CT.benefitBadges(r, 2)}</button>`).join('')}</div>`, { wide: true });
   };
   CT.actions['pick-set'] = (d) => { CT.setSlot(d.date, d.slot, d.id); CT.closeDialog(); CT.render(); };
@@ -3684,7 +3727,7 @@ try {
   CT.tagChips = (r) => `<div class="chips tiny">${r.tags.filter((t) => TAG_LABEL[t]).map((t) => `<span class="chip tiny">${TAG_LABEL[t]}</span>`).join('')}${r.veg && !r.tags.includes('vegan') ? '<span class="chip tiny">vegetarian</span>' : ''}${r.fish ? '<span class="chip tiny">fish</span>' : ''}</div>`;
 
   CT.recipeCard = (r) => `<a class="rcard ${r.custom ? 'custom' : ''}" href="#/recipe/${r.id}">
-    <div class="rcard-top"><span class="eyebrow">${r.slots.map((s) => CT.SLOTS[s].en).join(' · ')}</span><span class="match" title="How well this fits your goals and likes">${CT.matchScore(r)}%</span></div>
+    <div class="rcard-top"><span class="eyebrow">${r.slots.map((s) => CT.esc(CT.slotName(s))).join(' · ')}</span><span class="match" title="How well this fits your goals and likes">${CT.matchScore(r)}%</span></div>
     <h3>${CT.esc(CT.rName(r))}</h3>
     <div class="rmeta">${CT.metaLine(r)}</div>
     ${CT.benefitBadges(r, 2)}
@@ -3719,7 +3762,7 @@ try {
       <div class="filters">
         <input class="search" type="search" placeholder="Search recipes or ingredients (English or Italian)" value="${CT.esc(u.q)}" data-input="rf-q" aria-label="Search">
         <div class="chips">
-          ${CT.SLOT_ORDER.map((s) => `<button class="chip ${u.slot === s ? 'on' : ''}" data-action="rf-slot" data-slot="${s}">${CT.SLOTS[s].en}</button>`).join('')}
+          ${CT.SLOT_ORDER.map((s) => `<button class="chip ${u.slot === s ? 'on' : ''}" data-action="rf-slot" data-slot="${s}">${CT.esc(CT.slotName(s))}</button>`).join('')}
           <span class="vsep"></span>
           ${f('quick', '≤ 10 min')}${f('nocook', 'No stove')}${f('veg', 'Vegetarian')}${f('fish', 'Fish')}${f('fav', '♥ Favourites')}${f('mine', 'My recipes')}
         </div>
@@ -3749,7 +3792,7 @@ try {
     const focusRows = Object.keys(CT.FOCUS).map((f) => { const v = r.benefits[f] || 0; return `<div class="fit-row"><span>${CT.FOCUS[f].name}</span><span class="fit-dots ${v < 0 ? 'neg' : ''}">${v < 0 ? 'avoid if strict' : '●'.repeat(v) + '○'.repeat(3 - v)}</span></div>`; }).join('');
     return `<article class="recipe">
       <a class="back" href="#/recipes">${CT.icon('back')} Recipes</a>
-      <p class="eyebrow">${r.slots.map((x) => `${CT.SLOTS[x].it} · ${CT.SLOTS[x].en}`).join(' &nbsp;/&nbsp; ')}${r.custom ? ' &nbsp;·&nbsp; created with Claude' : ''}</p>
+      <p class="eyebrow">${r.slots.map((x) => CT.esc(CT.slotName(x))).join(' &nbsp;/&nbsp; ')}${r.custom ? ' &nbsp;·&nbsp; created with Claude' : ''}</p>
       <h1>${CT.esc(CT.rName(r))}</h1>
       <div class="rmeta-row">${CT.metaLine(r)}<span class="meta">${r.needs.length ? r.needs.join(', ') : 'no cooking equipment'}</span></div>
       ${CT.tagChips(r)}
@@ -3849,7 +3892,7 @@ try {
     CT.state.plans[date][slot].done = true;
     const log = CT.state.log[date] = CT.state.log[date] || {}; log.cooked = log.cooked || {}; log.cooked[slot] = d.id;
     CT.save('plans', 'log'); CT.checkAchievements();
-    CT.toast(`Logged as today's ${CT.SLOTS[slot].en.toLowerCase()}.`, 'good'); CT.render();
+    CT.toast(`Logged as ${CT.slotName(slot).toLowerCase()}, today.`, 'good'); CT.render();
   };
   CT.actions['add-to-plan'] = (d) => {
     const r = CT.recipe(d.id), today = CT.today();
@@ -3857,7 +3900,7 @@ try {
     CT.dialog(`<h3>Add “${CT.esc(CT.rName(r))}” to…</h3>
       <form class="form-grid" data-submit="plan-add" data-id="${d.id}">
         <label class="field"><span>Day</span><select name="date">${days.map((x) => `<option value="${x}">${CT.relDay(x)}</option>`).join('')}</select></label>
-        <label class="field"><span>Meal</span><select name="slot">${r.slots.map((s) => `<option value="${s}">${CT.SLOTS[s].en}</option>`).join('')}</select></label>
+        <label class="field"><span>Meal</span><select name="slot">${r.slots.map((s) => `<option value="${s}">${CT.esc(CT.slotName(s))}</option>`).join('')}</select></label>
         <div class="dlg-actions span2"><button type="button" class="btn ghost" data-action="dlg-cancel">Cancel</button><button class="btn primary" type="submit">Add</button></div>
       </form>`);
   };
@@ -3930,7 +3973,7 @@ try {
       return `<article class="plan-day ${d === today ? 'is-today' : ''}">
         <header class="row-between"><h3>${CT.relDay(d)} <small class="muted">${CT.fmtDate(d, 'short')}</small></h3><span class="muted small">${CT.fmt(kcal)} kcal · ${mins} min · ${CT.eur(cost)}</span></header>
         ${slots.map((s) => { const p = plan[s]; const r = p && CT.recipe(p.id); if (!r) return ''; return `<div class="plan-row ${p.done ? 'done' : ''}">
-          <span class="eyebrow">${CT.SLOTS[s].it}</span>
+          <span class="eyebrow">${CT.esc(CT.slotName(s))}</span>
           <a href="#/recipe/${r.id}?portion=${p.mult || 1}" class="plan-name">${CT.esc(CT.rName(r))}${(p.mult || 1) !== 1 ? ` <span class="chip tiny">×${p.mult}</span>` : ''}</a>
           <span class="muted small nowrap">${r.active} min</span>
           <button class="btn ghost xs icon-only ${p.locked ? 'on' : ''}" data-action="lock-slot" data-date="${d}" data-slot="${s}" title="${p.locked ? 'Unlock' : 'Lock so re-planning keeps it'}" aria-pressed="${!!p.locked}">${CT.icon(p.locked ? 'lock' : 'unlock')}</button>
@@ -4165,7 +4208,7 @@ try {
         <textarea name="q" rows="2" placeholder="Type a question…" ${u.busy ? 'disabled' : ''}>${CT.esc(u.about ? `About “${u.about}”: ` : '')}</textarea>
         ${u.busy ? `<button type="button" class="btn ghost" data-action="ai-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary" type="submit">${CT.icon('send')} Send</button>`}
       </form>
-      ${(CT.ui.planEdits || []).length ? `<div class="banner edits">${CT.icon('plan')} <span>Claude changed ${CT.ui.planEdits.length} meal${CT.ui.planEdits.length > 1 ? 's' : ''}: ${CT.ui.planEdits.map((x) => `${CT.esc(x.newName)} <small>(${CT.SLOTS[x.slot].en.toLowerCase()}, ${CT.relDay(x.date).toLowerCase()})</small>`).join(' · ')}. The shopping list follows.</span>
+      ${(CT.ui.planEdits || []).length ? `<div class="banner edits">${CT.icon('plan')} <span>Claude changed ${CT.ui.planEdits.length} meal${CT.ui.planEdits.length > 1 ? 's' : ''}: ${CT.ui.planEdits.map((x) => `${CT.esc(x.newName)} <small>(${CT.esc(CT.slotName(x.slot).toLowerCase())}, ${CT.relDay(x.date).toLowerCase()})</small>`).join(' · ')}. The shopping list follows.</span>
         <button class="btn sm ghost" data-action="ai-undo-plan">Undo</button><button class="btn sm primary" data-action="ai-keep-plan">Keep</button></div>` : ''}
       ${chat.length ? `<button class="btn ghost xs" data-action="ai-clear">Clear conversation</button>` : ''}
     </div>`;
@@ -4178,7 +4221,7 @@ try {
       <form class="form-grid" data-submit="ai-create">
         <div class="field span2"><span>Mode</span>${CT.seg('__ai_mode', [['fridge', 'From what I have'], ['makeover', 'Make a dish healthier'], ['surprise', 'Surprise me']], u.mode || 'fridge')}</div>
         <label class="field span2"><span>${(u.mode || 'fridge') === 'makeover' ? 'Which dish? (e.g. carbonara, lasagne, panino con salame)' : (u.mode === 'surprise' ? 'Any wishes? (optional)' : 'What is in the fridge or pantry?')}</span><textarea name="brief" rows="3" placeholder="${(u.mode || 'fridge') === 'makeover' ? 'Carbonara for one, I love the taste but I know…' : u.mode === 'surprise' ? 'Something warm, spicy, ready in 10 minutes' : 'Half a zucchini, a can of tuna, some rice, lemon…'}" ${u.busy ? 'disabled' : ''}></label>
-        <label class="field"><span>Meal</span><select name="slot">${CT.SLOT_ORDER.map((s) => `<option value="${s}" ${s === 'D' ? 'selected' : ''}>${CT.SLOTS[s].en}</option>`).join('')}</select></label>
+        <label class="field"><span>Meal</span><select name="slot">${CT.enabledSlots().map((s) => `<option value="${s}" ${s === 'D' ? 'selected' : ''}>${CT.esc(CT.slotName(s))}</option>`).join('')}</select></label>
         <div class="field"><span>&nbsp;</span>${u.busy ? `<button type="button" class="btn ghost" data-action="ai-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary" type="submit">${CT.icon('claude')} Create recipe</button>`}</div>
       </form>
       ${u.busy && u.tab === 'create' ? `<div class="stream-box"><span class="thinking">Claude is cooking…</span><pre id="ai-stream" class="stream">${CT.esc(u.out)}</pre></div>` : ''}
@@ -4189,7 +4232,7 @@ try {
     const p = CT.prepRecipe(JSON.parse(JSON.stringify(r)));
     return `<div class="preview">
       <p class="eyebrow">Draft recipe</p><h3>${CT.esc(CT.rName(p))}</h3>
-      <div class="rmeta-row">${CT.metaLine(p)}<span class="meta">${p.slots.map((s) => CT.SLOTS[s].en).join(', ')}</span></div>
+      <div class="rmeta-row">${CT.metaLine(p)}<span class="meta">${p.slots.map((s) => CT.esc(CT.slotName(s))).join(', ')}</span></div>
       ${CT.benefitBadges(p)}
       <div class="two-col"><div><h4>${CT.rWord('Ingredients')}</h4><ul class="ing-list small">${p.ings.map((i) => `<li><span class="ing-qty">${CT.esc(CT.dispText(i))}</span><span class="ing-name">${CT.ingLabel(i)}</span></li>`).join('')}</ul></div><div><h4>${CT.rWord('Method')}</h4><ol class="steps small">${CT.rSteps(p).map((s) => `<li>${CT.esc(s)}</li>`).join('')}</ol></div></div>
       ${p.note ? `<p class="note">${CT.esc(p.note)}</p>` : ''}
@@ -4247,9 +4290,9 @@ try {
   };
   CT.submits['ai-create'] = async (form) => {
     const f = new FormData(form); const brief = String(f.get('brief') || '').trim(); const slot = f.get('slot'); const mode = CT.ui.ai.mode || 'fridge';
-    const task = mode === 'makeover' ? `Redesign this dish as a fast, healthy version for this person, keeping its soul: "${brief || 'a classic Italian dish'}". Make it a ${CT.SLOTS[slot].en.toLowerCase()}.`
-      : mode === 'surprise' ? `Invent a ${CT.SLOTS[slot].en.toLowerCase()} recipe this person has probably never tried, matching their likes and blood work. ${brief ? 'Wishes: ' + brief : ''}`
-      : `Create a ${CT.SLOTS[slot].en.toLowerCase()} recipe using mainly what they have: "${brief || 'anything cheap and available'}". You may add up to three cheap pantry or supermarket items.`;
+    const task = mode === 'makeover' ? `Redesign this dish as a fast, healthy version for this person, keeping its soul: "${brief || 'a classic Italian dish'}". Make it a ${CT.slotName(slot).toLowerCase()}.`
+      : mode === 'surprise' ? `Invent a ${CT.slotName(slot).toLowerCase()} recipe this person has probably never tried, matching their likes and blood work. ${brief ? 'Wishes: ' + brief : ''}`
+      : `Create a ${CT.slotName(slot).toLowerCase()} recipe using mainly what they have: "${brief || 'anything cheap and available'}". You may add up to three cheap pantry or supermarket items.`;
     CT.ui.ai.draft = null;
     const ctl = start();
     try { CT.ui.ai.draft = await CT.ai.createRecipe(task, { onText: stream, signal: ctl.signal }); finish(); } catch (e) { fail(e); }
@@ -4258,7 +4301,7 @@ try {
     const r = CT.ui.ai.draft; if (!r) return;
     CT.state.custom.push(r); CT.save('custom'); CT.ui.ai.draft = null;
     CT.checkAchievements();
-    if (d.today) { const slot = r.slots.find((s) => CT.state.prefs.meals[s]) || r.slots[0]; CT.setSlot(CT.today(), slot, r.id); CT.toast(`Saved and planned as today's ${CT.SLOTS[slot].en.toLowerCase()}.`, 'good'); CT.go('#/today'); }
+    if (d.today) { const slot = r.slots.find((s) => CT.state.prefs.meals[s]) || r.slots[0]; CT.setSlot(CT.today(), slot, r.id); CT.toast(`Saved and planned as ${CT.slotName(slot).toLowerCase()}, today.`, 'good'); CT.go('#/today'); }
     else { CT.toast('Saved to My recipes.', 'good'); CT.go('#/recipe/' + r.id); }
   };
   CT.actions['ai-discard'] = () => { CT.ui.ai.draft = null; CT.ui.ai.analysis = null; CT.render(); };

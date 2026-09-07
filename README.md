@@ -37,7 +37,9 @@ Source lives in `src/`:
 - `data/recipes-*.js` — 119 recipes (ingredients in grams; nutrition, cost and health scores are
   computed). `recipes-italian.js` holds the Italian classics; older recipes are classified by the
   `CT.ITALIAN` set in `content.js`, and the "Italian first" preference weights the planner towards them.
-- `data/content.js` — meal slots, preference groups, health focus texts, lab panel, tips, swap guide, achievements
+- `data/content.js` — meal slot defaults (name, clock time, share of the day; the user overrides each
+  in Settings, and the day is planned in clock order with times before 05:00 belonging to the night
+  before), preference groups, health focus texts, lab panel, tips, swap guide, achievements
 - `js/nutrition.js` — totals, targets (Mifflin-St Jeor), benefit scoring
 - `js/planner.js` — candidate filtering (including a per-meal hands-on limit, where a slot can be set
   to assemble-only), scoring, day assembly, weekly rhythm (fish ×2, purine-rich ×1,

@@ -47,7 +47,7 @@
         <textarea name="q" rows="2" placeholder="Type a question…" ${u.busy ? 'disabled' : ''}>${CT.esc(u.about ? `About “${u.about}”: ` : '')}</textarea>
         ${u.busy ? `<button type="button" class="btn ghost" data-action="ai-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary" type="submit">${CT.icon('send')} Send</button>`}
       </form>
-      ${(CT.ui.planEdits || []).length ? `<div class="banner edits">${CT.icon('plan')} <span>Claude changed ${CT.ui.planEdits.length} meal${CT.ui.planEdits.length > 1 ? 's' : ''}: ${CT.ui.planEdits.map((x) => `${CT.esc(x.newName)} <small>(${CT.SLOTS[x.slot].en.toLowerCase()}, ${CT.relDay(x.date).toLowerCase()})</small>`).join(' · ')}. The shopping list follows.</span>
+      ${(CT.ui.planEdits || []).length ? `<div class="banner edits">${CT.icon('plan')} <span>Claude changed ${CT.ui.planEdits.length} meal${CT.ui.planEdits.length > 1 ? 's' : ''}: ${CT.ui.planEdits.map((x) => `${CT.esc(x.newName)} <small>(${CT.esc(CT.slotName(x.slot).toLowerCase())}, ${CT.relDay(x.date).toLowerCase()})</small>`).join(' · ')}. The shopping list follows.</span>
         <button class="btn sm ghost" data-action="ai-undo-plan">Undo</button><button class="btn sm primary" data-action="ai-keep-plan">Keep</button></div>` : ''}
       ${chat.length ? `<button class="btn ghost xs" data-action="ai-clear">Clear conversation</button>` : ''}
     </div>`;
@@ -60,7 +60,7 @@
       <form class="form-grid" data-submit="ai-create">
         <div class="field span2"><span>Mode</span>${CT.seg('__ai_mode', [['fridge', 'From what I have'], ['makeover', 'Make a dish healthier'], ['surprise', 'Surprise me']], u.mode || 'fridge')}</div>
         <label class="field span2"><span>${(u.mode || 'fridge') === 'makeover' ? 'Which dish? (e.g. carbonara, lasagne, panino con salame)' : (u.mode === 'surprise' ? 'Any wishes? (optional)' : 'What is in the fridge or pantry?')}</span><textarea name="brief" rows="3" placeholder="${(u.mode || 'fridge') === 'makeover' ? 'Carbonara for one, I love the taste but I know…' : u.mode === 'surprise' ? 'Something warm, spicy, ready in 10 minutes' : 'Half a zucchini, a can of tuna, some rice, lemon…'}" ${u.busy ? 'disabled' : ''}></label>
-        <label class="field"><span>Meal</span><select name="slot">${CT.SLOT_ORDER.map((s) => `<option value="${s}" ${s === 'D' ? 'selected' : ''}>${CT.SLOTS[s].en}</option>`).join('')}</select></label>
+        <label class="field"><span>Meal</span><select name="slot">${CT.enabledSlots().map((s) => `<option value="${s}" ${s === 'D' ? 'selected' : ''}>${CT.esc(CT.slotName(s))}</option>`).join('')}</select></label>
         <div class="field"><span>&nbsp;</span>${u.busy ? `<button type="button" class="btn ghost" data-action="ai-stop">${CT.icon('stop')} Stop</button>` : `<button class="btn primary" type="submit">${CT.icon('claude')} Create recipe</button>`}</div>
       </form>
       ${u.busy && u.tab === 'create' ? `<div class="stream-box"><span class="thinking">Claude is cooking…</span><pre id="ai-stream" class="stream">${CT.esc(u.out)}</pre></div>` : ''}
@@ -71,7 +71,7 @@
     const p = CT.prepRecipe(JSON.parse(JSON.stringify(r)));
     return `<div class="preview">
       <p class="eyebrow">Draft recipe</p><h3>${CT.esc(CT.rName(p))}</h3>
-      <div class="rmeta-row">${CT.metaLine(p)}<span class="meta">${p.slots.map((s) => CT.SLOTS[s].en).join(', ')}</span></div>
+      <div class="rmeta-row">${CT.metaLine(p)}<span class="meta">${p.slots.map((s) => CT.esc(CT.slotName(s))).join(', ')}</span></div>
       ${CT.benefitBadges(p)}
       <div class="two-col"><div><h4>${CT.rWord('Ingredients')}</h4><ul class="ing-list small">${p.ings.map((i) => `<li><span class="ing-qty">${CT.esc(CT.dispText(i))}</span><span class="ing-name">${CT.ingLabel(i)}</span></li>`).join('')}</ul></div><div><h4>${CT.rWord('Method')}</h4><ol class="steps small">${CT.rSteps(p).map((s) => `<li>${CT.esc(s)}</li>`).join('')}</ol></div></div>
       ${p.note ? `<p class="note">${CT.esc(p.note)}</p>` : ''}
@@ -129,9 +129,9 @@
   };
   CT.submits['ai-create'] = async (form) => {
     const f = new FormData(form); const brief = String(f.get('brief') || '').trim(); const slot = f.get('slot'); const mode = CT.ui.ai.mode || 'fridge';
-    const task = mode === 'makeover' ? `Redesign this dish as a fast, healthy version for this person, keeping its soul: "${brief || 'a classic Italian dish'}". Make it a ${CT.SLOTS[slot].en.toLowerCase()}.`
-      : mode === 'surprise' ? `Invent a ${CT.SLOTS[slot].en.toLowerCase()} recipe this person has probably never tried, matching their likes and blood work. ${brief ? 'Wishes: ' + brief : ''}`
-      : `Create a ${CT.SLOTS[slot].en.toLowerCase()} recipe using mainly what they have: "${brief || 'anything cheap and available'}". You may add up to three cheap pantry or supermarket items.`;
+    const task = mode === 'makeover' ? `Redesign this dish as a fast, healthy version for this person, keeping its soul: "${brief || 'a classic Italian dish'}". Make it a ${CT.slotName(slot).toLowerCase()}.`
+      : mode === 'surprise' ? `Invent a ${CT.slotName(slot).toLowerCase()} recipe this person has probably never tried, matching their likes and blood work. ${brief ? 'Wishes: ' + brief : ''}`
+      : `Create a ${CT.slotName(slot).toLowerCase()} recipe using mainly what they have: "${brief || 'anything cheap and available'}". You may add up to three cheap pantry or supermarket items.`;
     CT.ui.ai.draft = null;
     const ctl = start();
     try { CT.ui.ai.draft = await CT.ai.createRecipe(task, { onText: stream, signal: ctl.signal }); finish(); } catch (e) { fail(e); }
@@ -140,7 +140,7 @@
     const r = CT.ui.ai.draft; if (!r) return;
     CT.state.custom.push(r); CT.save('custom'); CT.ui.ai.draft = null;
     CT.checkAchievements();
-    if (d.today) { const slot = r.slots.find((s) => CT.state.prefs.meals[s]) || r.slots[0]; CT.setSlot(CT.today(), slot, r.id); CT.toast(`Saved and planned as today's ${CT.SLOTS[slot].en.toLowerCase()}.`, 'good'); CT.go('#/today'); }
+    if (d.today) { const slot = r.slots.find((s) => CT.state.prefs.meals[s]) || r.slots[0]; CT.setSlot(CT.today(), slot, r.id); CT.toast(`Saved and planned as ${CT.slotName(slot).toLowerCase()}, today.`, 'good'); CT.go('#/today'); }
     else { CT.toast('Saved to My recipes.', 'good'); CT.go('#/recipe/' + r.id); }
   };
   CT.actions['ai-discard'] = () => { CT.ui.ai.draft = null; CT.ui.ai.analysis = null; CT.render(); };

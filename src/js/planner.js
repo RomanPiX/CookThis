@@ -134,7 +134,8 @@
     return 0;
   };
 
-  CT.enabledSlots = () => CT.SLOT_ORDER.filter((s) => CT.state.prefs.meals[s]);
+  // In clock order, so a 2AM meal sits at the end of its day rather than the start.
+  CT.enabledSlots = () => CT.SLOT_ORDER.filter((s) => CT.state.prefs.meals[s]).sort((a, b) => CT.slotCfg(a).minutes - CT.slotCfg(b).minutes);
 
   /* Portions. A recipe is written as one sensible serving, but a day's calorie target depends on
      the person and on how many meals they eat. With breakfast switched off, three standard plates
@@ -155,12 +156,12 @@
     const T = CT.targets();
     const active = Object.keys(chosen).filter((s) => chosen[s]);
     if (!active.length) return {};
-    const shareTot = active.reduce((a, s) => a + (CT.SLOTS[s].share || 0.25), 0);
+    const shareTot = active.reduce((a, s) => a + (CT.slotCfg(s).share || 0.25), 0);
     const mult = {}, steps = {};
     for (const s of active) steps[s] = stepsFor(chosen[s]);
     for (const s of active) {
       if (fixed && fixed[s] != null) { mult[s] = fixed[s]; continue; }
-      const want = T.kcal * ((CT.SLOTS[s].share || 0.25) / shareTot);
+      const want = T.kcal * ((CT.slotCfg(s).share || 0.25) / shareTot);
       const ideal = want / Math.max(80, chosen[s].nutri.kcal);
       mult[s] = steps[s].reduce((a, b) => (Math.abs(b - ideal) < Math.abs(a - ideal) ? b : a), steps[s][0]);
     }

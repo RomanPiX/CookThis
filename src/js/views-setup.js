@@ -12,7 +12,7 @@ CT.setPath = (path, value) => {
   for (let i = 0; i < keys.length - 1; i++) { if (o[keys[i]] == null) o[keys[i]] = {}; o = o[keys[i]]; }
   o[keys[keys.length - 1]] = value;
 };
-const coerce = (v, type) => type === 'number' ? (v === '' ? '' : Number(v)) : type === 'slotTime' ? (v === 'nocook' ? 'nocook' : Number(v)) : type === 'bool' ? (v === true || v === 'true') : type === 'budget' ? ((v === true || v === 'true') ? 'low' : 'normal') : v;
+const coerce = (v, type) => type === 'share' ? (Math.max(1, Math.min(90, Number(v) || 25)) / 100) : type === 'number' ? (v === '' ? '' : Number(v)) : type === 'slotTime' ? (v === 'nocook' ? 'nocook' : Number(v)) : type === 'bool' ? (v === true || v === 'true') : type === 'budget' ? ((v === true || v === 'true') ? 'low' : 'normal') : v;
 CT.actions.set = (d) => { CT.setPath(d.path, coerce(d.value, d.type)); CT.save(d.part || 'main'); CT.markPrefsDirty(d.path); CT.render(); };
 CT.actions.toggle = (d) => { CT.setPath(d.path, !CT.getPath(d.path)); CT.save(d.part || 'main'); CT.markPrefsDirty(d.path); CT.render(); };
 CT.actions['toggle-in'] = (d) => { const arr = CT.getPath(d.path) || []; const i = arr.indexOf(d.value); if (i >= 0) arr.splice(i, 1); else arr.push(d.value); CT.setPath(d.path, arr); CT.save(); CT.markPrefsDirty(d.path); CT.render(); };
@@ -75,10 +75,18 @@ CT.forms = {
       <div class="field span2"><span>Cooking style</span>${seg('prefs.cuisine', [['italian', 'Italian first'], ['any', 'Anything goes']], p.cuisine || 'italian')}<small class="muted">Italian first keeps the week mostly Italian, with the occasional dish from elsewhere.</small></div>
       <label class="switch-row span2"><span><strong>Size portions to my calorie target</strong><small>Off by default: every meal is the recipe as written, ×1, and you adjust with the − and + on the meal card. On, the planner scales each plate so the day adds up to your target.</small></span><input type="checkbox" data-change="path" data-path="prefs.autoPortion" data-type="bool" data-rerender="1" ${p.autoPortion ? 'checked' : ''}></label>
       <div class="field span2"><span>Chicken meals per week</span>${seg('prefs.chickenPerWeek', [[0, 'No preference'], [3, '3'], [5, '5'], [7, '7 (one a day)'], [10, '10']], p.chickenPerWeek || 0, 'number')}<small class="muted">The planner aims for this many pan-cooked chicken meals, while still keeping two fish meals and legumes through the week.</small></div>
-      <div class="field span2"><span>Hands-on time, per meal</span>
-        <div class="slot-times">${CT.SLOT_ORDER.filter((k) => p.meals[k]).map((k) => `<div class="slot-time"><span class="eyebrow">${CT.SLOTS[k].it} · ${CT.SLOTS[k].en}</span>${seg('prefs.slotTime.' + k, [['nocook', 'Assemble only'], [5, '5 min'], [10, '10 min'], [15, '15 min'], [20, '20 min'], [30, '30 min']], (p.slotTime || {})[k] || p.maxActive)}</div>`).join('')}</div>
-        <small class="muted">Oven or simmering time does not count: this is the minutes you actually spend. "Assemble only" means no heat at all, about five minutes, a plate you put together.</small></div>
-      <div class="field span2"><span>Meals to plan</span><div class="chips">${CT.SLOT_ORDER.map((k) => `<button type="button" class="chip ${p.meals[k] ? 'on' : ''}" data-action="toggle" data-path="prefs.meals.${k}">${CT.SLOTS[k].en} <em>${CT.SLOTS[k].it}</em></button>`).join('')}</div></div>
+      <div class="field span2"><span>Your meals</span>
+        <div class="slot-times">${CT.enabledSlots().map((k) => { const c = CT.slotCfg(k); return `<div class="slot-time">
+          <div class="slot-time-head">
+            <input type="text" class="slot-name" data-change="path" data-path="prefs.slotCfg.${k}.name" value="${CT.esc(CT.slotName(k))}" aria-label="Name of this meal">
+            <input type="time" class="slot-clock" data-change="path" data-path="prefs.slotCfg.${k}.time" data-rerender="1" value="${c.time}" aria-label="Time of this meal">
+            <span class="slot-share"><input type="number" min="5" max="80" step="5" data-change="path" data-path="prefs.slotCfg.${k}.share" data-type="share" data-rerender="1" value="${Math.round((c.share || 0.25) * 100)}" aria-label="Share of the day"><small>% of the day</small></span>
+          </div>
+          ${seg('prefs.slotTime.' + k, [['nocook', 'Assemble only'], [5, '5 min'], [10, '10 min'], [15, '15 min'], [20, '20 min'], [30, '30 min']], (p.slotTime || {})[k] || p.maxActive)}
+        </div>`; }).join('')}</div>
+        <small class="muted">Meals are planned in clock order, and a time before 05:00 belongs to the end of that day. Hands-on time is the minutes you actually spend, so oven and simmering do not count; "Assemble only" means no heat at all. The share decides how big each plate is when portions are sized to your target.</small>
+        <small class="muted">Eating late is the part of a night schedule that works hardest against blood sugar and triglycerides. Moving share from the small-hours meal to the earlier one is the single most useful change you can make here.</small></div>
+      <div class="field span2"><span>Meals to plan</span><div class="chips">${CT.SLOT_ORDER.map((k) => `<button type="button" class="chip ${p.meals[k] ? 'on' : ''}" data-action="toggle" data-path="prefs.meals.${k}">${CT.esc(CT.slotName(k))}</button>`).join('')}</div></div>
       <label class="switch-row span2"><span><strong>Lazy mode</strong><small>Only no-cook or microwave meals, 10 minutes tops. For the days when the stove is not happening.</small></span><input type="checkbox" data-change="path" data-path="prefs.lazy" data-type="bool" data-rerender="1" ${p.lazy ? 'checked' : ''}></label>
       <label class="switch-row span2"><span><strong>Tight budget</strong><small>Skip anything over about €3.20 a plate (salmon, shrimp, beef).</small></span><input type="checkbox" data-change="path" data-path="prefs.budget" data-type="budget" data-rerender="1" ${p.budget === 'low' ? 'checked' : ''}></label>
     </div>`;
@@ -103,7 +111,7 @@ const STEPS = [
   { key: 'likes', title: 'What do you actually like?', render: () => CT.forms.likes() },
   { key: 'kitchen', title: 'Your kitchen and your patience', render: () => CT.forms.kitchen() },
   { key: 'ready', title: 'Ready to cook', render: () => {
-    const counts = CT.enabledSlots().map((s) => `${CT.candidates(s, CT.addDays(CT.today(), 1)).length} ${CT.SLOTS[s].en.toLowerCase()}`);
+    const counts = CT.enabledSlots().map((s) => `${CT.candidates(s, CT.addDays(CT.today(), 1)).length} for ${CT.slotName(s).toLowerCase()}`);
     const T = CT.targets();
     return `<div class="ready">
       <p class="lede">With your filters there are <strong>${counts.join(', ')}</strong> recipes to rotate through, and Claude can invent more.</p>

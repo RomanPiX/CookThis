@@ -4,6 +4,26 @@ CT.$$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 CT.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 CT.fmt = (n, d = 0) => (n == null || isNaN(n)) ? '–' : Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
 CT.eur = (n) => '€' + CT.fmt(n, 2);
+/* Meal slots. The four keys stay fixed so old plans keep working, but what each one is called,
+   when it happens and how much of the day's calories it carries are the user's to set. A time
+   before 05:00 belongs to the end of the day it was planned for, not the start. */
+CT.slotCfg = (k) => {
+  const base = CT.SLOTS[k] || {};
+  const cfg = ((CT.state && CT.state.prefs && CT.state.prefs.slotCfg) || {})[k] || {};
+  const time = cfg.time || base.time || '12:00';
+  const [h, m] = time.split(':').map(Number);
+  let minutes = (h || 0) * 60 + (m || 0);
+  if (minutes < 300) minutes += 1440;
+  return { key: k, name: cfg.name || '', time, minutes, share: cfg.share != null ? Number(cfg.share) : base.share, base };
+};
+CT.slotName = (k) => {
+  const c = CT.slotCfg(k);
+  if (c.name) return c.name;
+  const b = CT.SLOTS[k] || {};
+  return (CT.recipeLang && CT.recipeLang() === 'it') ? (b.it || b.en || k) : (b.en || k);
+};
+CT.slotTimeLabel = (k) => CT.slotCfg(k).time;
+
 /* Recipe language. Italian is the default: the cooking vocabulary is more precise in Italian and
    the list is read in an Italian shop. Everything falls back to English where a translation is
    missing, which is what happens with recipes Claude has just invented. */

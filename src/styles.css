@@ -518,3 +518,11 @@ body.cooking { overflow: hidden; }
 .slot-time { display: grid; gap: 5px; }
 .slot-time .eyebrow { margin: 0; }
 .slot-time .seg { align-self: start; }
+
+.slot-time { display: grid; gap: 8px; padding: 12px 0; border-bottom: 1px dotted var(--line); }
+.slot-time-head { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.slot-name { flex: 1 1 140px; font-family: var(--display); font-size: 17px; font-weight: 600; }
+.slot-clock { flex: 0 0 auto; width: auto; }
+.slot-share { display: inline-flex; align-items: center; gap: 6px; }
+.slot-share input { width: 68px; }
+.slot-share small { color: var(--muted); }

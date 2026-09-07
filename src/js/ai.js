@@ -48,7 +48,7 @@ Change only what was asked, one slot at a time, and never touch a meal already m
     const dislikes = Object.entries(s.prefs.likes).filter(([, v]) => v === -1).map(([k]) => k).join(', ') || 'none';
     const allergens = s.prefs.allergens.map((a) => (CT.ALLERGENS.find((x) => x[0] === a) || [])[1]).filter(Boolean).join(', ') || 'none';
     const plan = s.plans[today] || {};
-    const planLines = CT.SLOT_ORDER.filter((k) => plan[k]).map((k) => { const r = CT.recipe(plan[k].id); return r ? `${CT.SLOTS[k].en}: ${CT.rName(r)}${plan[k].done ? ' (eaten)' : ''}` : null; }).filter(Boolean).join('; ') || 'nothing planned yet';
+    const planLines = CT.SLOT_ORDER.filter((k) => plan[k]).map((k) => { const r = CT.recipe(plan[k].id); return r ? `${CT.slotName(k)} at ${CT.slotTimeLabel(k)}: ${CT.rName(r)}${plan[k].done ? ' (eaten)' : ''}` : null; }).filter(Boolean).join('; ') || 'nothing planned yet';
     const recent = [];
     for (let i = 1; i <= 7; i++) {
       const d = CT.addDays(today, -i), l = s.log[d]; if (!l) continue;

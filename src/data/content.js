@@ -1,9 +1,9 @@
 /* Static content: meal slots, preference groups, health focus, lab panel, tips, swaps, achievements. */
 CT.SLOTS = {
-  B: { en: 'Breakfast', it: 'Colazione', order: 0, share: 0.24 },
-  L: { en: 'Lunch', it: 'Pranzo', order: 1, share: 0.34 },
-  D: { en: 'Dinner', it: 'Cena', order: 2, share: 0.32 },
-  S: { en: 'Snack', it: 'Spuntino', order: 3, share: 0.10 },
+  B: { en: 'Breakfast', it: 'Colazione', order: 0, share: 0.24, time: '08:00' },
+  L: { en: 'Lunch', it: 'Pranzo', order: 1, share: 0.34, time: '13:00' },
+  D: { en: 'Dinner', it: 'Cena', order: 2, share: 0.32, time: '20:00' },
+  S: { en: 'Snack', it: 'Spuntino', order: 3, share: 0.10, time: '16:00' },
 };
 CT.SLOT_ORDER = ['B', 'L', 'D', 'S'];
 
