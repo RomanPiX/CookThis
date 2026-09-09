@@ -144,26 +144,3 @@ Reply with ONLY one JSON object: {"name": "short name of the meal", "kcal": 0, "
 };
 
 // Validate and normalise a recipe object produced by Claude into the app's recipe format.
-CT.recipeFromAI = (o) => {
-  if (!o || typeof o !== 'object' || !o.name || !Array.isArray(o.ingredients) || !Array.isArray(o.steps)) throw { code: 'invalid_json', message: 'missing fields' };
-  const slots = (Array.isArray(o.slots) ? o.slots : ['L']).map((s) => String(s).toUpperCase()[0]).filter((s) => CT.SLOTS[s]);
-  const needs = (Array.isArray(o.needs) ? o.needs : []).map(String).filter((n) => ['stove', 'oven', 'microwave', 'blender'].includes(n));
-  const ing = o.ingredients.map((x) => {
-    if (!x || typeof x !== 'object') return null;
-    const g = Math.max(0, Number(x.g) || 0); if (!g) return null;
-    if (x.id && CT.ING[x.id]) return [x.id, g, x.disp ? String(x.disp) : undefined, !!x.opt];
-    const per100 = x.per100 || {};
-    const num = (v) => Math.max(0, Number(v) || 0);
-    return { name: String(x.name || 'Ingredient').slice(0, 60), it: String(x.it || '').slice(0, 60), g, disp: x.disp ? String(x.disp).slice(0, 40) : undefined, aisle: CT.AISLES.includes(x.aisle) ? x.aisle : 'Canned & dry',
-      per100: { kcal: num(per100.kcal), p: num(per100.p), c: num(per100.c), fib: num(per100.fib), fat: num(per100.fat), sf: num(per100.sf), sug: num(per100.sug), na: num(per100.na) },
-      price: num(x.price) || 5, flags: String(x.flags || '').replace(/[^FSEDGNYZMRIL]/g, ''), pur: CT.clamp(Math.round(num(x.pur)), 0, 3), o3: num(x.o3), tag: '' };
-  }).filter(Boolean);
-  if (!ing.length) throw { code: 'invalid_json', message: 'no ingredients' };
-  return {
-    id: 'custom_' + CT.uid(), custom: true, created: CT.today(),
-    name: String(o.name).slice(0, 90), it: String(o.it || '').slice(0, 90),
-    slots: slots.length ? slots : ['L'], time: CT.clamp(Math.round(Number(o.time) || 15), 1, 120), active: CT.clamp(Math.round(Number(o.active) || Number(o.time) || 10), 1, 120),
-    needs, tags: ['custom', ...(Array.isArray(o.tags) ? o.tags.map(String).slice(0, 6) : [])],
-    ing, steps: o.steps.map((s) => String(s).slice(0, 300)).slice(0, 12), note: o.note ? String(o.note).slice(0, 240) : '',
-  };
-};

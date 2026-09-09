@@ -32,6 +32,7 @@ const jsFiles = [
   'js/store.js',
   'js/planner.js',
   'js/ai.js',
+  'js/ai-recipe.js',
   'js/ai-tools.js',
   'js/views-setup.js',
   'js/views-today.js',
